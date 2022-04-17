@@ -41,6 +41,8 @@ final class Stream implements Writable
     }
 
     /**
+     * @psalm-pure
+     *
      * @param pure-callable(LowLevelStream): Maybe<LowLevelStream> $available
      * @param pure-callable(LowLevelStream, Str): Maybe<LowLevelStream> $write
      */
