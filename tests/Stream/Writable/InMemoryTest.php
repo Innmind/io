@@ -72,4 +72,35 @@ class InMemoryTest extends TestCase
                 $this->assertSame($chunks, $stream->chunks()->toList());
             });
     }
+
+    public function testToEncoding()
+    {
+        $this
+            ->forAll(
+                Set\Sequence::of(
+                    Set\Decorate::immutable(
+                        static fn($string) => Str::of($string),
+                        Set\Unicode::strings(),
+                    ),
+                ),
+                Set\Elements::of('UTF-8', 'ASCII'),
+            )
+            ->then(function($chunks, $encoding) {
+                $stream = InMemory::open()->toEncoding($encoding);
+
+                foreach ($chunks as $chunk) {
+                    $stream = $stream
+                        ->write($chunk)
+                        ->match(
+                            static fn($stream) => $stream,
+                            static fn() => null,
+                        );
+                }
+
+                $stream->chunks()->foreach(fn($chunk) => $this->assertSame(
+                    $encoding,
+                    $chunk->encoding()->toString(),
+                ));
+            });
+    }
 }

@@ -14,6 +14,11 @@ use Innmind\Immutable\{
 interface Writable
 {
     /**
+     * @param non-empty-string $encoding
+     */
+    public function toEncoding(string $encoding): self;
+
+    /**
      * @return Maybe<self> Returns nothing when the stream can no longer be written
      */
     public function write(Str $data): Maybe;

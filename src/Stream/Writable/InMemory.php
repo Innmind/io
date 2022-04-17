@@ -18,13 +18,17 @@ final class InMemory implements Writable
 {
     /** @var Sequence<Str> */
     private Sequence $chunks;
+    /** @var Maybe<non-empty-string> */
+    private Maybe $encoding;
 
     /**
      * @param Sequence<Str> $chunks
+     * @param Maybe<non-empty-string> $encoding
      */
-    private function __construct(Sequence $chunks)
+    private function __construct(Sequence $chunks, Maybe $encoding)
     {
         $this->chunks = $chunks;
+        $this->encoding = $encoding;
     }
 
     /**
@@ -32,13 +36,26 @@ final class InMemory implements Writable
      */
     public static function open(): self
     {
-        return new self(Sequence::of());
+        /** @var Maybe<non-empty-string> */
+        $encoding = Maybe::nothing();
+
+        return new self(Sequence::of(), $encoding);
+    }
+
+    public function toEncoding(string $encoding): self
+    {
+        return new self($this->chunks, Maybe::just($encoding));
     }
 
     public function write(Str $data): Maybe
     {
+        $data = $this->encoding->match(
+            static fn($encoding) => $data->toEncoding($encoding),
+            static fn() => $data,
+        );
+
         /** @var Maybe<Writable> */
-        return Maybe::just(new self(($this->chunks)($data)));
+        return Maybe::just(new self(($this->chunks)($data), $this->encoding));
     }
 
     /**

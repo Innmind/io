@@ -76,4 +76,41 @@ class StreamTest extends TestCase
                 );
             });
     }
+
+    public function testToEncoding()
+    {
+        $this
+            ->forAll(Set\Sequence::of(
+                Set\Decorate::immutable(
+                    static fn($string) => Str::of($string),
+                    Set\Unicode::strings(),
+                ),
+            ))
+            ->then(function($chunks) {
+                $tmp = \tmpfile();
+                $stream = Stream::of(
+                    LowLevelStream\Stream::of($tmp),
+                    static fn($stream) => Maybe::just($stream),
+                    function($stream, $data) {
+                        $this->assertSame('ASCII', $data->encoding()->toString());
+
+                        return $stream
+                            ->write($data)
+                            ->match(
+                                static fn($stream) => Maybe::just($stream),
+                                static fn() => Maybe::nothing(),
+                            );
+                    },
+                )->toEncoding('ASCII');
+
+                foreach ($chunks as $chunk) {
+                    $stream = $stream
+                        ->write($chunk)
+                        ->match(
+                            static fn($stream) => $stream,
+                            static fn() => null,
+                        );
+                }
+            });
+    }
 }
