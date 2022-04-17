@@ -15,7 +15,9 @@
         "issues": "http://github.com/innmind/io/issues"
     },
     "require": {
-        "php": "~8.1"
+        "php": "~8.1",
+        "innmind/immutable": "~4.1",
+        "innmind/stream": "~3.2"
     },
     "autoload": {
         "psr-4": {
