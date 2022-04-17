@@ -7,6 +7,7 @@ use Innmind\IO\Stream\{
     Writable\InMemory,
     Writable,
 };
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
 use Innmind\Immutable\Str;
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
@@ -101,6 +102,20 @@ class InMemoryTest extends TestCase
                     $encoding,
                     $chunk->encoding()->toString(),
                 ));
+            });
+    }
+
+    public function testTimeoutHasNoEffect()
+    {
+        $this
+            ->forAll(Set\Integers::between(0, 1_000_000))
+            ->then(function($timeout) {
+                $stream = InMemory::open();
+
+                $this->assertSame(
+                    $stream,
+                    $stream->timeoutAfter(new ElapsedPeriod($timeout)),
+                );
             });
     }
 }

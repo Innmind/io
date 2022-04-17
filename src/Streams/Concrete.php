@@ -8,6 +8,7 @@ use Innmind\IO\{
     Stream\Writable,
 };
 use Innmind\OperatingSystem\Sockets;
+use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Stream\{
     Writable as LowLevel,
     Selectable,
@@ -46,9 +47,14 @@ final class Concrete implements Streams
      *
      * @return Maybe<LowLevel>
      */
-    private function availableForWrite(LowLevel $stream): Maybe
-    {
-        $watch = $this->sockets->watch()->forWrite($stream);
+    private function availableForWrite(
+        LowLevel $stream,
+        ?ElapsedPeriod $timeout,
+    ): Maybe {
+        $watch = $this
+            ->sockets
+            ->watch($timeout)
+            ->forWrite($stream);
 
         /** @var Maybe<LowLevel> */
         return $watch()

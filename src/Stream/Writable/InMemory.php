@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Stream\Writable;
 
 use Innmind\IO\Stream\Writable;
+use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Immutable\{
     Str,
     Maybe,
@@ -45,6 +46,11 @@ final class InMemory implements Writable
     public function toEncoding(string $encoding): self
     {
         return new self($this->chunks, Maybe::just($encoding));
+    }
+
+    public function timeoutAfter(ElapsedPeriod $period): self
+    {
+        return $this;
     }
 
     public function write(Str $data): Maybe

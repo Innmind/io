@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Stream;
 
+use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Immutable\{
     Maybe,
     Str,
@@ -13,6 +14,7 @@ use Innmind\Immutable\{
  */
 interface Writable
 {
+    public function timeoutAfter(ElapsedPeriod $period): self;
     /**
      * @param non-empty-string $encoding
      */

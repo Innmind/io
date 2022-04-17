@@ -7,6 +7,7 @@ use Innmind\IO\Stream\{
     Writable\Stream,
     Writable,
 };
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
 use Innmind\Stream\Writable as LowLevelStream;
 use Innmind\Immutable\{
     Str,
@@ -102,6 +103,48 @@ class StreamTest extends TestCase
                             );
                     },
                 )->toEncoding('ASCII');
+
+                foreach ($chunks as $chunk) {
+                    $stream = $stream
+                        ->write($chunk)
+                        ->match(
+                            static fn($stream) => $stream,
+                            static fn() => null,
+                        );
+                }
+            });
+    }
+
+    public function testTiemout()
+    {
+        $this
+            ->forAll(
+                Set\Sequence::of(
+                    Set\Decorate::immutable(
+                        static fn($string) => Str::of($string),
+                        Set\Unicode::strings(),
+                    ),
+                ),
+                Set\Integers::between(0, 1_000_000),
+            )
+            ->then(function($chunks, $timeout) {
+                $tmp = \tmpfile();
+                $stream = Stream::of(
+                    LowLevelStream\Stream::of($tmp),
+                    function($stream, $period) use ($timeout) {
+                        $this->assertSame($timeout, $period->milliseconds());
+
+                        return Maybe::just($stream);
+                    },
+                    static fn($stream, $data) => $stream
+                        ->write($data)
+                        ->match(
+                            static fn($stream) => Maybe::just($stream),
+                            static fn() => Maybe::nothing(),
+                        ),
+                )
+                    ->toEncoding('ASCII')
+                    ->timeoutAfter(new ElapsedPeriod($timeout));
 
                 foreach ($chunks as $chunk) {
                     $stream = $stream
