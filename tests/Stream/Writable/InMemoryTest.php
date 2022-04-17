@@ -8,7 +8,10 @@ use Innmind\IO\Stream\{
     Writable,
 };
 use Innmind\TimeContinuum\Earth\ElapsedPeriod;
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    SideEffect,
+};
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
@@ -116,6 +119,31 @@ class InMemoryTest extends TestCase
                     $stream,
                     $stream->timeoutAfter(new ElapsedPeriod($timeout)),
                 );
+            });
+    }
+
+    public function testTerminate()
+    {
+        $this
+            ->forAll(Set\Sequence::of(
+                Set\Decorate::immutable(
+                    static fn($string) => Str::of($string),
+                    Set\Unicode::strings(),
+                ),
+            ))
+            ->then(function($chunks) {
+                $stream = InMemory::open();
+
+                foreach ($chunks as $chunk) {
+                    $stream = $stream
+                        ->write($chunk)
+                        ->match(
+                            static fn($stream) => $stream,
+                            static fn() => null,
+                        );
+                }
+
+                $this->assertInstanceOf(SideEffect::class, $stream->terminate());
             });
     }
 }

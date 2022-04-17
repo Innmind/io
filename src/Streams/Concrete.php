@@ -6,6 +6,7 @@ namespace Innmind\IO\Streams;
 use Innmind\IO\{
     Streams,
     Stream\Writable,
+    Exception\RuntimeException,
 };
 use Innmind\OperatingSystem\Sockets;
 use Innmind\TimeContinuum\ElapsedPeriod;
@@ -16,6 +17,7 @@ use Innmind\Stream\{
 use Innmind\Immutable\{
     Maybe,
     Str,
+    SideEffect,
 };
 
 final class Concrete implements Streams
@@ -39,6 +41,7 @@ final class Concrete implements Streams
             $stream,
             $this->availableForWrite(...),
             $this->write(...),
+            $this->close(...),
         );
     }
 
@@ -75,6 +78,19 @@ final class Concrete implements Streams
             ->match(
                 static fn($stream) => Maybe::just($stream),
                 static fn() => Maybe::nothing(),
+            );
+    }
+
+    /**
+     * @throws RuntimeException
+     */
+    private function close(LowLevel $stream): SideEffect
+    {
+        return $stream
+            ->close()
+            ->match(
+                static fn($sideEffect) => $sideEffect,
+                static fn() => $stream->closed() ? new SideEffect : throw new RuntimeException('Cannot close the stream'),
             );
     }
 }

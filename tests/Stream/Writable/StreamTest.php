@@ -12,6 +12,7 @@ use Innmind\Stream\Writable as LowLevelStream;
 use Innmind\Immutable\{
     Str,
     Maybe,
+    SideEffect,
 };
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
@@ -29,6 +30,7 @@ class StreamTest extends TestCase
             Writable::class,
             Stream::of(
                 $this->createMock(LowLevelStream::class),
+                static fn() => null,
                 static fn() => null,
                 static fn() => null,
             ),
@@ -55,6 +57,7 @@ class StreamTest extends TestCase
                             static fn($stream) => Maybe::just($stream),
                             static fn() => Maybe::nothing(),
                         ),
+                    static fn() => new SideEffect,
                 );
 
                 foreach ($chunks as $chunk) {
@@ -102,6 +105,7 @@ class StreamTest extends TestCase
                                 static fn() => Maybe::nothing(),
                             );
                     },
+                    static fn() => new SideEffect,
                 )->toEncoding('ASCII');
 
                 foreach ($chunks as $chunk) {
@@ -115,7 +119,7 @@ class StreamTest extends TestCase
             });
     }
 
-    public function testTiemout()
+    public function testTimeout()
     {
         $this
             ->forAll(
@@ -142,6 +146,7 @@ class StreamTest extends TestCase
                             static fn($stream) => Maybe::just($stream),
                             static fn() => Maybe::nothing(),
                         ),
+                    static fn() => new SideEffect,
                 )
                     ->toEncoding('ASCII')
                     ->timeoutAfter(new ElapsedPeriod($timeout));

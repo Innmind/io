@@ -7,6 +7,7 @@ use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Immutable\{
     Maybe,
     Str,
+    SideEffect,
 };
 
 /**
@@ -24,4 +25,5 @@ interface Writable
      * @return Maybe<self> Returns nothing when the stream can no longer be written
      */
     public function write(Str $data): Maybe;
+    public function terminate(): SideEffect;
 }

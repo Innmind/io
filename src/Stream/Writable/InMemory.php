@@ -9,6 +9,7 @@ use Innmind\Immutable\{
     Str,
     Maybe,
     Sequence,
+    SideEffect,
 };
 
 /**
@@ -62,6 +63,11 @@ final class InMemory implements Writable
 
         /** @var Maybe<Writable> */
         return Maybe::just(new self(($this->chunks)($data), $this->encoding));
+    }
+
+    public function terminate(): SideEffect
+    {
+        return new SideEffect;
     }
 
     /**

@@ -9,6 +9,7 @@ use Innmind\Stream\Writable as LowLevelStream;
 use Innmind\Immutable\{
     Str,
     Maybe,
+    SideEffect,
 };
 
 /**
@@ -21,6 +22,8 @@ final class Stream implements Writable
     private $available;
     /** @var pure-callable(LowLevelStream, Str): Maybe<LowLevelStream> */
     private $write;
+    /** @var pure-callable(LowLevelStream): SideEffect */
+    private $terminate;
     /** @var Maybe<non-empty-string> */
     private Maybe $encoding;
     private ?ElapsedPeriod $timeout;
@@ -28,18 +31,21 @@ final class Stream implements Writable
     /**
      * @param pure-callable(LowLevelStream, ?ElapsedPeriod): Maybe<LowLevelStream> $available
      * @param pure-callable(LowLevelStream, Str): Maybe<LowLevelStream> $write
+     * @param pure-callable(LowLevelStream): SideEffect $terminate
      * @param Maybe<non-empty-string> $encoding
      */
     private function __construct(
         LowLevelStream $stream,
         callable $available,
         callable $write,
+        callable $terminate,
         Maybe $encoding,
         ?ElapsedPeriod $timeout,
     ) {
         $this->stream = $stream;
         $this->available = $available;
         $this->write = $write;
+        $this->terminate = $terminate;
         $this->encoding = $encoding;
         $this->timeout = $timeout;
     }
@@ -49,16 +55,18 @@ final class Stream implements Writable
      *
      * @param pure-callable(LowLevelStream, ?ElapsedPeriod): Maybe<LowLevelStream> $available
      * @param pure-callable(LowLevelStream, Str): Maybe<LowLevelStream> $write
+     * @param pure-callable(LowLevelStream): SideEffect $terminate
      */
     public static function of(
         LowLevelStream $stream,
         callable $available,
         callable $write,
+        callable $terminate,
     ): self {
         /** @var Maybe<non-empty-string> */
         $encoding = Maybe::nothing();
 
-        return new self($stream, $available, $write, $encoding, null);
+        return new self($stream, $available, $write, $terminate, $encoding, null);
     }
 
     public function toEncoding(string $encoding): self
@@ -67,6 +75,7 @@ final class Stream implements Writable
             $this->stream,
             $this->available,
             $this->write,
+            $this->terminate,
             Maybe::just($encoding),
             $this->timeout,
         );
@@ -78,6 +87,7 @@ final class Stream implements Writable
             $this->stream,
             $this->available,
             $this->write,
+            $this->terminate,
             $this->encoding,
             $period,
         );
@@ -97,8 +107,14 @@ final class Stream implements Writable
                 $stream,
                 $this->available,
                 $this->write,
+                $this->terminate,
                 $this->encoding,
                 $this->timeout,
             ));
+    }
+
+    public function terminate(): SideEffect
+    {
+        return ($this->terminate)($this->stream);
     }
 }

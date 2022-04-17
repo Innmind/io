@@ -10,7 +10,10 @@ use Innmind\IO\{
 };
 use Innmind\OperatingSystem\Factory;
 use Innmind\Stream\Writable\Stream;
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    SideEffect,
+};
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
@@ -47,6 +50,8 @@ class ConcreteTest extends TestCase
                     $string,
                     \stream_get_contents($tmp, null, 0),
                 );
+                $this->assertInstanceOf(SideEffect::class, $stream->terminate());
+                $this->assertIsClosedResource($tmp);
             });
     }
 }
