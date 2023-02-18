@@ -4,7 +4,10 @@ declare(strict_types = 1);
 namespace Tests\Innmind\IO;
 
 use Innmind\IO\IO;
-use Innmind\Stream\Readable\Stream;
+use Innmind\Stream\{
+    Readable\Stream,
+    Watch\Select,
+};
 use Innmind\Immutable\Fold;
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
@@ -28,9 +31,10 @@ class FunctionalTest extends TestCase
                 [$size, $quit, $expected] = $in;
 
                 $stream = Stream::ofContent('foobarbaz');
-                $chunks = IO::of()
+                $chunks = IO::of(Select::waitForever(...))
                     ->readable()
                     ->wrap($stream)
+                    ->watch()
                     ->chunks($size)
                     ->fold(
                         Fold::with([]),
@@ -52,10 +56,11 @@ class FunctionalTest extends TestCase
     public function testReadChunksEncoding()
     {
         $stream = Stream::ofContent('foob');
-        $chunks = IO::of()
+        $chunks = IO::of(Select::waitForever(...))
             ->readable()
             ->wrap($stream)
             ->toEncoding('ASCII')
+            ->watch()
             ->chunks(1)
             ->fold(
                 Fold::with([]),

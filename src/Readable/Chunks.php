@@ -14,6 +14,8 @@ use Innmind\Immutable\{
 final class Chunks
 {
     private LowLevelStream $stream;
+    /** @var callable(LowLevelStream): Maybe<LowLevelStream> */
+    private $ready;
     /** @var Maybe<string> */
     private Maybe $encoding;
     /** @var positive-int */
@@ -22,31 +24,37 @@ final class Chunks
     /**
      * @psalm-mutation-free
      *
+     * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
      * @param Maybe<string> $encoding
      * @param positive-int $size
      */
     private function __construct(
         LowLevelStream $stream,
+        callable $ready,
         Maybe $encoding,
         int $size,
     ) {
         $this->stream = $stream;
+        $this->ready = $ready;
         $this->encoding = $encoding;
         $this->size = $size;
     }
 
     /**
      * @psalm-mutation-free
+     * @internal
      *
+     * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
      * @param Maybe<string> $encoding
      * @param positive-int $size
      */
     public static function of(
         LowLevelStream $stream,
+        callable $ready,
         Maybe $encoding,
         int $size,
     ): self {
-        return new self($stream, $encoding, $size);
+        return new self($stream, $ready, $encoding, $size);
     }
 
     /**
@@ -67,9 +75,8 @@ final class Chunks
 
         do {
             /** @psalm-suppress MixedArgument Psalm lose track of the types */
-            $finished = $this
-                ->stream
-                ->read($this->size)
+            $finished = ($this->ready)($this->stream)
+                ->flatMap(fn($stream) => $stream->read($this->size))
                 ->map(fn($chunk) => $this->encoding->match(
                     static fn($encoding) => $chunk->toEncoding($encoding),
                     static fn() => $chunk,
