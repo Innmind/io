@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/innmind/io/branch/develop/graph/badge.svg)](https://codecov.io/gh/innmind/io)
 [![Type Coverage](https://shepherd.dev/github/innmind/io/coverage.svg)](https://shepherd.dev/github/innmind/io)
 
-Description
+High level abstraction on top of [`innmind/stream`](https://github.com/Innmind/Stream) to work with streams in a more functional way.
 
 ## Installation
 
@@ -14,4 +14,72 @@ composer require innmind/io
 
 ## Usage
 
-Todo
+### Reading from a stream
+
+```php
+use Innmind\IO\IO;
+use Innmind\OperatingSystem\Factory;
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
+use Innmind\Stream\Streams;
+use Innmind\Socket\Address\Unix;
+use Innmind\Immutable\{
+    Str,
+    Fold,
+    Either,
+};
+
+$os = Factory::build();
+$streams = Streams::fromAmbienAuthority();
+$io = IO::of($os->sockets()->watch(...));
+$io
+    ->readable()
+    ->wrap(
+        $os
+            ->sockets()
+            ->connectTo(Unix::of('/some/socket')),
+    )
+    ->toEncoding('ASCII')
+    // or call ->watch() to wait forever for the stream to be ready before
+    // reading from it
+    ->timeoutAfter(ElapsedPeriod::of(1_000))
+    ->chunks(8192) // max length of each chunk
+    ->fold(
+        Fold::with([]),
+        static function(array $chunks, Str $chunk) {
+            $chunks[] = $chunk->toString();
+
+            if ($chunk->contains('quit')) {
+                return Fold::result($chunks);
+            }
+
+            if ($chunk->contains('throw')) {
+                return Fold::fail('some error');
+            }
+
+            return Fold::with($chunks);
+        },
+    )
+    ->match(
+        static fn(Either $result) => $result->match(
+            static fn(array $chunks) => doStuff($chunks),
+            static fn(string $error) => throw new \Exception($error), // $error === 'some error'
+        ),
+        static fn() => throw new \RuntimeException('Failed to read from the stream or it timed out'),
+    );
+```
+
+This example will:
+- open the local socket `/some/socket`
+- watch the socket to be ready for `1` second before it times out each time it tries to read from it
+- read chunks of a maximum length of `8192`
+- use the encoding `ASCII`
+- call the function passed to `->fold()` each time a chunk is read
+- it will continue reading from the stream until one of the chunks contains `quit` or `throw`
+- return a `Maybe<Either<string, list<string>>>`
+    - contains nothing when it failed to read from the stream or it timed out
+    - `string` is the value passed to `Fold::fail()`
+    - `list<string>` is the value passed to `Fold::result()`
+
+You can think of this `fold` operation as a reduce where you can control when to stop iterating by return either `Fold::fail()` or `Fold::result()`.
+
+**Note**: this example use [`innmind/operating-system`](https://github.com/Innmind/OperatingSystem)
