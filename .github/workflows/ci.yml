@@ -8,12 +8,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
-        php-version: ['8.1']
+        php-version: ['8.1', '8.2']
         dependencies: ['lowest', 'highest']
     name: 'PHPUnit'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -33,12 +33,12 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macOS-latest]
-        php-version: ['8.1']
+        php-version: ['8.1', '8.2']
         dependencies: ['lowest', 'highest']
     name: 'Coverage'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -60,12 +60,12 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-version: ['8.1']
+        php-version: ['8.1', '8.2']
         dependencies: ['lowest', 'highest']
     name: 'Psalm'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -85,7 +85,7 @@ jobs:
     name: 'CS'
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
