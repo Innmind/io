@@ -16,7 +16,7 @@ final class Chunks
     private LowLevelStream $stream;
     /** @var callable(LowLevelStream): Maybe<LowLevelStream> */
     private $ready;
-    /** @var Maybe<string> */
+    /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
     /** @var positive-int */
     private int $size;
@@ -25,7 +25,7 @@ final class Chunks
      * @psalm-mutation-free
      *
      * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
-     * @param Maybe<string> $encoding
+     * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
      */
     private function __construct(
@@ -45,7 +45,7 @@ final class Chunks
      * @internal
      *
      * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
-     * @param Maybe<string> $encoding
+     * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
      */
     public static function of(
