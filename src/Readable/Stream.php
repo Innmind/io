@@ -8,7 +8,10 @@ use Innmind\Stream\{
     Readable as LowLevelStream,
     Watch,
 };
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\{
+    Maybe,
+    Str,
+};
 
 final class Stream
 {
@@ -17,7 +20,7 @@ final class Stream
     private $watch;
     /** @var callable(LowLevelStream): Maybe<LowLevelStream> */
     private $ready;
-    /** @var Maybe<string> */
+    /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
 
     /**
@@ -25,7 +28,7 @@ final class Stream
      *
      * @param callable(?ElapsedPeriod): Watch $watch
      * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
-     * @param Maybe<string> $encoding
+     * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
         callable $watch,
@@ -49,7 +52,7 @@ final class Stream
         callable $watch,
         LowLevelStream $stream,
     ): self {
-        /** @var Maybe<string> */
+        /** @var Maybe<Str\Encoding> */
         $encoding = Maybe::nothing();
 
         return new self(
@@ -63,7 +66,7 @@ final class Stream
     /**
      * @psalm-mutation-free
      */
-    public function toEncoding(string $encoding): self
+    public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
             $this->watch,

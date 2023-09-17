@@ -8,7 +8,10 @@ use Innmind\Stream\{
     Readable\Stream,
     Watch\Select,
 };
-use Innmind\Immutable\Fold;
+use Innmind\Immutable\{
+    Fold,
+    Str,
+};
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
@@ -59,7 +62,7 @@ class FunctionalTest extends TestCase
         $chunks = IO::of(Select::waitForever(...))
             ->readable()
             ->wrap($stream)
-            ->toEncoding('ASCII')
+            ->toEncoding(Str\Encoding::ascii)
             ->watch()
             ->chunks(1)
             ->fold(
