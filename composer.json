@@ -16,7 +16,7 @@
     },
     "require": {
         "php": "~8.2",
-        "innmind/immutable": "~4.15|~5.0",
+        "innmind/immutable": "~5.0",
         "innmind/stream": "~4.0"
     },
     "autoload": {
