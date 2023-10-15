@@ -20,7 +20,7 @@ final class Lazy
     /** @var positive-int */
     private int $size;
     /** @var callable(LowLevelStream): void */
-    private $cleanup;
+    private $rewind;
 
     /**
      * @psalm-mutation-free
@@ -28,20 +28,20 @@ final class Lazy
      * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
-     * @param callable(LowLevelStream): void $cleanup
+     * @param callable(LowLevelStream): void $rewind
      */
     private function __construct(
         LowLevelStream $stream,
         callable $ready,
         Maybe $encoding,
         int $size,
-        callable $cleanup,
+        callable $rewind,
     ) {
         $this->stream = $stream;
         $this->ready = $ready;
         $this->encoding = $encoding;
         $this->size = $size;
-        $this->cleanup = $cleanup;
+        $this->rewind = $rewind;
     }
 
     /**
@@ -61,17 +61,17 @@ final class Lazy
         return new self($stream, $ready, $encoding, $size, static fn() => null);
     }
 
-    /**
-     * @param callable(LowLevelStream): void $cleanup
-     */
-    public function cleanupWith(callable $cleanup): self
+    public function rewindable(): self
     {
         return new self(
             $this->stream,
             $this->ready,
             $this->encoding,
             $this->size,
-            $cleanup,
+            static fn(LowLevelStream $stream) => $stream->rewind()->match(
+                static fn() => null,
+                static fn() => throw new \RuntimeException('Failed to load stream'),
+            ),
         );
     }
 
@@ -81,7 +81,8 @@ final class Lazy
     public function sequence(): Sequence
     {
         return Sequence::lazy(function($register) {
-            $register(fn() => ($this->cleanup)($this->stream));
+            $register(fn() => ($this->rewind)($this->stream));
+            ($this->rewind)($this->stream);
 
             do {
                 // we yield an empty line when the read() call doesn't return
@@ -105,7 +106,7 @@ final class Lazy
                     );
             } while (!$this->stream->end());
 
-            ($this->cleanup)($this->stream);
+            ($this->rewind)($this->stream);
         });
     }
 }

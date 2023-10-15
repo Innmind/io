@@ -108,10 +108,7 @@ class FunctionalTest extends TestCase
                     ->watch()
                     ->chunks($size)
                     ->lazy()
-                    ->cleanupWith(static fn($stream) => $stream->rewind()->match(
-                        static fn() => null,
-                        static fn() => throw new \Exception,
-                    ))
+                    ->rewindable()
                     ->sequence();
                 $values = $chunks
                     ->map(static fn($chunk) => $chunk->toString())
@@ -124,6 +121,46 @@ class FunctionalTest extends TestCase
                 $this->assertSame($expected, $values);
                 $this->assertSame([$encoding], $encodings);
                 $this->assertSame(0, $stream->position()->toInt());
+                $this->assertFalse($stream->end());
+            });
+    }
+
+    public function testReadChunksWithANonRewindableLazySequence()
+    {
+        $this
+            ->forAll(
+                Set\Elements::of(
+                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', '']],
+                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba', 'z']],
+                    [3, 'foobarbaz', ['foo', 'bar', 'baz', '']],
+                    [1, '', ['']],
+                    [1, "\n", ["\n", '']],
+                ),
+                Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
+            )
+            ->then(function($in, $encoding) {
+                [$size, $content, $expected] = $in;
+
+                $stream = Stream::ofContent($content);
+                $chunks = IO::of(Select::waitForever(...))
+                    ->readable()
+                    ->wrap($stream)
+                    ->toEncoding($encoding)
+                    ->watch()
+                    ->chunks($size)
+                    ->lazy()
+                    ->sequence();
+                $values = $chunks
+                    ->map(static fn($chunk) => $chunk->toString())
+                    ->toList();
+                $encodings = $chunks
+                    ->map(static fn($chunk) => $chunk->encoding())
+                    ->distinct()
+                    ->toList();
+
+                $this->assertSame($expected, $values);
+                $this->assertSame([$encoding], $encodings);
+                $this->assertTrue($stream->end());
             });
     }
 }
