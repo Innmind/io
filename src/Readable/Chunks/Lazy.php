@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Readable\Chunks;
 
+use Innmind\IO\Exception\FailedToLoadStream;
 use Innmind\Stream\Readable as LowLevelStream;
 use Innmind\Immutable\{
     Str,
@@ -70,7 +71,7 @@ final class Lazy
             $this->size,
             static fn(LowLevelStream $stream) => $stream->rewind()->match(
                 static fn() => null,
-                static fn() => throw new \RuntimeException('Failed to load stream'),
+                static fn() => throw new FailedToLoadStream,
             ),
         );
     }
@@ -101,7 +102,7 @@ final class Lazy
                                 static fn($encoding) => Str::of('')->toEncoding($encoding),
                                 static fn() => Str::of(''),
                             ),
-                            false => throw new \RuntimeException('Failed to read from stream'),
+                            false => throw new FailedToLoadStream,
                         },
                     );
             } while (!$this->stream->end());
