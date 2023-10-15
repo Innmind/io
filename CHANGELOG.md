@@ -6,6 +6,8 @@
 
 - `Innmind\IO\Readable\Chunks::lazy()`
 - `Innmind\IO\Readable\Chunks\Lazy`
+- `Innmind\IO\Readable\Stream::lines()`
+- `Innmind\IO\Readable\Lines`
 
 ## 2.0.0 - 2023-09-17
 

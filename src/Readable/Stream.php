@@ -128,4 +128,16 @@ final class Stream
             $size,
         );
     }
+
+    /**
+     * @psalm-mutation-free
+     */
+    public function lines(): Lines
+    {
+        return Lines::of(
+            $this->stream,
+            $this->ready,
+            $this->encoding,
+        );
+    }
 }

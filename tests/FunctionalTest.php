@@ -163,4 +163,84 @@ class FunctionalTest extends TestCase
                 $this->assertTrue($stream->end());
             });
     }
+
+    public function testReadLinesWithALazySequence()
+    {
+        $this
+            ->forAll(
+                Set\Elements::of(
+                    ['foobarbaz', ['foobarbaz']],
+                    ["fo\nob\nar\nba\nz", ["fo\n", "ob\n", "ar\n", "ba\n", 'z']],
+                    ["foo\nbar\nbaz\n", ["foo\n", "bar\n", "baz\n"]],
+                    ['', ['']],
+                    ["\n", ["\n"]],
+                ),
+                Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
+            )
+            ->then(function($in, $encoding) {
+                [$content, $expected] = $in;
+
+                $stream = Stream::ofContent($content);
+                $lines = IO::of(Select::waitForever(...))
+                    ->readable()
+                    ->wrap($stream)
+                    ->toEncoding($encoding)
+                    ->watch()
+                    ->lines()
+                    ->lazy()
+                    ->rewindable()
+                    ->sequence();
+                $values = $lines
+                    ->map(static fn($line) => $line->toString())
+                    ->toList();
+                $encodings = $lines
+                    ->map(static fn($line) => $line->encoding()->toString())
+                    ->distinct()
+                    ->toList();
+
+                $this->assertSame($expected, $values);
+                $this->assertSame([$encoding->toString()], $encodings);
+                $this->assertSame(0, $stream->position()->toInt());
+                $this->assertFalse($stream->end());
+            });
+    }
+
+    public function testReadLinesWithANonRewindableLazySequence()
+    {
+        $this
+            ->forAll(
+                Set\Elements::of(
+                    ['foobarbaz', ['foobarbaz']],
+                    ["fo\nob\nar\nba\nz", ["fo\n", "ob\n", "ar\n", "ba\n", 'z']],
+                    ["foo\nbar\nbaz\n", ["foo\n", "bar\n", "baz\n"]],
+                    ['', ['']],
+                    ["\n", ["\n"]],
+                ),
+                Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
+            )
+            ->then(function($in, $encoding) {
+                [$content, $expected] = $in;
+
+                $stream = Stream::ofContent($content);
+                $lines = IO::of(Select::waitForever(...))
+                    ->readable()
+                    ->wrap($stream)
+                    ->toEncoding($encoding)
+                    ->watch()
+                    ->lines()
+                    ->lazy()
+                    ->sequence();
+                $values = $lines
+                    ->map(static fn($line) => $line->toString())
+                    ->toList();
+                $encodings = $lines
+                    ->map(static fn($line) => $line->encoding()->toString())
+                    ->distinct()
+                    ->toList();
+
+                $this->assertSame($expected, $values);
+                $this->assertSame([$encoding->toString()], $encodings);
+                $this->assertTrue($stream->end());
+            });
+    }
 }
