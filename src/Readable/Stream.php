@@ -6,6 +6,7 @@ namespace Innmind\IO\Readable;
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Stream\{
     Readable as LowLevelStream,
+    Stream\Size,
     Watch,
 };
 use Innmind\Immutable\{
@@ -139,5 +140,13 @@ final class Stream
             $this->ready,
             $this->encoding,
         );
+    }
+
+    /**
+     * @return Maybe<Size>
+     */
+    public function size(): Maybe
+    {
+        return $this->stream->size();
     }
 }

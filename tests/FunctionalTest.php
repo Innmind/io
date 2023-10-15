@@ -263,4 +263,27 @@ class FunctionalTest extends TestCase
         $this->assertSame("SOFTWARE.\n", $lines[20]->toString());
         $this->assertSame('', $lines[21]->toString());
     }
+
+    public function testSize()
+    {
+        $this
+            ->forAll(Set\Strings::any())
+            ->then(function($content) {
+                $stream = Stream::ofContent($content);
+                $size = IO::of(Select::waitForever(...))
+                    ->readable()
+                    ->wrap($stream)
+                    ->size()
+                    ->match(
+                        static fn($size) => $size->toInt(),
+                        static fn() => null,
+                    );
+
+                $this->assertNotNull($size);
+                $this->assertSame($size, $stream->size()->match(
+                    static fn($size) => $size->toInt(),
+                    static fn() => null,
+                ));
+            });
+    }
 }
