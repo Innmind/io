@@ -8,6 +8,7 @@ use Innmind\Stream\{
     Readable\Stream,
     Watch\Select,
 };
+use Innmind\Url\Path;
 use Innmind\Immutable\{
     Fold,
     Str,
@@ -242,5 +243,24 @@ class FunctionalTest extends TestCase
                 $this->assertSame([$encoding->toString()], $encodings);
                 $this->assertTrue($stream->end());
             });
+    }
+
+    public function testReadRealFileByLines()
+    {
+        $stream = Stream::open(Path::of(\dirname(__DIR__).'/LICENSE'));
+        $lines = IO::of(Select::waitForever(...))
+            ->readable()
+            ->wrap($stream)
+            ->toEncoding(Str\Encoding::ascii)
+            ->watch()
+            ->lines()
+            ->lazy()
+            ->sequence()
+            ->toList();
+
+        $this->assertCount(22, $lines);
+        $this->assertSame("MIT License\n", $lines[0]->toString());
+        $this->assertSame("SOFTWARE.\n", $lines[20]->toString());
+        $this->assertSame('', $lines[21]->toString());
     }
 }
