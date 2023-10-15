@@ -14,6 +14,62 @@ composer require innmind/io
 
 ## Usage
 
+### Reading from a stream by chunks
+
+```php
+use Innmind\IO\IO;
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
+use Innmind\Stream\Streams;
+use Innmind\Immutable\Str;
+
+$streams = Streams::fromAmbienAuthority();
+$io = IO::of($os->sockets()->watch(...));
+$chunks = $io
+    ->readable()
+    ->wrap(
+        $streams
+            ->readable()
+            ->acquire(\fopen('/some/file.ext', 'r')),
+    )
+    ->toEncoding(Str\Encoding::ascii)
+    // or call ->watch() to wait forever for the stream to be ready before
+    // reading from it
+    ->timeoutAfter(ElapsedPeriod::of(1_000))
+    ->chunks(8192) // max length of each chunk
+    ->lazy()
+    ->sequence();
+```
+
+The `$chunks` variable is a `Innmind\Innmutable\Sequence` containing `Innmind\Immutable\Str` values, where each value is of a maximum length of `8192` bytes. Before a value is yielded it will make sure data is available before reading from the stream. If no data is available within `1` second the `Sequence` will throw an exception saying it can't read from the stream, if you don't want it to throw replace `timeoutAfter()` by `watch()` so it will wait as long as it needs to.
+
+### Reading from a stream by lines
+
+```php
+use Innmind\IO\IO;
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
+use Innmind\Stream\Streams;
+use Innmind\Immutable\Str;
+
+$streams = Streams::fromAmbienAuthority();
+$io = IO::of($os->sockets()->watch(...));
+$lines = $io
+    ->readable()
+    ->wrap(
+        $streams
+            ->readable()
+            ->acquire(\fopen('/some/file.ext', 'r')),
+    )
+    ->toEncoding(Str\Encoding::ascii)
+    // or call ->watch() to wait forever for the stream to be ready before
+    // reading from it
+    ->timeoutAfter(ElapsedPeriod::of(1_000))
+    ->lines()
+    ->lazy()
+    ->sequence();
+```
+
+This is the same as reading by chunks (described above) except that the delimiter is the end of line character `\n`.
+
 ### Reading from a stream
 
 ```php

@@ -100,4 +100,14 @@ final class Chunks
 
         return $finished->flatMap(static fn($fold) => $fold->maybe());
     }
+
+    public function lazy(): Chunks\Lazy
+    {
+        return Chunks\Lazy::of(
+            $this->stream,
+            $this->ready,
+            $this->encoding,
+            $this->size,
+        );
+    }
 }
