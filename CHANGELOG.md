@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.2.0 - 2023-10-15
+
+### Added
+
+- `Innmind\IO\Readable\Stream::size()`
+
 ## 2.1.0 - 2023-10-15
 
 ### Added
