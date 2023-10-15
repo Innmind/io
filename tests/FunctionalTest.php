@@ -114,12 +114,12 @@ class FunctionalTest extends TestCase
                     ->map(static fn($chunk) => $chunk->toString())
                     ->toList();
                 $encodings = $chunks
-                    ->map(static fn($chunk) => $chunk->encoding())
+                    ->map(static fn($chunk) => $chunk->encoding()->toString())
                     ->distinct()
                     ->toList();
 
                 $this->assertSame($expected, $values);
-                $this->assertSame([$encoding], $encodings);
+                $this->assertSame([$encoding->toString()], $encodings);
                 $this->assertSame(0, $stream->position()->toInt());
                 $this->assertFalse($stream->end());
             });
@@ -154,12 +154,12 @@ class FunctionalTest extends TestCase
                     ->map(static fn($chunk) => $chunk->toString())
                     ->toList();
                 $encodings = $chunks
-                    ->map(static fn($chunk) => $chunk->encoding())
+                    ->map(static fn($chunk) => $chunk->encoding()->toString())
                     ->distinct()
                     ->toList();
 
                 $this->assertSame($expected, $values);
-                $this->assertSame([$encoding], $encodings);
+                $this->assertSame([$encoding->toString()], $encodings);
                 $this->assertTrue($stream->end());
             });
     }
