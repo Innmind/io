@@ -169,6 +169,24 @@ final class Stream
     }
 
     /**
+     * @psalm-mutation-free
+     * @template F
+     *
+     * @param Frame<F> $frame
+     *
+     * @return Frames<T, F>
+     */
+    public function frames(Frame $frame): Frames
+    {
+        return Frames::of(
+            $frame,
+            $this->stream,
+            $this->ready,
+            $this->encoding,
+        );
+    }
+
+    /**
      * @return Maybe<Size>
      */
     public function size(): Maybe

@@ -5,6 +5,16 @@
 ### Added
 
 - `Innmind\IO\Readable\Stream::unwrap()`
+- `Innmind\IO\Readable\Stream::frames()`
+- `Innmind\IO\Readable\Frame`
+- `Innmind\IO\Readable\Frames`
+- `Innmind\IO\Readable\Frame\Chunk`
+- `Innmind\IO\Readable\Frame\Chunks`
+- `Innmind\IO\Readable\Frame\Composite`
+- `Innmind\IO\Readable\Frame\FlatMap`
+- `Innmind\IO\Readable\Frame\Line`
+- `Innmind\IO\Readable\Frame\Map`
+- `Innmind\IO\Readable\Frame\Sequence`
 
 ## 2.2.0 - 2023-10-15
 

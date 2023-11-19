@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\IO;
 
-use Innmind\IO\IO;
+use Innmind\IO\{
+    IO,
+    Readable\Frame,
+};
 use Innmind\Stream\{
     Readable\Stream,
     Watch\Select,
@@ -12,6 +15,7 @@ use Innmind\Url\Path;
 use Innmind\Immutable\{
     Fold,
     Str,
+    Monoid\Concat,
 };
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
@@ -285,5 +289,113 @@ class FunctionalTest extends TestCase
                     static fn() => null,
                 ));
             });
+    }
+
+    public function testReadFrame()
+    {
+        $http = <<<RAW
+        POST /some-form HTTP/1.1\r
+        User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)\r
+        Host: innmind.com\r
+        Content-Type: application/x-www-form-urlencoded\r
+        Content-Length: 23\r
+        Accept-Language: fr-fr\r
+        Accept-Encoding: gzip, deflate\r
+        Connection: Keep-Alive\r
+        \r
+        some[key]=value&foo=bar\r
+        \r
+
+        RAW;
+
+        $stream = Stream::ofContent($http);
+        $request = IO::of(Select::waitForever(...))
+            ->readable()
+            ->wrap($stream)
+            ->toEncoding(Str\Encoding::ascii)
+            ->watch()
+            ->frames(Frame\Composite::of(
+                static fn($firstLine, $headersAndBody) => [$firstLine, ...$headersAndBody],
+                Frame\Line::new()->map(static fn($line) => $line->trim()->toString()),
+                Frame\Sequence::of(
+                    Frame\Line::new()->map(static fn($line) => $line->trim()),
+                )
+                    ->until(static fn($line) => $line->empty())
+                    ->flatMap(
+                        static fn($headers) => Frame\Chunk::of(
+                            (int) $headers
+                                ->toList()[3]
+                                ->takeEnd(2)
+                                ->toString(),
+                        )
+                            ->map(static fn($body) => [
+                                $headers
+                                    ->filter(static fn($header) => !$header->empty())
+                                    ->map(static fn($header) => $header->toString())
+                                    ->toList(),
+                                $body->toString(),
+                            ]),
+                    ),
+            ))
+            ->one()
+            ->match(
+                static fn($request) => $request,
+                static fn() => null,
+            );
+
+        $this->assertNotNull($request);
+        $this->assertSame('POST /some-form HTTP/1.1', $request[0]);
+        $this->assertSame(
+            [
+                'User-Agent: Mozilla/4.0 (compatible; MSIE5.01; Windows NT)',
+                'Host: innmind.com',
+                'Content-Type: application/x-www-form-urlencoded',
+                'Content-Length: 23',
+                'Accept-Language: fr-fr',
+                'Accept-Encoding: gzip, deflate',
+                'Connection: Keep-Alive',
+            ],
+            $request[1],
+        );
+        $this->assertSame('some[key]=value&foo=bar', $request[2]);
+    }
+
+    public function testReadFrames()
+    {
+        $someStream = <<<RAW
+        --PAYLOAD START--
+        some payload A
+        --PAYLOAD END--
+        --PAYLOAD START--
+        some payload B
+        --PAYLOAD END--
+        --PAYLOAD START--
+        some payload C
+        --PAYLOAD END--
+        RAW;
+
+        $stream = Stream::ofContent($someStream);
+        $payloads = IO::of(Select::waitForever(...))
+            ->readable()
+            ->wrap($stream)
+            ->toEncoding(Str\Encoding::ascii)
+            ->watch()
+            ->frames(Frame\Composite::of(
+                static fn($start, $payload, $end) => $payload->toString(),
+                Frame\Line::new(),
+                Frame\Line::new()->map(static fn($line) => $line->trim()),
+                Frame\Line::new(),
+            ))
+            ->sequence()
+            ->toList();
+
+        $this->assertSame(
+            [
+                'some payload A',
+                'some payload B',
+                'some payload C',
+            ],
+            $payloads,
+        );
     }
 }
