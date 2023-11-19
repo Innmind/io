@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `Innmind\IO\Readable\Stream::unwrap()`
+
 ## 2.2.0 - 2023-10-15
 
 ### Added

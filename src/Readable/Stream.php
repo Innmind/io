@@ -14,12 +14,16 @@ use Innmind\Immutable\{
     Str,
 };
 
+/**
+ * @template-covariant T of LowLevelStream
+ */
 final class Stream
 {
+    /** @var T */
     private LowLevelStream $stream;
     /** @var callable(?ElapsedPeriod): Watch */
     private $watch;
-    /** @var callable(LowLevelStream): Maybe<LowLevelStream> */
+    /** @var callable(T): Maybe<T> */
     private $ready;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
@@ -28,7 +32,8 @@ final class Stream
      * @psalm-mutation-free
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
+     * @param T $stream
+     * @param callable(T): Maybe<T> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
@@ -46,8 +51,12 @@ final class Stream
     /**
      * @psalm-mutation-free
      * @internal
+     * @template A of LowLevelStream
      *
      * @param callable(?ElapsedPeriod): Watch $watch
+     * @param A $stream
+     *
+     * @return self<A>
      */
     public static function of(
         callable $watch,
@@ -56,6 +65,7 @@ final class Stream
         /** @var Maybe<Str\Encoding> */
         $encoding = Maybe::nothing();
 
+        /** @var self<A> */
         return new self(
             $watch,
             $stream,
@@ -65,7 +75,17 @@ final class Stream
     }
 
     /**
+     * @return T
+     */
+    public function unwrap(): LowLevelStream
+    {
+        return $this->stream;
+    }
+
+    /**
      * @psalm-mutation-free
+     *
+     * @return self<T>
      */
     public function toEncoding(Str\Encoding $encoding): self
     {
@@ -81,9 +101,12 @@ final class Stream
      * Wait forever for the stream to be ready to read before tryin to use it
      *
      * @psalm-mutation-free
+     *
+     * @return self<T>
      */
     public function watch(): self
     {
+        /** @var self<T> */
         return new self(
             $this->watch,
             $this->stream,
@@ -99,9 +122,12 @@ final class Stream
 
     /**
      * @psalm-mutation-free
+     *
+     * @return self<T>
      */
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
+        /** @var self<T> */
         return new self(
             $this->watch,
             $this->stream,

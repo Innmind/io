@@ -11,25 +11,30 @@ use Innmind\Immutable\{
     Maybe,
 };
 
+/**
+ * @template-covariant T of LowLevelStream
+ */
 final class Lazy
 {
+    /** @var T */
     private LowLevelStream $stream;
-    /** @var callable(LowLevelStream): Maybe<LowLevelStream> */
+    /** @var callable(T): Maybe<T> */
     private $ready;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
     /** @var positive-int */
     private int $size;
-    /** @var callable(LowLevelStream): void */
+    /** @var callable(T): void */
     private $rewind;
 
     /**
      * @psalm-mutation-free
      *
-     * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
+     * @param T $stream
+     * @param callable(T): Maybe<T> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
-     * @param callable(LowLevelStream): void $rewind
+     * @param callable(T): void $rewind
      */
     private function __construct(
         LowLevelStream $stream,
@@ -48,10 +53,14 @@ final class Lazy
     /**
      * @psalm-mutation-free
      * @internal
+     * @template A of LowLevelStream
      *
-     * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
+     * @param A $stream
+     * @param callable(A): Maybe<A> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
+     *
+     * @return self<A>
      */
     public static function of(
         LowLevelStream $stream,
