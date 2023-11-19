@@ -25,6 +25,13 @@ interface Frame
     ): Maybe;
 
     /**
+     * @param callable(T): bool $predicate
+     *
+     * @return self<T>
+     */
+    public function filter(callable $predicate): self;
+
+    /**
      * @template U
      *
      * @param callable(T): U $map

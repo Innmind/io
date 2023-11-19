@@ -398,4 +398,41 @@ class FunctionalTest extends TestCase
             $payloads,
         );
     }
+
+    public function testFilterOutFrame()
+    {
+        $someStream = <<<RAW
+        --PAYLOAD START--
+        some payload A
+        --PAYLOAD END--
+        --PAYLOAD START--
+        some payload B
+        --PAYLOAD END--
+        --PAYLOAD START--
+        some payload C
+        --PAYLOAD END--
+        RAW;
+
+        $stream = Stream::ofContent($someStream);
+        $payload = IO::of(Select::waitForever(...))
+            ->readable()
+            ->wrap($stream)
+            ->toEncoding(Str\Encoding::ascii)
+            ->watch()
+            ->frames(Frame\Composite::of(
+                static fn($start, $payload, $end) => $payload->toString(),
+                Frame\Line::new(),
+                Frame\Line::new()
+                    ->map(static fn($line) => $line->trim())
+                    ->filter(static fn($line) => $line->endsWith('B')),
+                Frame\Line::new(),
+            ))
+            ->one()
+            ->match(
+                static fn($payload) => $payload,
+                static fn() => null,
+            );
+
+        $this->assertNull($payload);
+    }
 }

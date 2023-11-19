@@ -51,6 +51,11 @@ final class Map implements Frame
         return new self($frame, $map);
     }
 
+    public function filter(callable $predicate): Frame
+    {
+        return Filter::of($this, $predicate);
+    }
+
     public function map(callable $map): Frame
     {
         return new self($this, $map);

@@ -92,6 +92,11 @@ final class Chunks implements Frame
         return new self($this->size, $size, $predicate);
     }
 
+    public function filter(callable $predicate): Frame
+    {
+        return Filter::of($this, $predicate);
+    }
+
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);

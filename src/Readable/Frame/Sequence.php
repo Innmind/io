@@ -78,6 +78,11 @@ final class Sequence implements Frame
         return new self($this->frame, $predicate);
     }
 
+    public function filter(callable $predicate): Frame
+    {
+        return Filter::of($this, $predicate);
+    }
+
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);

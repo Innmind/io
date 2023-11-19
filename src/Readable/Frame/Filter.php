@@ -8,53 +8,50 @@ use Innmind\Immutable\Maybe;
 
 /**
  * @template T
- * @template U
- * @implements Frame<U>
+ * @implements Frame<T>
  */
-final class FlatMap implements Frame
+final class Filter implements Frame
 {
     /** @var Frame<T> */
     private Frame $frame;
-    /** @var callable(T): Frame<U> */
-    private $map;
+    /** @var callable(T): bool */
+    private $predicate;
 
     /**
      * @param Frame<T> $frame
-     * @param callable(T): Frame<U> $map
+     * @param callable(T): bool $predicate
      */
-    private function __construct(Frame $frame, callable $map)
+    private function __construct(Frame $frame, callable $predicate)
     {
         $this->frame = $frame;
-        $this->map = $map;
+        $this->predicate = $predicate;
     }
 
     public function __invoke(
         callable $read,
         callable $readLine,
     ): Maybe {
-        /** @psalm-suppress MixedArgument */
-        return ($this->frame)($read, $readLine)->flatMap(
-            fn($value) => ($this->map)($value)($read, $readLine),
+        return ($this->frame)($read, $readLine)->filter(
+            $this->predicate,
         );
     }
 
     /**
      * @template A
-     * @template B
      *
      * @param Frame<A> $frame
-     * @param callable(A): Frame<B> $map
+     * @param callable(A): bool $predicate
      *
-     * @return self<A, B>
+     * @return self<A>
      */
-    public static function of(Frame $frame, callable $map): self
+    public static function of(Frame $frame, callable $predicate): self
     {
-        return new self($frame, $map);
+        return new self($frame, $predicate);
     }
 
     public function filter(callable $predicate): Frame
     {
-        return Filter::of($this, $predicate);
+        return new self($this, $predicate);
     }
 
     public function map(callable $map): Frame
@@ -64,6 +61,6 @@ final class FlatMap implements Frame
 
     public function flatMap(callable $map): Frame
     {
-        return new self($this, $map);
+        return FlatMap::of($this, $map);
     }
 }

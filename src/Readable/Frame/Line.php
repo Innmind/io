@@ -30,6 +30,11 @@ final class Line implements Frame
         return new self;
     }
 
+    public function filter(callable $predicate): Frame
+    {
+        return Filter::of($this, $predicate);
+    }
+
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
