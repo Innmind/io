@@ -48,6 +48,9 @@ final class Lines
         return new self($stream, $ready, $encoding);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function lazy(): Lines\Lazy
     {
         return Lines\Lazy::of(

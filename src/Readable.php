@@ -15,6 +15,8 @@ final class Readable
     private $watch;
 
     /**
+     * @psalm-mutation-free
+     *
      * @param callable(?ElapsedPeriod): Watch $watch
      */
     private function __construct(callable $watch)
@@ -24,6 +26,7 @@ final class Readable
 
     /**
      * @internal
+     * @psalm-pure
      *
      * @param callable(?ElapsedPeriod): Watch $watch
      */

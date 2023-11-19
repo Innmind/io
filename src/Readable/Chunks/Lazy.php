@@ -62,6 +62,9 @@ final class Lazy
         return new self($stream, $ready, $encoding, $size, static fn() => null);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function rewindable(): self
     {
         return new self(
@@ -77,6 +80,8 @@ final class Lazy
     }
 
     /**
+     * @psalm-mutation-free
+     *
      * @return Sequence<Str>
      */
     public function sequence(): Sequence

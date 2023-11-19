@@ -101,6 +101,9 @@ final class Chunks
         return $finished->flatMap(static fn($fold) => $fold->maybe());
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function lazy(): Chunks\Lazy
     {
         return Chunks\Lazy::of(
