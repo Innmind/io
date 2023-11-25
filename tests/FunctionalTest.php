@@ -435,4 +435,42 @@ class FunctionalTest extends TestCase
 
         $this->assertNull($payload);
     }
+
+    public function testReadingSequenceOfLineFrames()
+    {
+        $someStream = <<<RAW
+        --PAYLOAD START--
+        some payload A
+        --PAYLOAD END--
+
+        RAW;
+
+        $stream = Stream::ofContent($someStream);
+        $payload = IO::of(Select::waitForever(...))
+            ->readable()
+            ->wrap($stream)
+            ->toEncoding(Str\Encoding::ascii)
+            ->watch()
+            ->frames(Frame\Sequence::of(
+                Frame\Line::new(),
+            )->until(static fn($line) => $line->empty()))
+            ->one()
+            ->match(
+                static fn($payload) => $payload,
+                static fn() => null,
+            );
+
+        $this->assertNotNull($payload);
+        $this->assertSame(
+            [
+                "--PAYLOAD START--\n",
+                "some payload A\n",
+                "--PAYLOAD END--\n",
+                '',
+            ],
+            $payload
+                ->map(static fn($line) => $line->toString())
+                ->toList(),
+        );
+    }
 }

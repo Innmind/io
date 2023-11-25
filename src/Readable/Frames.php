@@ -79,12 +79,18 @@ final class Frames
          */
         $read = fn(?int $size): Maybe => ($this->ready)($this->stream)
             ->flatMap(static fn($stream) => $stream->read($size))
+            ->otherwise(fn() => Maybe::just(Str::of(''))->filter(
+                fn() => $this->stream->end(),
+            ))
             ->map(fn($chunk) => $this->encoding->match(
                 static fn($encoding) => $chunk->toEncoding($encoding),
                 static fn() => $chunk,
             ));
         $readLine = fn(): Maybe => ($this->ready)($this->stream)
             ->flatMap(static fn($stream) => $stream->readLine())
+            ->otherwise(fn() => Maybe::just(Str::of(''))->filter(
+                fn() => $this->stream->end(),
+            ))
             ->map(fn($chunk) => $this->encoding->match(
                 static fn($encoding) => $chunk->toEncoding($encoding),
                 static fn() => $chunk,
