@@ -12,6 +12,8 @@ final class IO
     private $watch;
 
     /**
+     * @psalm-mutation-free
+     *
      * @param callable(?ElapsedPeriod): Watch $watch
      */
     private function __construct(callable $watch)
@@ -20,6 +22,8 @@ final class IO
     }
 
     /**
+     * @psalm-pure
+     *
      * @param callable(?ElapsedPeriod): Watch $watch
      */
     public static function of(callable $watch): self
@@ -27,6 +31,9 @@ final class IO
         return new self($watch);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function readable(): Readable
     {
         return Readable::of($this->watch);
