@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Fix reading frames when reading triggers the stream end
+
 ## 2.3.0 - 2023-10-25
 
 ### Added
