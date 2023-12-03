@@ -25,6 +25,8 @@ interface Frame
     ): Maybe;
 
     /**
+     * @psalm-mutation-free
+     *
      * @param callable(T): bool $predicate
      *
      * @return self<T>
@@ -32,6 +34,8 @@ interface Frame
     public function filter(callable $predicate): self;
 
     /**
+     * @psalm-mutation-free
+     *
      * @template U
      *
      * @param callable(T): U $map
@@ -41,6 +45,8 @@ interface Frame
     public function map(callable $map): self;
 
     /**
+     * @psalm-mutation-free
+     *
      * @template U
      *
      * @param callable(T): self<U> $map

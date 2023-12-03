@@ -1,12 +1,23 @@
 # Changelog
 
-## 2.3.1 - 2023-10-25
+## 2.4.0 - 2023-12-03
+
+### Added
+
+- `Innmind\IO\Readable\Frame\NoOp`
+
+### Changed
+
+- `Innmind\IO\Readable\Frame` transformations methods are declared mutation free
+- `Innmind\IO\Readable\Frame\Chunk` makes sure the read chunk is of the expected size
+
+## 2.3.1 - 2023-11-25
 
 ### Fixed
 
 - Fix reading frames when reading triggers the stream end
 
-## 2.3.0 - 2023-10-25
+## 2.3.0 - 2023-11-25
 
 ### Added
 

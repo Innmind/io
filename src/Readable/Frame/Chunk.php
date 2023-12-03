@@ -18,6 +18,8 @@ final class Chunk implements Frame
     private int $size;
 
     /**
+     * @psalm-mutation-free
+     *
      * @param positive-int $size
      */
     private function __construct(int $size)
@@ -29,10 +31,14 @@ final class Chunk implements Frame
         callable $read,
         callable $readLine,
     ): Maybe {
-        return $read($this->size);
+        return $read($this->size)->filter(
+            fn($chunk) => $chunk->length() === $this->size,
+        );
     }
 
     /**
+     * @psalm-pure
+     *
      * @param positive-int $size
      */
     public static function of(int $size): self
@@ -40,16 +46,25 @@ final class Chunk implements Frame
         return new self($size);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function filter(callable $predicate): Frame
     {
         return Filter::of($this, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

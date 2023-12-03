@@ -69,6 +69,8 @@ final class Sequence implements Frame
     }
 
     /**
+     * @psalm-mutation-free
+     *
      * @param callable(T): bool $predicate
      *
      * @return self<T>
@@ -78,16 +80,25 @@ final class Sequence implements Frame
         return new self($this->frame, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function filter(callable $predicate): Frame
     {
         return Filter::of($this, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

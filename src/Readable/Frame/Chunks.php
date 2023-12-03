@@ -26,6 +26,8 @@ final class Chunks implements Frame
     private $until;
 
     /**
+     * @psalm-mutation-free
+     *
      * @param positive-int $size
      * @param ?positive-int $aggregate
      * @param callable(Str): bool $until
@@ -76,6 +78,8 @@ final class Chunks implements Frame
      *
      * It it fails to read a chunk it will throw an error.
      *
+     * @psalm-pure
+     *
      * @param positive-int $size
      */
     public static function of(int $size): self
@@ -84,6 +88,8 @@ final class Chunks implements Frame
     }
 
     /**
+     * @psalm-mutation-free
+     *
      * @param positive-int $size The expected size of the string passed to the predicate
      * @param callable(Str): bool $predicate
      */
@@ -92,16 +98,25 @@ final class Chunks implements Frame
         return new self($this->size, $size, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function filter(callable $predicate): Frame
     {
         return Filter::of($this, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

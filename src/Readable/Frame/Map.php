@@ -19,6 +19,8 @@ final class Map implements Frame
     private $map;
 
     /**
+     * @psalm-mutation-free
+     *
      * @param Frame<T> $frame
      * @param callable(T): U $map
      */
@@ -38,6 +40,7 @@ final class Map implements Frame
     }
 
     /**
+     * @psalm-pure
      * @template A
      * @template B
      *
@@ -51,16 +54,25 @@ final class Map implements Frame
         return new self($frame, $map);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function filter(callable $predicate): Frame
     {
         return Filter::of($this, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function map(callable $map): Frame
     {
         return new self($this, $map);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

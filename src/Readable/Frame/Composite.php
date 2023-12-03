@@ -15,6 +15,7 @@ final class Composite
     /**
      * @template T
      * @no-named-arguments
+     * @psalm-pure
      *
      * @param callable(...mixed): T $map
      *

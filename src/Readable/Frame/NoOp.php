@@ -10,30 +10,44 @@ use Innmind\Immutable\{
 };
 
 /**
- * @implements Frame<Str>
+ * Use this frame to hardcode a value inside a frame composition
+ *
+ * @template T
+ * @implements Frame<T>
  */
-final class Line implements Frame
+final class NoOp implements Frame
 {
+    /** @var T */
+    private mixed $value;
+
     /**
      * @psalm-mutation-free
+     *
+     * @param T $value
      */
-    private function __construct()
+    private function __construct(int $value)
     {
+        $this->value = $value;
     }
 
     public function __invoke(
         callable $read,
         callable $readLine,
     ): Maybe {
-        return $readLine();
+        return Maybe::just($this->value);
     }
 
     /**
      * @psalm-pure
+     * @template A
+     *
+     * @param A $value
+     *
+     * @return self<A>
      */
-    public static function new(): self
+    public static function of(mixed $value): self
     {
-        return new self;
+        return new self($value);
     }
 
     /**
