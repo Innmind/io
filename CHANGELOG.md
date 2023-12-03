@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- `Innmind\IO\Readable\Frame\NoOp` constructor type
+
 ## 2.4.0 - 2023-12-03
 
 ### Added

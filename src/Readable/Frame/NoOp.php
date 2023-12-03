@@ -25,7 +25,7 @@ final class NoOp implements Frame
      *
      * @param T $value
      */
-    private function __construct(int $value)
+    private function __construct(mixed $value)
     {
         $this->value = $value;
     }
