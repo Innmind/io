@@ -100,6 +100,10 @@ final class Chunks implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @param callable(Seq<Str>): bool $predicate
+     *
+     * @return Frame<Seq<Str>>
      */
     public function filter(callable $predicate): Frame
     {
@@ -108,6 +112,12 @@ final class Chunks implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template U
+     *
+     * @param callable(Seq<Str>): U $map
+     *
+     * @return Frame<U>
      */
     public function map(callable $map): Frame
     {
@@ -116,6 +126,12 @@ final class Chunks implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template U
+     *
+     * @param callable(Seq<Str>): Frame<U> $map
+     *
+     * @return Frame<U>
      */
     public function flatMap(callable $map): Frame
     {

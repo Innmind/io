@@ -56,6 +56,10 @@ final class Map implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @param callable(U): bool $predicate
+     *
+     * @return Frame<U>
      */
     public function filter(callable $predicate): Frame
     {
@@ -64,6 +68,12 @@ final class Map implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template V
+     *
+     * @param callable(U): V $map
+     *
+     * @return Frame<V>
      */
     public function map(callable $map): Frame
     {
@@ -72,6 +82,12 @@ final class Map implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template V
+     *
+     * @param callable(U): Frame<V> $map
+     *
+     * @return Frame<V>
      */
     public function flatMap(callable $map): Frame
     {

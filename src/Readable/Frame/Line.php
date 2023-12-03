@@ -38,6 +38,10 @@ final class Line implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @param callable(Str): bool $predicate
+     *
+     * @return Frame<Str>
      */
     public function filter(callable $predicate): Frame
     {
@@ -46,6 +50,12 @@ final class Line implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template U
+     *
+     * @param callable(Str): U $map
+     *
+     * @return Frame<U>
      */
     public function map(callable $map): Frame
     {
@@ -54,6 +64,12 @@ final class Line implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template U
+     *
+     * @param callable(Str): Frame<U> $map
+     *
+     * @return Frame<U>
      */
     public function flatMap(callable $map): Frame
     {
