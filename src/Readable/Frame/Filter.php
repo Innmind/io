@@ -18,6 +18,8 @@ final class Filter implements Frame
     private $predicate;
 
     /**
+     * @psalm-mutation-free
+     *
      * @param Frame<T> $frame
      * @param callable(T): bool $predicate
      */
@@ -37,6 +39,7 @@ final class Filter implements Frame
     }
 
     /**
+     * @psalm-pure
      * @template A
      *
      * @param Frame<A> $frame
@@ -49,16 +52,25 @@ final class Filter implements Frame
         return new self($frame, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function filter(callable $predicate): Frame
     {
         return new self($this, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

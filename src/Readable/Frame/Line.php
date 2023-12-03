@@ -14,6 +14,9 @@ use Innmind\Immutable\{
  */
 final class Line implements Frame
 {
+    /**
+     * @psalm-mutation-free
+     */
     private function __construct()
     {
     }
@@ -25,21 +28,33 @@ final class Line implements Frame
         return $readLine();
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function new(): self
     {
         return new self;
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function filter(callable $predicate): Frame
     {
         return Filter::of($this, $predicate);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- `Innmind\IO\Readable\Frame` transformations methods are declared mutation free
+
 ## 2.3.1 - 2023-11-25
 
 ### Fixed
