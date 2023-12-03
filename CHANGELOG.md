@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `Innmind\IO\Readable\Frame\NoOp`
+
 ### Changed
 
 - `Innmind\IO\Readable\Frame` transformations methods are declared mutation free
