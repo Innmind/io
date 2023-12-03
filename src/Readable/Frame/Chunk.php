@@ -31,7 +31,9 @@ final class Chunk implements Frame
         callable $read,
         callable $readLine,
     ): Maybe {
-        return $read($this->size);
+        return $read($this->size)->filter(
+            fn($chunk) => $chunk->length() === $this->size,
+        );
     }
 
     /**

@@ -5,6 +5,7 @@
 ### Changed
 
 - `Innmind\IO\Readable\Frame` transformations methods are declared mutation free
+- `Innmind\IO\Readable\Frame\Chunk` makes sure the read chunk is of the expected size
 
 ## 2.3.1 - 2023-11-25
 
