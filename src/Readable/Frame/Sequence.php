@@ -82,6 +82,10 @@ final class Sequence implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @param callable(Seq<T>): bool $predicate
+     *
+     * @return Frame<Seq<T>>
      */
     public function filter(callable $predicate): Frame
     {
@@ -90,6 +94,12 @@ final class Sequence implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template U
+     *
+     * @param callable(Seq<T>): U $map
+     *
+     * @return Frame<U>
      */
     public function map(callable $map): Frame
     {
@@ -98,6 +108,12 @@ final class Sequence implements Frame
 
     /**
      * @psalm-mutation-free
+     *
+     * @template U
+     *
+     * @param callable(Seq<T>): Frame<U> $map
+     *
+     * @return Frame<U>
      */
     public function flatMap(callable $map): Frame
     {

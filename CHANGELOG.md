@@ -1,5 +1,12 @@
 # Changelog
 
+## 2.4.1 - 2023-12-03
+
+### Fixed
+
+- `Innmind\IO\Readable\Frame\NoOp` constructor type
+- Frames types transitions via `::filter()`, `::map()` and `::flatMap()`
+
 ## 2.4.0 - 2023-12-03
 
 ### Added
