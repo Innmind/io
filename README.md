@@ -70,6 +70,46 @@ $lines = $io
 
 This is the same as reading by chunks (described above) except that the delimiter is the end of line character `\n`.
 
+### Reading from a socket with a periodic heartbeat
+
+```php
+use Innmind\IO\{
+    IO,
+    Readable\Frame,
+};
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
+use Innmind\Socket\{
+    Address,
+    Client,
+};
+use Innmind\Stream\Streams;
+use Innmind\Immutable\{
+    Str,
+    Sequence,
+};
+
+$socket = Client\Unix::of(Address\Unix::of('/tmp/foo'))->match(
+    static fn($socket) => $socket,
+    static fn() => throw new \RuntimeException;
+);
+$io = IO::of($os->sockets()->watch(...));
+$frame = $io
+    ->sockets()
+    ->clients()
+    ->wrap($socket)
+    ->toEncoding(Str\Encoding::ascii)
+    ->timeoutAfter(ElapsedPeriod::of(1_000))
+    ->heartbeatWith(static fn() => Sequence::of(Str::of('heartbeat')))
+    ->frames(Frame\Line::new())
+    ->one()
+    ->match(
+        static fn($line) => $line,
+        static fn() => throw new \RuntimeException,
+    );
+```
+
+This example will wait to read a single from the socket `/tmp/foo.sock` and it will send a `heartbeat` message every second until the expected line is received.
+
 ### Reading from a stream
 
 ```php
