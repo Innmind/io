@@ -14,14 +14,19 @@ composer require innmind/io
 
 ## Usage
 
+> [!NOTE]
+> examples below use [`innmind/operating-system`](https://github.com/Innmind/OperatingSystem)
+
 ### Reading from a stream by chunks
 
 ```php
 use Innmind\IO\IO;
+use Innmind\OperatingSystem\Factory;
 use Innmind\TimeContinuum\Earth\ElapsedPeriod;
 use Innmind\Stream\Streams;
 use Innmind\Immutable\Str;
 
+$os = Factory::build();
 $streams = Streams::fromAmbienAuthority();
 $io = IO::of($os->sockets()->watch(...));
 $chunks = $io
@@ -46,10 +51,12 @@ The `$chunks` variable is a `Innmind\Innmutable\Sequence` containing `Innmind\Im
 
 ```php
 use Innmind\IO\IO;
+use Innmind\OperatingSystem\Factory;
 use Innmind\TimeContinuum\Earth\ElapsedPeriod;
 use Innmind\Stream\Streams;
 use Innmind\Immutable\Str;
 
+$os = Factory::build();
 $streams = Streams::fromAmbienAuthority();
 $io = IO::of($os->sockets()->watch(...));
 $lines = $io
@@ -69,6 +76,48 @@ $lines = $io
 ```
 
 This is the same as reading by chunks (described above) except that the delimiter is the end of line character `\n`.
+
+### Reading from a socket with a periodic heartbeat
+
+```php
+use Innmind\IO\{
+    IO,
+    Readable\Frame,
+};
+use Innmind\OperatingSystem\Factory;
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
+use Innmind\Socket\{
+    Address,
+    Client,
+};
+use Innmind\Stream\Streams;
+use Innmind\Immutable\{
+    Str,
+    Sequence,
+};
+
+$socket = Client\Unix::of(Address\Unix::of('/tmp/foo'))->match(
+    static fn($socket) => $socket,
+    static fn() => throw new \RuntimeException;
+);
+$os = Factory::build();
+$io = IO::of($os->sockets()->watch(...));
+$frame = $io
+    ->sockets()
+    ->clients()
+    ->wrap($socket)
+    ->toEncoding(Str\Encoding::ascii)
+    ->timeoutAfter(ElapsedPeriod::of(1_000))
+    ->heartbeatWith(static fn() => Sequence::of(Str::of('heartbeat')))
+    ->frames(Frame\Line::new())
+    ->one()
+    ->match(
+        static fn($line) => $line,
+        static fn() => throw new \RuntimeException,
+    );
+```
+
+This example will wait to read a single from the socket `/tmp/foo.sock` and it will send a `heartbeat` message every second until the expected line is received.
 
 ### Reading from a stream
 
@@ -137,5 +186,3 @@ This example will:
     - `list<string>` is the value passed to `Fold::result()`
 
 You can think of this `fold` operation as a reduce where you can control when to stop iterating by return either `Fold::fail()` or `Fold::result()`.
-
-**Note**: this example use [`innmind/operating-system`](https://github.com/Innmind/OperatingSystem)
