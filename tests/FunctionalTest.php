@@ -7,12 +7,21 @@ use Innmind\IO\{
     IO,
     Readable\Frame,
 };
+use Innmind\Socket\{
+    Server,
+    Client,
+    Address,
+};
 use Innmind\Stream\{
     Readable\Stream,
     Watch\Select,
 };
-use Innmind\Url\Path;
+use Innmind\Url\{
+    Url,
+    Path,
+};
 use Innmind\Immutable\{
+    Sequence,
     Fold,
     Str,
     Monoid\Concat,
@@ -472,5 +481,62 @@ class FunctionalTest extends TestCase
                 ->map(static fn($line) => $line->toString())
                 ->toList(),
         );
+    }
+
+    public function testSocketClientSend()
+    {
+        @\unlink('/tmp/foo.sock');
+        $address = Address\Unix::of('/tmp/foo');
+        $server = Server\Unix::recoverable($address)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($server);
+
+        $client = Client\Unix::of($address)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($client);
+
+        $sent = IO::of(Select::waitForever(...))
+            ->sockets()
+            ->clients()
+            ->wrap($client)
+            ->watch()
+            ->toEncoding(Str\Encoding::ascii)
+            ->send(Sequence::of(
+                Str::of("GET / HTTP/1.1\n"),
+                Str::of("Host: example.com\n"),
+                Str::of("\n"),
+            ))
+            ->match(
+                static fn() => true,
+                static fn() => false,
+            );
+
+        $this->assertTrue($sent);
+
+        $read = $server
+            ->accept()
+            ->flatMap(static fn($client) => $client->read())
+            ->match(
+                static fn($data) => $data->toString(),
+                static fn() => null,
+            );
+
+        $this->assertSame(
+            <<<HTTP
+            GET / HTTP/1.1
+            Host: example.com
+
+
+            HTTP,
+            $read,
+        );
+        $client->close();
+        $server->close();
     }
 }

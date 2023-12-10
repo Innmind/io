@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `Innmind\IO\IO::sockets()`
+
 ## 2.4.1 - 2023-12-03
 
 ### Fixed
