@@ -7,6 +7,7 @@ use Innmind\IO\{
     IO,
     Readable\Frame,
 };
+use Innmind\TimeContinuum\Earth\ElapsedPeriod;
 use Innmind\Socket\{
     Server,
     Client,
@@ -536,6 +537,130 @@ class FunctionalTest extends TestCase
             HTTP,
             $read,
         );
+        $client->close();
+        $server->close();
+    }
+
+    public function testSocketClientHeartbeatWithSocketClosing()
+    {
+        @\unlink('/tmp/foo.sock');
+        $address = Address\Unix::of('/tmp/foo');
+        $server = Server\Unix::recoverable($address)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($server);
+
+        $client = Client\Unix::of($address)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($client);
+
+        $heartbeats = 0;
+        $result = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($client)
+            ->timeoutAfter(ElapsedPeriod::of(500))
+            ->toEncoding(Str\Encoding::ascii)
+            ->heartbeatWith(function() use (&$heartbeats, $server, $client) {
+                if ($heartbeats === 0) {
+                    ++$heartbeats;
+
+                    return Sequence::of(Str::of('foo'));
+                }
+
+                if ($heartbeats === 1) {
+                    ++$heartbeats;
+                    $this->assertSame(
+                        'foo',
+                        $server
+                            ->accept()
+                            ->flatMap(static fn($client) => $client->read())
+                            ->match(
+                                static fn($data) => $data->toString(),
+                                static fn() => null,
+                            ),
+                    );
+                    $client->close();
+                }
+
+                return Sequence::of();
+            })
+            ->frames(Frame\Chunk::of(1))
+            ->one()
+            ->match(
+                static fn() => true,
+                static fn() => false,
+            );
+
+        $this->assertSame(2, $heartbeats);
+        $this->assertTrue($client->closed());
+        $this->assertFalse($result, 'It should fail due to the closing of the socket');
+        $server->close();
+    }
+
+    public function testSocketClientHeartbeat_()
+    {
+        @\unlink('/tmp/foo.sock');
+        $address = Address\Unix::of('/tmp/foo');
+        $server = Server\Unix::recoverable($address)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($server);
+
+        $client = Client\Unix::of($address)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($client);
+
+        $heartbeats = 0;
+        $result = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($client)
+            ->timeoutAfter(ElapsedPeriod::of(500))
+            ->toEncoding(Str\Encoding::ascii)
+            ->heartbeatWith(function() use (&$heartbeats, $server, $client) {
+                if ($heartbeats === 0) {
+                    ++$heartbeats;
+
+                    return Sequence::of(Str::of('foo'));
+                }
+
+                if ($heartbeats === 1) {
+                    ++$heartbeats;
+                    $this->assertSame(
+                        'foo',
+                        $server
+                            ->accept()
+                            ->flatMap(static fn($client) => $client->write(Str::of('bar'))->maybe())
+                            ->flatMap(static fn($client) => $client->read())
+                            ->match(
+                                static fn($data) => $data->toString(),
+                                static fn() => null,
+                            ),
+                    );
+                }
+
+                return Sequence::of();
+            })
+            ->frames(Frame\Chunk::of(3))
+            ->one()
+            ->match(
+                static fn($response) => $response->toString(),
+                static fn() => null,
+            );
+
+        $this->assertSame(2, $heartbeats);
+        $this->assertSame('bar', $result);
         $client->close();
         $server->close();
     }

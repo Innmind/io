@@ -40,6 +40,8 @@ final class Client
     private $readyToWrite;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
+    /** @var Maybe<callable(): Sequence<Str>> */
+    private Maybe $heartbeat;
 
     /**
      * @psalm-mutation-free
@@ -49,6 +51,7 @@ final class Client
      * @param callable(T): Maybe<T> $readyToRead
      * @param callable(T): Maybe<Writable> $readyToWrite
      * @param Maybe<Str\Encoding> $encoding
+     * @param Maybe<callable(): Sequence<Str>> $heartbeat
      */
     private function __construct(
         callable $watch,
@@ -56,12 +59,14 @@ final class Client
         callable $readyToRead,
         callable $readyToWrite,
         Maybe $encoding,
+        Maybe $heartbeat,
     ) {
         $this->watch = $watch;
         $this->socket = $socket;
         $this->readyToRead = $readyToRead;
         $this->readyToWrite = $readyToWrite;
         $this->encoding = $encoding;
+        $this->heartbeat = $heartbeat;
     }
 
     /**
@@ -80,6 +85,8 @@ final class Client
     ): self {
         /** @var Maybe<Str\Encoding> */
         $encoding = Maybe::nothing();
+        /** @var Maybe<callable(): Sequence<Str>> */
+        $heartbeat = Maybe::nothing();
 
         /** @var self<A> */
         return new self(
@@ -88,6 +95,7 @@ final class Client
             static fn(Socket $socket) => Maybe::just($socket),
             static fn(Socket $socket) => Maybe::just($socket),
             $encoding,
+            $heartbeat,
         );
     }
 
@@ -112,6 +120,7 @@ final class Client
             $this->readyToRead,
             $this->readyToWrite,
             Maybe::just($encoding),
+            $this->heartbeat,
         );
     }
 
@@ -142,6 +151,7 @@ final class Client
                     static fn($ready) => $ready === $socket,
                 )),
             $this->encoding,
+            $this->heartbeat,
         );
     }
 
@@ -170,6 +180,28 @@ final class Client
                     static fn($ready) => $ready === $socket,
                 )),
             $this->encoding,
+            $this->heartbeat,
+        );
+    }
+
+    /**
+     * When reading from the socket, if a timeout occurs then it will send the
+     * data provided by the callback and then restart watching for the socket
+     * to be readable.
+     *
+     * @param callable(): Sequence<Str> $provide
+     *
+     * @return self<T>
+     */
+    public function heartbeatWith(callable $provide): self
+    {
+        return new self(
+            $this->watch,
+            $this->socket,
+            $this->readyToRead,
+            $this->readyToWrite,
+            $this->encoding,
+            Maybe::just($provide),
         );
     }
 
@@ -216,7 +248,7 @@ final class Client
     {
         return Chunks::of(
             $this->socket,
-            $this->readyToRead,
+            $this->readyToRead(),
             $this->encoding,
             $size,
         );
@@ -229,7 +261,7 @@ final class Client
     {
         return Lines::of(
             $this->socket,
-            $this->readyToRead,
+            $this->readyToRead(),
             $this->encoding,
         );
     }
@@ -247,7 +279,7 @@ final class Client
         return Frames::of(
             $frame,
             $this->socket,
-            $this->readyToRead,
+            $this->readyToRead(),
             $this->encoding,
         );
     }
@@ -258,5 +290,45 @@ final class Client
     public function size(): Maybe
     {
         return $this->socket->size();
+    }
+
+    /**
+     * @psalm-mutation-free
+     *
+     * @return callable(T): Maybe<T>
+     */
+    private function readyToRead(): callable
+    {
+        return $this->heartbeat->match(
+            fn($provide) => function(Socket $socket) use ($provide) {
+                do {
+                    $ready = ($this->readyToRead)($socket);
+                    $socketReadable = $ready->match(
+                        static fn() => true,
+                        static fn() => false,
+                    );
+
+                    if ($socketReadable) {
+                        return $ready;
+                    }
+
+                    $sent = $this
+                        ->send($provide())
+                        ->match(
+                            static fn() => true,
+                            static fn() => false,
+                        );
+
+                    if (!$sent) {
+                        /** @var Maybe<T> */
+                        return Maybe::nothing();
+                    }
+                } while (!$socket->closed());
+
+                /** @var Maybe<T> */
+                return Maybe::nothing();
+            },
+            fn() => $this->readyToRead,
+        );
     }
 }
