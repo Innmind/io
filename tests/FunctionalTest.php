@@ -603,7 +603,7 @@ class FunctionalTest extends TestCase
         $server->close();
     }
 
-    public function testSocketClientHeartbeat_()
+    public function testSocketClientHeartbeat()
     {
         @\unlink('/tmp/foo.sock');
         $address = Address\Unix::of('/tmp/foo');
