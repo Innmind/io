@@ -724,4 +724,160 @@ class FunctionalTest extends TestCase
         $client->close();
         $server->close();
     }
+
+    public function testServerAcceptConnection()
+    {
+        @\unlink('/tmp/foo.sock');
+        $address = Address\Unix::of('/tmp/foo');
+        $server = Server\Unix::recoverable($address)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($server);
+
+        $client = Client\Unix::of($address)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($client);
+
+        $_ = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($client)
+            ->send(Sequence::of(Str::of('foo')))
+            ->match(
+                static fn() => null,
+                static fn() => null,
+            );
+
+        $result = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->servers()
+            ->wrap($server)
+            ->timeoutAfter(ElapsedPeriod::of(1_000))
+            ->accept()
+            ->flatMap(
+                static fn($client) => $client
+                    ->frames(Frame\Chunk::of(3))
+                    ->one(),
+            )
+            ->match(
+                static fn($data) => $data->toString(),
+                static fn() => null,
+            );
+
+        $this->assertSame('foo', $result);
+        $client->close();
+        $server->close();
+    }
+
+    public function testServerPool()
+    {
+        @\unlink('/tmp/foo.sock');
+        @\unlink('/tmp/bar.sock');
+        @\unlink('/tmp/baz.sock');
+        $addressFoo = Address\Unix::of('/tmp/foo');
+        $addressBar = Address\Unix::of('/tmp/bar');
+        $addressBaz = Address\Unix::of('/tmp/baz');
+        $serverFoo = Server\Unix::recoverable($addressFoo)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($serverFoo);
+
+        $serverBar = Server\Unix::recoverable($addressBar)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($serverBar);
+
+        $serverBaz = Server\Unix::recoverable($addressBaz)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($serverBaz);
+
+        $clientFoo = Client\Unix::of($addressFoo)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($clientFoo);
+
+        $clientBar = Client\Unix::of($addressBar)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($clientBar);
+
+        $clientBaz = Client\Unix::of($addressBaz)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($clientBaz);
+
+        $_ = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($clientFoo)
+            ->send(Sequence::of(Str::of('foo')))
+            ->match(
+                static fn() => null,
+                static fn() => null,
+            );
+        $_ = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($clientBar)
+            ->send(Sequence::of(Str::of('bar')))
+            ->match(
+                static fn() => null,
+                static fn() => null,
+            );
+        $_ = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($clientBaz)
+            ->send(Sequence::of(Str::of('baz')))
+            ->match(
+                static fn() => null,
+                static fn() => null,
+            );
+
+        $servers = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->servers();
+        $result = $servers
+            ->wrap($serverFoo)
+            ->with($servers->wrap($serverBar))
+            ->with($servers->wrap($serverBaz))
+            ->timeoutAfter(ElapsedPeriod::of(1_000))
+            ->accept()
+            ->flatMap(
+                static fn($client) => $client
+                    ->frames(Frame\Chunk::of(3))
+                    ->one()
+                    ->toSequence(),
+            )
+            ->map(static fn($data) => $data->toString());
+
+        $this->assertCount(3, $result);
+        $this->assertTrue($result->contains('foo'));
+        $this->assertTrue($result->contains('bar'));
+        $this->assertTrue($result->contains('baz'));
+        $clientFoo->close();
+        $clientBar->close();
+        $clientBaz->close();
+        $serverFoo->close();
+        $serverBar->close();
+        $serverBaz->close();
+    }
 }

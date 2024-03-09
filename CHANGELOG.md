@@ -1,5 +1,17 @@
 # Changelog
 
+## 2.7.0 - 2024-03-09
+
+### Added
+
+- `Innmind\IO\Sockets::servers()`
+- `Innmind\IO\Sockets\Servers`
+- `Innmind\IO\Sockets\Server\Pool`
+
+### Changed
+
+- Requires `innmind/immutable:~5.2`
+
 ## 2.6.0 - 2024-03-09
 
 ### Added
