@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.6.0 - 2024-03-09
+
+### Added
+
+- `Innmind\IO\Sockets\Client::abortWhen()`
+
 ## 2.5.0 - 2023-12-10
 
 ### Added

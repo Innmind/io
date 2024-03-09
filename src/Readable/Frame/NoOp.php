@@ -4,10 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Readable\Frame;
 
 use Innmind\IO\Readable\Frame;
-use Innmind\Immutable\{
-    Maybe,
-    Str,
-};
+use Innmind\Immutable\Maybe;
 
 /**
  * Use this frame to hardcode a value inside a frame composition
