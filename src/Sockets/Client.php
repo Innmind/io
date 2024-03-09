@@ -216,7 +216,8 @@ final class Client
 
     /**
      * This method is called when using a heartbeat is defined to abort
-     * restarting the watching of the socket.
+     * restarting the watching of the socket. It is also used to abort when
+     * sending messages (the abort is triggered before trying to send a message).
      *
      * Use this method to abort the watch when you receive signals.
      *
@@ -252,7 +253,7 @@ final class Client
                 static fn() => $data,
             ))
             ->matches(
-                fn($data) => ($this->readyToWrite)($this->socket)
+                fn($data) => (!($this->abort)()) && ($this->readyToWrite)($this->socket)
                     ->flatMap(
                         static fn($socket) => $socket
                             ->write($data)
