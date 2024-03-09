@@ -66,6 +66,16 @@ final class Server
     }
 
     /**
+     * @param self<T> $socket
+     *
+     * @return Server\Pool<T>
+     */
+    public function with(self $socket): Server\Pool
+    {
+        return Server\Pool::of($this->watch, $this->socket, $socket->unwrap());
+    }
+
+    /**
      * @return T
      */
     public function unwrap(): Socket
