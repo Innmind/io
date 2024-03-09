@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `Innmind\IO\Sockets::servers()`
+- `Innmind\IO\Sockets\Servers`
+
 ## 2.6.0 - 2024-03-09
 
 ### Added

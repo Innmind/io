@@ -724,4 +724,53 @@ class FunctionalTest extends TestCase
         $client->close();
         $server->close();
     }
+
+    public function testServerAcceptConnection()
+    {
+        @\unlink('/tmp/foo.sock');
+        $address = Address\Unix::of('/tmp/foo');
+        $server = Server\Unix::recoverable($address)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($server);
+
+        $client = Client\Unix::of($address)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($client);
+
+        $_ = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($client)
+            ->send(Sequence::of(Str::of('foo')))
+            ->match(
+                static fn() => null,
+                static fn() => null,
+            );
+
+        $result = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->servers()
+            ->wrap($server)
+            ->timeoutAfter(ElapsedPeriod::of(1_000))
+            ->accept()
+            ->flatMap(
+                static fn($client) => $client
+                    ->frames(Frame\Chunk::of(3))
+                    ->one(),
+            )
+            ->match(
+                static fn($data) => $data->toString(),
+                static fn() => null,
+            );
+
+        $this->assertSame('foo', $result);
+        $client->close();
+        $server->close();
+    }
 }

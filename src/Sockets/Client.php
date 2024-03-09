@@ -10,7 +10,10 @@ use Innmind\IO\Readable\{
     Lines,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\Socket\Client as Socket;
+use Innmind\Socket\{
+    Client as Socket,
+    Server\Connection,
+};
 use Innmind\Stream\{
     Writable,
     Stream\Size,
@@ -25,12 +28,12 @@ use Innmind\Immutable\{
 };
 
 /**
- * @template-covariant T of Socket
+ * @template-covariant T of Socket|Connection
  */
 final class Client
 {
     /** @var T */
-    private Socket $socket;
+    private Socket|Connection $socket;
     /** @var callable(?ElapsedPeriod): Watch */
     private $watch;
     /** @var callable(T): Maybe<T> */
@@ -57,7 +60,7 @@ final class Client
      */
     private function __construct(
         callable $watch,
-        Socket $socket,
+        Socket|Connection $socket,
         callable $readyToRead,
         callable $readyToWrite,
         Maybe $encoding,
@@ -76,7 +79,7 @@ final class Client
     /**
      * @psalm-mutation-free
      * @internal
-     * @template A of Socket
+     * @template A of Socket|Connection
      *
      * @param callable(?ElapsedPeriod): Watch $watch
      * @param A $socket
@@ -85,7 +88,7 @@ final class Client
      */
     public static function of(
         callable $watch,
-        Socket $socket,
+        Socket|Connection $socket,
     ): self {
         /** @var Maybe<Str\Encoding> */
         $encoding = Maybe::nothing();
@@ -96,8 +99,8 @@ final class Client
         return new self(
             $watch,
             $socket,
-            static fn(Socket $socket) => Maybe::just($socket),
-            static fn(Socket $socket) => Maybe::just($socket),
+            static fn(Socket|Connection $socket) => Maybe::just($socket),
+            static fn(Socket|Connection $socket) => Maybe::just($socket),
             $encoding,
             $heartbeat,
             static fn() => false,
@@ -107,7 +110,7 @@ final class Client
     /**
      * @return T
      */
-    public function unwrap(): Socket
+    public function unwrap(): Socket|Connection
     {
         return $this->socket;
     }
@@ -143,14 +146,18 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            fn(Socket $socket) => ($this->watch)(null)
+            fn(Socket|Connection $socket) => ($this->watch)(null)
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(Instance::of(Socket::class)),
-            fn(Socket $socket) => ($this->watch)(null)
+                ->keep(
+                    Instance::of(Socket::class)->or(
+                        Instance::of(Connection::class),
+                    ),
+                ),
+            fn(Socket|Connection $socket) => ($this->watch)(null)
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(
@@ -173,14 +180,18 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            fn(Socket $socket) => ($this->watch)($timeout)
+            fn(Socket|Connection $socket) => ($this->watch)($timeout)
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(Instance::of(Socket::class)),
-            fn(Socket $socket) => ($this->watch)($timeout)
+                ->keep(
+                    Instance::of(Socket::class)->or(
+                        Instance::of(Connection::class),
+                    ),
+                ),
+            fn(Socket|Connection $socket) => ($this->watch)($timeout)
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(
@@ -333,7 +344,7 @@ final class Client
     private function readyToRead(): callable
     {
         return $this->heartbeat->match(
-            fn($provide) => function(Socket $socket) use ($provide) {
+            fn($provide) => function(Socket|Connection $socket) use ($provide) {
                 do {
                     $ready = ($this->readyToRead)($socket);
                     $socketReadable = $ready->match(
