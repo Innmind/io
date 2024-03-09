@@ -12,7 +12,6 @@ use Innmind\IO\Readable\{
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Socket\Client as Socket;
 use Innmind\Stream\{
-    Readable,
     Writable,
     Stream\Size,
     Watch,

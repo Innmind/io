@@ -17,15 +17,11 @@ use Innmind\Stream\{
     Readable\Stream,
     Watch\Select,
 };
-use Innmind\Url\{
-    Url,
-    Path,
-};
+use Innmind\Url\Path;
 use Innmind\Immutable\{
     Sequence,
     Fold,
     Str,
-    Monoid\Concat,
 };
 use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
