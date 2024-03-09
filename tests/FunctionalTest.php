@@ -624,7 +624,7 @@ class FunctionalTest extends TestCase
             ->wrap($client)
             ->timeoutAfter(ElapsedPeriod::of(500))
             ->toEncoding(Str\Encoding::ascii)
-            ->heartbeatWith(function() use (&$heartbeats, $server, $client) {
+            ->heartbeatWith(function() use (&$heartbeats, $server) {
                 if ($heartbeats === 0) {
                     ++$heartbeats;
 
@@ -657,6 +657,70 @@ class FunctionalTest extends TestCase
 
         $this->assertSame(2, $heartbeats);
         $this->assertSame('bar', $result);
+        $client->close();
+        $server->close();
+    }
+
+    public function testSocketAbort()
+    {
+        @\unlink('/tmp/foo.sock');
+        $address = Address\Unix::of('/tmp/foo');
+        $server = Server\Unix::recoverable($address)->match(
+            static fn($server) => $server,
+            static fn() => null,
+        );
+
+        $this->assertNotNull($server);
+
+        $client = Client\Unix::of($address)->match(
+            static fn($socket) => $socket,
+            static fn() => null,
+        );
+        $clientFromServerSide = null;
+
+        $this->assertNotNull($client);
+
+        $heartbeats = 0;
+        $result = IO::of(Select::timeoutAfter(...))
+            ->sockets()
+            ->clients()
+            ->wrap($client)
+            ->timeoutAfter(ElapsedPeriod::of(500))
+            ->toEncoding(Str\Encoding::ascii)
+            ->heartbeatWith(function() use (&$heartbeats, $server, &$clientFromServerSide) {
+                if ($heartbeats === 1) {
+                    $clientFromServerSide = $server->accept()->match(
+                        static fn($client) => $client,
+                        static fn() => null,
+                    );
+                }
+
+                if ($clientFromServerSide) {
+                    $this->assertSame(
+                        'foo',
+                        $clientFromServerSide->read()->match(
+                            static fn($data) => $data->toString(),
+                            static fn() => null,
+                        ),
+                    );
+                }
+
+                ++$heartbeats;
+
+                return Sequence::of(Str::of('foo'));
+            })
+            ->abortWhen(static function() use (&$heartbeats) {
+                return $heartbeats > 2;
+            })
+            ->frames(Frame\Chunk::of(3))
+            ->one()
+            ->match(
+                static fn($response) => $response->toString(),
+                static fn() => null,
+            );
+
+        $this->assertSame(3, $heartbeats);
+        $this->assertNull($result);
         $client->close();
         $server->close();
     }

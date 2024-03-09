@@ -41,6 +41,8 @@ final class Client
     private Maybe $encoding;
     /** @var Maybe<callable(): Sequence<Str>> */
     private Maybe $heartbeat;
+    /** @var callable(): bool */
+    private $abort;
 
     /**
      * @psalm-mutation-free
@@ -51,6 +53,7 @@ final class Client
      * @param callable(T): Maybe<Writable> $readyToWrite
      * @param Maybe<Str\Encoding> $encoding
      * @param Maybe<callable(): Sequence<Str>> $heartbeat
+     * @param callable(): bool $abort
      */
     private function __construct(
         callable $watch,
@@ -59,6 +62,7 @@ final class Client
         callable $readyToWrite,
         Maybe $encoding,
         Maybe $heartbeat,
+        callable $abort,
     ) {
         $this->watch = $watch;
         $this->socket = $socket;
@@ -66,6 +70,7 @@ final class Client
         $this->readyToWrite = $readyToWrite;
         $this->encoding = $encoding;
         $this->heartbeat = $heartbeat;
+        $this->abort = $abort;
     }
 
     /**
@@ -95,6 +100,7 @@ final class Client
             static fn(Socket $socket) => Maybe::just($socket),
             $encoding,
             $heartbeat,
+            static fn() => false,
         );
     }
 
@@ -120,6 +126,7 @@ final class Client
             $this->readyToWrite,
             Maybe::just($encoding),
             $this->heartbeat,
+            $this->abort,
         );
     }
 
@@ -151,6 +158,7 @@ final class Client
                 )),
             $this->encoding,
             $this->heartbeat,
+            $this->abort,
         );
     }
 
@@ -180,6 +188,7 @@ final class Client
                 )),
             $this->encoding,
             $this->heartbeat,
+            $this->abort,
         );
     }
 
@@ -201,6 +210,30 @@ final class Client
             $this->readyToWrite,
             $this->encoding,
             Maybe::just($provide),
+            $this->abort,
+        );
+    }
+
+    /**
+     * This method is called when using a heartbeat is defined to abort
+     * restarting the watching of the socket.
+     *
+     * Use this method to abort the watch when you receive signals.
+     *
+     * @param callable(): bool $abort
+     *
+     * @return self<T>
+     */
+    public function abortWhen(callable $abort): self
+    {
+        return new self(
+            $this->watch,
+            $this->socket,
+            $this->readyToRead,
+            $this->readyToWrite,
+            $this->encoding,
+            $this->heartbeat,
+            $abort,
         );
     }
 
@@ -322,7 +355,7 @@ final class Client
                         /** @var Maybe<T> */
                         return Maybe::nothing();
                     }
-                } while (!$socket->closed());
+                } while (!($this->abort)() && !$socket->closed());
 
                 /** @var Maybe<T> */
                 return Maybe::nothing();
