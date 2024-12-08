@@ -21,7 +21,8 @@
         "innmind/socket": "~6.1",
         "innmind/url": "~4.3",
         "innmind/time-continuum": "~3.4",
-        "innmind/ip": "~3.2"
+        "innmind/ip": "~3.2",
+        "innmind/validation": "^1.7"
     },
     "autoload": {
         "psr-4": {

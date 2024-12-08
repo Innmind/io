@@ -5,8 +5,9 @@ require 'vendor/autoload.php';
 
 use Innmind\BlackBox\{
     Application,
-    PHPUnit\Load,
+    Runner\Load,
     Runner\CodeCoverage,
+    PHPUnit,
 };
 
 Application::new($argv)
@@ -17,10 +18,14 @@ Application::new($argv)
                 CodeCoverage::of(
                     __DIR__.'/src/',
                     __DIR__.'/tests/',
+                    __DIR__.'/proofs/',
                 )
                     ->dumpTo('coverage.clover')
                     ->enableWhen(true),
             ),
     )
-    ->tryToProve(Load::directory(__DIR__.'/tests/'))
+    ->tryToProve(static function() {
+        yield from PHPUnit\Load::testsAt(__DIR__.'/tests/');
+        yield from Load::everythingIn(__DIR__.'/proofs/')();
+    })
     ->exit();
