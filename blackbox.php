@@ -16,7 +16,7 @@ Application::new($argv)
             ->codeCoverage(
                 CodeCoverage::of(
                     __DIR__.'/src/',
-                    __DIR__.'/proofs/',
+                    __DIR__.'/tests/',
                     __DIR__.'/fixtures/',
                 )
                     ->dumpTo('coverage.clover')
