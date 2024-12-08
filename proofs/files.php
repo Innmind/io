@@ -5,7 +5,9 @@ use Innmind\IO\Next\IO;
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Str,
+    Sequence,
     Monoid\Concat,
+    SideEffect,
 };
 use Innmind\BlackBox\Set;
 
@@ -199,6 +201,38 @@ return static function() {
                 ->number($size)
                 ->int();
             $assert->same(\strlen($data), $size);
+        },
+    );
+
+    yield proof(
+        'IO::files()->write()->sink()',
+        given(
+            $strings,
+            Set\Elements::of(...Str\Encoding::cases()),
+        ),
+        static function($assert, $chunks, $encoding) {
+            $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
+
+            $sideEffect = IO::fromAmbientAuthority()
+                ->files()
+                ->write(Path::of($tmp))
+                ->sink(
+                    Sequence::of(...$chunks)
+                        ->map(Str::of(...))
+                        ->map(static fn($chunk) => $chunk->toEncoding($encoding)),
+                )
+                ->match(
+                    static fn($sideEffect) => $sideEffect,
+                    static fn() => null,
+                );
+
+            $assert
+                ->object($sideEffect)
+                ->instance(SideEffect::class);
+            $assert->same(
+                \implode('', $chunks),
+                \file_get_contents($tmp),
+            );
         },
     );
 };
