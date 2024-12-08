@@ -14,8 +14,12 @@ use Innmind\Immutable\{
 
 final class Write
 {
+    /**
+     * @param \Closure(): (false|resource) $load
+     */
     private function __construct(
-        private Path $path,
+        private \Closure $load,
+        private bool $autoClose,
     ) {
     }
 
@@ -24,7 +28,20 @@ final class Write
      */
     public static function of(Path $path): self
     {
-        return new self($path);
+        return new self(
+            static fn() => \fopen($path->toString(), 'w'),
+            true,
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @param resource $resource
+     */
+    public static function temporary($resource): self
+    {
+        return new self(static fn() => $resource, false);
     }
 
     /**
@@ -48,12 +65,17 @@ final class Write
      */
     public function sink(Sequence $chunks): Maybe
     {
-        $resource = \fopen($this->path->toString(), 'w');
+        $resource = ($this->load)();
 
         if (!\is_resource($resource)) {
             /** @var Maybe<SideEffect> */
             return Maybe::nothing();
         }
+
+        $close = match ($this->autoClose) {
+            true => static fn() => \fclose($resource),
+            false => static fn() => true,
+        };
 
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
@@ -64,6 +86,6 @@ final class Write
                     ->filter(static fn($written) => $written === $chunk->length())
                     ->map(static fn() => new SideEffect),
             )
-            ->filter(static fn() => \fclose($resource));
+            ->filter($close);
     }
 }

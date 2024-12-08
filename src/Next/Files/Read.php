@@ -27,6 +27,7 @@ final class Read
     private function __construct(
         private \Closure $load,
         private ?Str\Encoding $encoding,
+        private bool $autoClose,
     ) {
     }
 
@@ -41,6 +42,28 @@ final class Read
                 'r',
             ),
             null,
+            true,
+        );
+    }
+
+    /**
+     * @internal
+     *
+     * @param resource $resource
+     */
+    public static function temporary($resource): self
+    {
+        return new self(
+            static function() use ($resource) {
+                match (\fseek($resource, 0)) {
+                    0 => null,
+                    default => throw new \RuntimeException('Failed to read file'),
+                };
+
+                return $resource;
+            },
+            null,
+            false,
         );
     }
 
@@ -52,6 +75,7 @@ final class Read
         return new self(
             $this->load,
             $encoding,
+            $this->autoClose,
         );
     }
 
@@ -109,18 +133,16 @@ final class Read
     public function chunks(int $size): Sequence
     {
         $load = $this->load;
+        $close = $this->close();
 
-        $chunks = Sequence::lazy(static function($cleanup) use ($load, $size) {
+        $chunks = Sequence::lazy(static function($cleanup) use ($load, $close, $size) {
             $resource = $load();
 
             if (!\is_resource($resource)) {
                 throw new \RuntimeException('Failed to load resource');
             }
 
-            $cleanup(static fn() => match (\fclose($resource)) {
-                true => null,
-                false => throw new \RuntimeException('Failed to close file'),
-            });
+            $cleanup(static fn() => $close($resource));
 
             do {
                 $data = \stream_get_contents($resource, $size);
@@ -145,9 +167,7 @@ final class Read
                 throw new \RuntimeException('Failed to read file');
             } while (!\feof($resource));
 
-            if (!\fclose($resource)) {
-                throw new \RuntimeException('Failed to close file');
-            }
+            $close($resource);
         });
 
         if ($this->encoding) {
@@ -167,18 +187,16 @@ final class Read
     public function lines(): Sequence
     {
         $load = $this->load;
+        $close = $this->close();
 
-        $lines = Sequence::lazy(static function($cleanup) use ($load) {
+        $lines = Sequence::lazy(static function($cleanup) use ($load, $close) {
             $resource = $load();
 
             if (!\is_resource($resource)) {
                 throw new \RuntimeException('Failed to load resource');
             }
 
-            $cleanup(static fn() => match (\fclose($resource)) {
-                true => null,
-                false => throw new \RuntimeException('Failed to close file'),
-            });
+            $cleanup(static fn() => $close($resource));
 
             do {
                 $data = \fgets($resource);
@@ -203,9 +221,7 @@ final class Read
                 throw new \RuntimeException('Failed to read file');
             } while (!\feof($resource));
 
-            if (!\fclose($resource)) {
-                throw new \RuntimeException('Failed to close file');
-            }
+            $close($resource);
         });
 
         if ($this->encoding) {
@@ -217,5 +233,19 @@ final class Read
         }
 
         return $lines;
+    }
+
+    /**
+     * @return callable(resource): void
+     */
+    private function close(): callable
+    {
+        return match ($this->autoClose) {
+            true => static fn(mixed $resource) => /** @var resource $resource */ match (\fclose($resource)) {
+                true => null,
+                false => throw new \RuntimeException('Failed to close file'),
+            },
+            false => static fn() => null,
+        };
     }
 }

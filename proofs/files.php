@@ -1,7 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-use Innmind\IO\Next\IO;
+use Innmind\IO\Next\{
+    IO,
+    Files\Read,
+};
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Str,
@@ -232,6 +235,41 @@ return static function() {
             $assert->same(
                 \implode('', $chunks),
                 \file_get_contents($tmp),
+            );
+        },
+    );
+
+    yield proof(
+        'IO::files()->temporary()',
+        given($strings),
+        static function($assert, $chunks) {
+            $read = IO::fromAmbientAuthority()
+                ->files()
+                ->temporary(Sequence::of(...$chunks)->map(Str::of(...)))
+                ->match(
+                    static fn($read) => $read,
+                    static fn() => null,
+                );
+
+            $assert
+                ->object($read)
+                ->instance(Read::class);
+
+            $expected = \implode('', $chunks);
+            $assert->same(
+                $expected,
+                $read
+                    ->lines()
+                    ->fold(new Concat)
+                    ->toString(),
+            );
+            $assert->same(
+                $expected,
+                $read
+                    ->lines()
+                    ->fold(new Concat)
+                    ->toString(),
+                'Temporary file should be accessible multiple times',
             );
         },
     );

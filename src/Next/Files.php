@@ -45,7 +45,15 @@ final class Files
      */
     public function temporary(Sequence $chunks): Maybe
     {
-        /** @var Maybe<Read> */
-        return Maybe::nothing();
+        $tmp = \fopen('php://temp', 'r+');
+
+        if (!\is_resource($tmp)) {
+            /** @var Maybe<Read> */
+            return Maybe::nothing();
+        }
+
+        return Write::temporary($tmp)
+            ->sink($chunks)
+            ->map(static fn() => Read::temporary($tmp));
     }
 }
