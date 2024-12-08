@@ -23,9 +23,9 @@ use Innmind\Immutable\{
     Fold,
     Str,
 };
-use PHPUnit\Framework\TestCase;
 use Innmind\BlackBox\{
     PHPUnit\BlackBox,
+    PHPUnit\Framework\TestCase,
     Set,
 };
 
