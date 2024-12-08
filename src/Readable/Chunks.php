@@ -67,9 +67,12 @@ final class Chunks
     }
 
     /**
+     * @deprecated
      * @template F
      * @template R
      * @template C
+     *
+     * @psalm-suppress DeprecatedClass
      *
      * @param Fold<F, R, C> $fold
      * @param callable(C, Str): Fold<F, R, C> $map
