@@ -16,9 +16,12 @@
     },
     "require": {
         "php": "~8.2",
-        "innmind/immutable": "~5.2",
+        "innmind/immutable": "~5.11",
         "innmind/stream": "~4.0",
-        "innmind/socket": "~6.1"
+        "innmind/socket": "~6.1",
+        "innmind/url": "~4.3",
+        "innmind/time-continuum": "~3.4",
+        "innmind/ip": "~3.2"
     },
     "autoload": {
         "psr-4": {
