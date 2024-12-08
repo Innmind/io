@@ -117,7 +117,10 @@ final class Read
                 throw new \RuntimeException('Failed to load resource');
             }
 
-            $cleanup(static fn() => \fclose($resource));
+            $cleanup(static fn() => match (\fclose($resource)) {
+                true => null,
+                false => throw new \RuntimeException('Failed to close file'),
+            });
 
             do {
                 $data = \stream_get_contents($resource, $size);
@@ -142,7 +145,9 @@ final class Read
                 throw new \RuntimeException('Failed to read file');
             } while (!\feof($resource));
 
-            \fclose($resource);
+            if (!\fclose($resource)) {
+                throw new \RuntimeException('Failed to close file');
+            }
         });
 
         if ($this->encoding) {
@@ -170,7 +175,10 @@ final class Read
                 throw new \RuntimeException('Failed to load resource');
             }
 
-            $cleanup(static fn() => \fclose($resource));
+            $cleanup(static fn() => match (\fclose($resource)) {
+                true => null,
+                false => throw new \RuntimeException('Failed to close file'),
+            });
 
             do {
                 $data = \fgets($resource);
@@ -195,7 +203,9 @@ final class Read
                 throw new \RuntimeException('Failed to read file');
             } while (!\feof($resource));
 
-            \fclose($resource);
+            if (!\fclose($resource)) {
+                throw new \RuntimeException('Failed to close file');
+            }
         });
 
         if ($this->encoding) {
