@@ -180,4 +180,38 @@ return static function() {
             );
         },
     );
+
+    yield proof(
+        'Frame::filter()',
+        given(
+            Set\Unicode::strings()->map(Str::of(...)),
+        ),
+        static function($assert, $string) {
+            $frame = Frame::line();
+
+            $assert->same(
+                $string,
+                $frame(
+                    static fn() => Maybe::nothing(),
+                    static fn() => Maybe::just($string),
+                )
+                    ->filter(static fn() => true)
+                    ->match(
+                        static fn($value) => $value,
+                        static fn() => null,
+                    ),
+            );
+            $assert->null(
+                $frame(
+                    static fn() => Maybe::nothing(),
+                    static fn() => Maybe::just($string),
+                )
+                    ->filter(static fn() => false)
+                    ->match(
+                        static fn($value) => $value,
+                        static fn() => null,
+                    ),
+            );
+        },
+    );
 };
