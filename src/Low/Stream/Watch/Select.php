@@ -191,8 +191,9 @@ final class Select implements Watch
      */
     private function timeout(ElapsedPeriod $timeout): array
     {
-        $seconds = (int) ($timeout->milliseconds() / 1000);
-        $microseconds = ($timeout->milliseconds() - ($seconds * 1000)) * 1000;
+        $period = $timeout->asPeriod();
+        $seconds = $period->seconds();
+        $microseconds = ($period->milliseconds() * 1_000) + $period->microseconds();
 
         return [$seconds, $microseconds];
     }

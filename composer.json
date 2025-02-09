@@ -18,9 +18,9 @@
         "php": "~8.2",
         "innmind/immutable": "~5.11",
         "innmind/url": "~4.3",
-        "innmind/time-continuum": "~3.4",
+        "innmind/time-continuum": "^4.0.2",
         "innmind/ip": "~3.2",
-        "innmind/validation": "^1.7"
+        "innmind/validation": "~1.9"
     },
     "autoload": {
         "psr-4": {

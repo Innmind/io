@@ -7,7 +7,7 @@ use Innmind\IO\{
     IO,
     Readable\Frame,
 };
-use Innmind\TimeContinuum\Earth\ElapsedPeriod;
+use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Low\Socket\{
     Server,
     Client,
@@ -560,7 +560,7 @@ class FunctionalTest extends TestCase
             ->sockets()
             ->clients()
             ->wrap($client)
-            ->timeoutAfter(ElapsedPeriod::of(500))
+            ->timeoutAfter(ElapsedPeriod::of(0, 500, 0))
             ->toEncoding(Str\Encoding::ascii)
             ->heartbeatWith(function() use (&$heartbeats, $server, $client) {
                 if ($heartbeats === 0) {
@@ -622,7 +622,7 @@ class FunctionalTest extends TestCase
             ->sockets()
             ->clients()
             ->wrap($client)
-            ->timeoutAfter(ElapsedPeriod::of(500))
+            ->timeoutAfter(ElapsedPeriod::of(0, 500, 0))
             ->toEncoding(Str\Encoding::ascii)
             ->heartbeatWith(function() use (&$heartbeats, $server) {
                 if ($heartbeats === 0) {
@@ -685,7 +685,7 @@ class FunctionalTest extends TestCase
             ->sockets()
             ->clients()
             ->wrap($client)
-            ->timeoutAfter(ElapsedPeriod::of(500))
+            ->timeoutAfter(ElapsedPeriod::of(0, 500, 0))
             ->toEncoding(Str\Encoding::ascii)
             ->heartbeatWith(function() use (&$heartbeats, $server, &$clientFromServerSide) {
                 if ($heartbeats === 1) {
@@ -757,7 +757,7 @@ class FunctionalTest extends TestCase
             ->sockets()
             ->servers()
             ->wrap($server)
-            ->timeoutAfter(ElapsedPeriod::of(1_000))
+            ->timeoutAfter(ElapsedPeriod::of(1, 0, 0))
             ->accept()
             ->flatMap(
                 static fn($client) => $client
@@ -859,7 +859,7 @@ class FunctionalTest extends TestCase
             ->wrap($serverFoo)
             ->with($servers->wrap($serverBar))
             ->with($servers->wrap($serverBaz))
-            ->timeoutAfter(ElapsedPeriod::of(1_000))
+            ->timeoutAfter(ElapsedPeriod::of(1, 0, 0))
             ->accept()
             ->flatMap(
                 static fn($client) => $client
