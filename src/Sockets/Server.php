@@ -4,11 +4,11 @@ declare(strict_types = 1);
 namespace Innmind\IO\Sockets;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\Socket\{
+use Innmind\IO\Low\Socket\{
     Server as Socket,
     Server\Connection,
 };
-use Innmind\Stream\Watch;
+use Innmind\IO\Low\Stream\Watch;
 use Innmind\Immutable\{
     Maybe,
     Predicate\Instance,

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Readable\Lines;
 
 use Innmind\IO\Exception\FailedToLoadStream;
-use Innmind\Stream\Readable as LowLevelStream;
+use Innmind\IO\Low\Stream\Readable as LowLevelStream;
 use Innmind\Immutable\{
     Str,
     Sequence,

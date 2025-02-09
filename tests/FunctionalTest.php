@@ -8,12 +8,12 @@ use Innmind\IO\{
     Readable\Frame,
 };
 use Innmind\TimeContinuum\Earth\ElapsedPeriod;
-use Innmind\Socket\{
+use Innmind\IO\Low\Socket\{
     Server,
     Client,
     Address,
 };
-use Innmind\Stream\{
+use Innmind\IO\Low\Stream\{
     Readable\Stream,
     Watch\Select,
 };

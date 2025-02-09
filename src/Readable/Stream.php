@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Readable;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\Stream\{
+use Innmind\IO\Low\Stream\{
     Readable as LowLevelStream,
     Stream\Size,
     Watch,
