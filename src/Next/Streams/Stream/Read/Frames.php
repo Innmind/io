@@ -3,9 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Streams\Stream\Read;
 
-use Innmind\IO\Next\{
-    Streams\Stream\Read\Frames\Lazy,
-    Frame,
+use Innmind\IO\{
+    Next\Streams\Stream\Read\Frames\Lazy,
+    Next\Frame,
+    Readable,
 };
 use Innmind\Immutable\Maybe;
 
@@ -15,12 +16,12 @@ use Innmind\Immutable\Maybe;
 final class Frames
 {
     /**
-     * @param resource $resource
      * @param Frame<T> $frame
      */
     private function __construct(
-        private $resource,
+        private Readable\Stream $stream,
         private Frame $frame,
+        private bool $blocking,
     ) {
     }
 
@@ -28,14 +29,16 @@ final class Frames
      * @internal
      * @template A
      *
-     * @param resource $resource
      * @param Frame<A> $frame
      *
      * @return self<A>
      */
-    public static function of($resource, Frame $frame): self
-    {
-        return new self($resource, $frame);
+    public static function of(
+        Readable\Stream $stream,
+        Frame $frame,
+        bool $blocking,
+    ): self {
+        return new self($stream, $frame, $blocking);
     }
 
     /**
@@ -43,8 +46,11 @@ final class Frames
      */
     public function one(): Maybe
     {
-        /** @var Maybe<T> */
-        return Maybe::nothing();
+        // todo handle non blocking
+        return $this
+            ->stream
+            ->frames($this->frame->toOld())
+            ->one();
     }
 
     /**
@@ -52,6 +58,10 @@ final class Frames
      */
     public function lazy(): Lazy
     {
-        return Lazy::of($this->resource, $this->frame);
+        return Lazy::of(
+            $this->stream,
+            $this->frame,
+            $this->blocking,
+        );
     }
 }

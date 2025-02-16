@@ -3,31 +3,28 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Streams\Stream;
 
-use Innmind\IO\Next\{
-    Streams\Stream\Read\Frames,
-    Frame,
+use Innmind\IO\{
+    Next\Streams\Stream\Read\Frames,
+    Next\Frame,
+    Readable,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\Str;
 
 final class Read
 {
-    /**
-     * @param resource $resource
-     */
     private function __construct(
-        private $resource,
+        private Readable\Stream $stream,
+        private bool $blocking,
     ) {
     }
 
     /**
      * @internal
-     *
-     * @param resource $resource
      */
-    public static function of($resource): self
+    public static function of(Readable\Stream $stream): self
     {
-        return new self($resource);
+        return new self($stream, true);
     }
 
     /**
@@ -35,7 +32,10 @@ final class Read
      */
     public function nonBlocking(): self
     {
-        return $this;
+        return new self(
+            $this->stream,
+            false,
+        );
     }
 
     /**
@@ -43,7 +43,10 @@ final class Read
      */
     public function toEncoding(Str\Encoding $encoding): self
     {
-        return $this;
+        return new self(
+            $this->stream->toEncoding($encoding),
+            $this->blocking,
+        );
     }
 
     /**
@@ -51,7 +54,10 @@ final class Read
      */
     public function watch(): self
     {
-        return $this;
+        return new self(
+            $this->stream->watch(),
+            $this->blocking,
+        );
     }
 
     /**
@@ -59,7 +65,10 @@ final class Read
      */
     public function timeoutAfter(Period $period): self
     {
-        return $this;
+        return new self(
+            $this->stream->timeoutAfter($period->asElapsedPeriod()),
+            $this->blocking,
+        );
     }
 
     /**
@@ -67,6 +76,7 @@ final class Read
      */
     public function buffer(): self
     {
+        // todo
         return $this;
     }
 
@@ -79,6 +89,10 @@ final class Read
      */
     public function frames(Frame $frame): Frames
     {
-        return Frames::of($this->resource, $frame);
+        return Frames::of(
+            $this->stream,
+            $frame,
+            $this->blocking,
+        );
     }
 }

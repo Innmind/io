@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Streams\Stream;
 
+use Innmind\IO\Internal;
 use Innmind\Immutable\{
     Str,
     Maybe,
@@ -12,22 +13,17 @@ use Innmind\Immutable\{
 
 final class Write
 {
-    /**
-     * @param resource $resource
-     */
     private function __construct(
-        private $resource,
+        private Internal\Stream\Writable $stream,
     ) {
     }
 
     /**
      * @internal
-     *
-     * @param resource $resource
      */
-    public static function of($resource): self
+    public static function of(Internal\Stream\Writable $stream): self
     {
-        return new self($resource);
+        return new self($stream);
     }
 
     /**
@@ -35,6 +31,7 @@ final class Write
      */
     public function watch(): self
     {
+        // todo
         return $this;
     }
 
@@ -45,6 +42,14 @@ final class Write
      */
     public function sink(Sequence $chunks): Maybe
     {
-        return Maybe::just(new SideEffect);
+        return $chunks
+            ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
+            ->sink($this->stream)
+            ->maybe(
+                static fn($stream, $chunk) => $stream
+                    ->write($chunk)
+                    ->maybe(),
+            )
+            ->map(static fn() => new SideEffect);
     }
 }

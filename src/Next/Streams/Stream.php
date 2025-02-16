@@ -3,9 +3,11 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Streams;
 
-use Innmind\IO\Next\Streams\Stream\{
-    Read,
-    Write,
+use Innmind\IO\{
+    Next\Streams\Stream\Read,
+    Next\Streams\Stream\Write,
+    Internal,
+    IO as Previous,
 };
 use Innmind\Immutable\{
     Maybe,
@@ -14,32 +16,32 @@ use Innmind\Immutable\{
 
 final class Stream
 {
-    /**
-     * @param resource $resource
-     */
     private function __construct(
-        private $resource,
+        private Previous $io,
+        private Internal\Stream\Readable $readable,
+        private Internal\Stream\Writable $writable,
     ) {
     }
 
     /**
      * @internal
-     *
-     * @param resource $resource
      */
-    public static function of($resource): self
-    {
-        return new self($resource);
+    public static function of(
+        Previous $io,
+        Internal\Stream\Readable $readable,
+        Internal\Stream\Writable $writable,
+    ): self {
+        return new self($io, $readable, $writable);
     }
 
     public function read(): Read
     {
-        return Read::of($this->resource);
+        return Read::of($this->io->readable()->wrap($this->readable));
     }
 
     public function write(): Write
     {
-        return Write::of($this->resource);
+        return Write::of($this->writable);
     }
 
     /**
@@ -47,6 +49,6 @@ final class Stream
      */
     public function close(): Maybe
     {
-        return Maybe::just(new SideEffect);
+        return $this->readable->close()->maybe();
     }
 }

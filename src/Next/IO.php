@@ -37,7 +37,7 @@ final class IO
 
     public function streams(): Streams
     {
-        return Streams::of();
+        return Streams::of($this->io, $this->capabilities);
     }
 
     public function sockets(): Sockets

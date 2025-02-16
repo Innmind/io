@@ -3,20 +3,26 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next;
 
-use Innmind\IO\Next\Streams\Stream;
+use Innmind\IO\{
+    Next\Streams\Stream,
+    IO as Previous,
+    Internal\Stream\Streams as Capabilities,
+};
 
 final class Streams
 {
-    private function __construct()
-    {
+    private function __construct(
+        private Previous $io,
+        private Capabilities $capabilities,
+    ) {
     }
 
     /**
      * @internal
      */
-    public static function of(): self
+    public static function of(Previous $io, Capabilities $capabilities): self
     {
-        return new self;
+        return new self($io, $capabilities);
     }
 
     /**
@@ -24,6 +30,16 @@ final class Streams
      */
     public function acquire($resource): Stream
     {
-        return Stream::of($resource);
+        return Stream::of(
+            $this->io,
+            $this
+                ->capabilities
+                ->readable()
+                ->acquire($resource),
+            $this
+                ->capabilities
+                ->writable()
+                ->acquire($resource),
+        );
     }
 }
