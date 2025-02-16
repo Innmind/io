@@ -44,8 +44,9 @@ final class Servers
      */
     public function unix(Address $address): Maybe
     {
-        /** @var Maybe<Server> */
-        return Maybe::nothing();
+        return Internal\Socket\Server\Unix::of($address->toOld())
+            ->map($this->io->sockets()->servers()->wrap(...))
+            ->map(Server::of(...));
     }
 
     /**
@@ -53,7 +54,8 @@ final class Servers
      */
     public function takeOver(Address $address): Maybe
     {
-        /** @var Maybe<Server> */
-        return Maybe::nothing();
+        return Internal\Socket\Server\Unix::recoverable($address->toOld())
+            ->map($this->io->sockets()->servers()->wrap(...))
+            ->map(Server::of(...));
     }
 }

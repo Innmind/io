@@ -41,6 +41,7 @@ final class Pool
     {
         return $this
             ->pool
+            ->watch() // todo remove when shortest timeout is automatically determined
             ->accept()
             ->map(Client::of(...));
     }
