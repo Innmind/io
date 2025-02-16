@@ -32,6 +32,7 @@ final class Streams
     {
         return Stream::of(
             $this->io,
+            $this->capabilities,
             $this
                 ->capabilities
                 ->readable()

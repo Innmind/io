@@ -5,8 +5,11 @@ namespace Innmind\IO\Next\Streams\Stream;
 
 use Innmind\IO\{
     Next\Streams\Stream\Read\Frames,
+    Next\Streams\Stream\Read\Pool,
     Next\Frame,
     Readable,
+    Internal,
+    Internal\Stream\Streams as Capabilities,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\Str;
@@ -14,6 +17,7 @@ use Innmind\Immutable\Str;
 final class Read
 {
     private function __construct(
+        private Capabilities $capabilities,
         private Readable\Stream $stream,
         private bool $blocking,
     ) {
@@ -22,9 +26,19 @@ final class Read
     /**
      * @internal
      */
-    public static function of(Readable\Stream $stream): self
+    public static function of(
+        Capabilities $capabilities,
+        Readable\Stream $stream,
+    ): self {
+        return new self($capabilities, $stream, true);
+    }
+
+    /**
+     * @internal
+     */
+    public function internal(): Internal\Stream\Readable
     {
-        return new self($stream, true);
+        return $this->stream->unwrap();
     }
 
     /**
@@ -33,6 +47,7 @@ final class Read
     public function nonBlocking(): self
     {
         return new self(
+            $this->capabilities,
             $this->stream,
             false,
         );
@@ -44,6 +59,7 @@ final class Read
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
+            $this->capabilities,
             $this->stream->toEncoding($encoding),
             $this->blocking,
         );
@@ -55,6 +71,7 @@ final class Read
     public function watch(): self
     {
         return new self(
+            $this->capabilities,
             $this->stream->watch(),
             $this->blocking,
         );
@@ -66,6 +83,7 @@ final class Read
     public function timeoutAfter(Period $period): self
     {
         return new self(
+            $this->capabilities,
             $this->stream->timeoutAfter($period->asElapsedPeriod()),
             $this->blocking,
         );
@@ -78,6 +96,22 @@ final class Read
     {
         // todo
         return $this;
+    }
+
+    /**
+     * @template T
+     *
+     * @param T $id
+     *
+     * @return Pool<T>
+     */
+    public function pool(mixed $id): Pool
+    {
+        return Pool::of(
+            $this->capabilities,
+            $this,
+            $id,
+        );
     }
 
     /**

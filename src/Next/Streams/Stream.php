@@ -7,6 +7,7 @@ use Innmind\IO\{
     Next\Streams\Stream\Read,
     Next\Streams\Stream\Write,
     Internal,
+    Internal\Stream\Streams as Capabilities,
     IO as Previous,
 };
 use Innmind\Immutable\{
@@ -18,6 +19,7 @@ final class Stream
 {
     private function __construct(
         private Previous $io,
+        private Capabilities $capabilities,
         private Internal\Stream\Readable $readable,
         private Internal\Stream\Writable $writable,
     ) {
@@ -28,15 +30,19 @@ final class Stream
      */
     public static function of(
         Previous $io,
+        Capabilities $capabilities,
         Internal\Stream\Readable $readable,
         Internal\Stream\Writable $writable,
     ): self {
-        return new self($io, $readable, $writable);
+        return new self($io, $capabilities, $readable, $writable);
     }
 
     public function read(): Read
     {
-        return Read::of($this->io->readable()->wrap($this->readable));
+        return Read::of(
+            $this->capabilities,
+            $this->io->readable()->wrap($this->readable),
+        );
     }
 
     public function write(): Write
