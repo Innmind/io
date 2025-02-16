@@ -44,7 +44,7 @@ final class Server
         return Maybe::nothing();
     }
 
-    public function with(self $server): Pool
+    public function pool(self $server): Pool
     {
         return Pool::of($this, $server);
     }
