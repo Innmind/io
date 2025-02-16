@@ -10,6 +10,7 @@ use Innmind\IO\Internal\Stream\Exception\SizeCantBeNegative;
  */
 final class Size
 {
+    /** @var int<0, max> */
     private int $value;
 
     public function __construct(int $value)
@@ -21,6 +22,14 @@ final class Size
         $this->value = $value;
     }
 
+    public static function of(int $value): self
+    {
+        return new self($value);
+    }
+
+    /**
+     * @return int<0, max>
+     */
     public function toInt(): int
     {
         return $this->value;

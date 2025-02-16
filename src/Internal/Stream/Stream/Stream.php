@@ -10,10 +10,18 @@ use Innmind\IO\Internal\Stream\{
     PositionNotSeekable,
     Exception\InvalidArgumentException,
 };
+use Innmind\Validation\{
+    Is,
+    Of,
+    Constraint,
+    Failure,
+};
 use Innmind\Immutable\{
     Maybe,
     Either,
     SideEffect,
+    Validation,
+    Predicate\Instance,
 };
 
 final class Stream implements StreamInterface
@@ -121,12 +129,31 @@ final class Stream implements StreamInterface
             return Maybe::nothing();
         }
 
-        /** @psalm-suppress InvalidArgument Psalm doesn't understand the filter */
-        return Maybe::of(\fstat($this->resource))
-            ->filter(static fn($stats) => \is_array($stats))
-            ->flatMap(static fn(array $stats) => Maybe::of($stats['size'] ?? null))
-            ->map(static fn($size) => (int) $size)
-            ->map(static fn(int $size) => new Size($size));
+        /** @var Constraint<int, int<0, max>> */
+        $positive = Of::callable(static fn(int $size) => match (true) {
+            $size >= 0 => Validation::success($size),
+            default => Validation::fail(Failure::of('size must be positive')),
+        });
+        /** @var Constraint<mixed, resource> */
+        $resource = Of::callable(static fn(mixed $resource) => match (\is_resource($resource)) {
+            true => Validation::success($resource),
+            false => Validation::fail(Failure::of('not a resource')),
+        });
+        $validate = $resource
+            ->map(\fstat(...))
+            ->and(Is::shape(
+                'size',
+                Is::string()
+                    ->or(Is::int())
+                    ->map(static fn($size) => (int) $size)
+                    ->and($positive)
+                    ->map(Size::of(...)),
+            ))
+            ->map(static fn(array $stat): mixed => $stat['size']);
+
+        return $validate($this->resource)
+            ->maybe()
+            ->keep(Instance::of(Size::class));
     }
 
     public function close(): Either
