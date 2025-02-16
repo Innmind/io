@@ -3,6 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Files;
 
+use Innmind\IO\{
+    Internal,
+    Internal\Stream\Streams as Capabilities,
+};
 use Innmind\Url\Path;
 use Innmind\Validation\Is;
 use Innmind\Immutable\{
@@ -15,7 +19,7 @@ use Innmind\Immutable\{
 final class Write
 {
     /**
-     * @param \Closure(): (false|resource) $load
+     * @param \Closure(): Internal\Stream\Writable $load
      */
     private function __construct(
         private \Closure $load,
@@ -26,22 +30,20 @@ final class Write
     /**
      * @internal
      */
-    public static function of(Path $path): self
+    public static function of(Capabilities $capabilities, Path $path): self
     {
         return new self(
-            static fn() => \fopen($path->toString(), 'w'),
+            static fn() => $capabilities->writable()->open($path),
             true,
         );
     }
 
     /**
      * @internal
-     *
-     * @param resource $resource
      */
-    public static function temporary($resource): self
+    public static function temporary(Internal\Stream\Writable $stream): self
     {
-        return new self(static fn() => $resource, false);
+        return new self(static fn() => $stream, false);
     }
 
     /**
@@ -65,27 +67,21 @@ final class Write
      */
     public function sink(Sequence $chunks): Maybe
     {
-        $resource = ($this->load)();
-
-        if (!\is_resource($resource)) {
-            /** @var Maybe<SideEffect> */
-            return Maybe::nothing();
-        }
-
-        $close = match ($this->autoClose) {
-            true => static fn() => \fclose($resource),
-            false => static fn() => true,
-        };
+        $stream = ($this->load)();
+        $autoClose = $this->autoClose;
 
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
-            ->sink(new SideEffect)
+            ->sink($stream)
             ->maybe(
-                static fn($_, $chunk) => Maybe::just(@\fwrite($resource, $chunk->toString()))
-                    ->keep(Is::int()->asPredicate())
-                    ->filter(static fn($written) => $written === $chunk->length())
-                    ->map(static fn() => new SideEffect),
+                static fn($stream, $chunk) => $stream
+                    ->write($chunk)
+                    ->maybe(),
             )
-            ->filter($close);
+            ->flatMap(static fn($stream) => match ($autoClose) {
+                true => $stream->close()->maybe(),
+                false => Maybe::just($stream),
+            })
+            ->map(static fn() => new SideEffect);
     }
 }
