@@ -42,6 +42,6 @@ final class IO
 
     public function sockets(): Sockets
     {
-        return Sockets::of();
+        return Sockets::of($this->io, $this->capabilities);
     }
 }

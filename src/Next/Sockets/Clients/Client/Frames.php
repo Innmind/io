@@ -3,9 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Sockets\Clients\Client;
 
-use Innmind\IO\Next\{
-    Sockets\Clients\Client\Frames\Lazy,
-    Frame,
+use Innmind\IO\{
+    Next\Sockets\Clients\Client\Frames\Lazy,
+    Next\Frame,
+    Sockets\Client as Previous,
 };
 use Innmind\Immutable\Maybe;
 
@@ -15,6 +16,7 @@ use Innmind\Immutable\Maybe;
 final class Frames
 {
     private function __construct(
+        private Previous $socket,
         private Frame $frame,
     ) {
     }
@@ -27,9 +29,9 @@ final class Frames
      *
      * @return self<A>
      */
-    public static function of(Frame $frame): self
+    public static function of(Previous $socket, Frame $frame): self
     {
-        return new self($frame);
+        return new self($socket, $frame);
     }
 
     /**
@@ -37,8 +39,10 @@ final class Frames
      */
     public function one(): Maybe
     {
-        /** @var Maybe<T> */
-        return Maybe::nothing();
+        return $this
+            ->socket
+            ->frames($this->frame->toOld())
+            ->one();
     }
 
     /**
@@ -46,6 +50,6 @@ final class Frames
      */
     public function lazy(): Lazy
     {
-        return Lazy::of($this->frame);
+        return Lazy::of($this->socket, $this->frame);
     }
 }

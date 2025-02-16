@@ -3,10 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Sockets;
 
-use Innmind\IO\Next\Sockets\{
-    Servers\Server,
-    Internet\Transport,
-    Unix\Address,
+use Innmind\IO\{
+    Next\Sockets\Servers\Server,
+    Next\Sockets\Internet\Transport,
+    Next\Sockets\Unix\Address,
+    IO as Previous,
+    Internal,
 };
 use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;
@@ -14,16 +16,17 @@ use Innmind\Immutable\Maybe;
 
 final class Servers
 {
-    private function __construct()
-    {
+    private function __construct(
+        private Previous $io,
+    ) {
     }
 
     /**
      * @internal
      */
-    public static function of(): self
+    public static function of(Previous $io): self
     {
-        return new self;
+        return new self($io);
     }
 
     /**
@@ -31,8 +34,9 @@ final class Servers
      */
     public function internet(Transport $transport, IP $ip, Port $port): Maybe
     {
-        /** @var Maybe<Server> */
-        return Maybe::nothing();
+        return Internal\Socket\Server\Internet::of($transport->toOld(), $ip, $port)
+            ->map($this->io->sockets()->servers()->wrap(...))
+            ->map(Server::of(...));
     }
 
     /**

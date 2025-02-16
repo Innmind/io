@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Sockets\Clients\Client\Frames;
 
-use Innmind\IO\Next\Frame;
+use Innmind\IO\{
+    Next\Frame,
+    Sockets\Client as Previous,
+};
 use Innmind\Immutable\Sequence;
 
 /**
@@ -15,6 +18,7 @@ final class Lazy
      * @param Frame<T> $frame
      */
     private function __construct(
+        private Previous $socket,
         private Frame $frame,
     ) {
     }
@@ -27,9 +31,9 @@ final class Lazy
      *
      * @return self<A>
      */
-    public static function of(Frame $frame): self
+    public static function of(Previous $socket, Frame $frame): self
     {
-        return new self($frame);
+        return new self($socket, $frame);
     }
 
     /**
@@ -37,6 +41,9 @@ final class Lazy
      */
     public function sequence(): Sequence
     {
-        return Sequence::of();
+        return $this
+            ->socket
+            ->frames($this->frame->toOld())
+            ->sequence();
     }
 }

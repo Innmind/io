@@ -3,9 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Sockets\Servers;
 
-use Innmind\IO\Next\Sockets\{
-    Servers\Server\Pool,
-    Clients\Client,
+use Innmind\IO\{
+    Next\Sockets\Servers\Server\Pool,
+    Next\Sockets\Clients\Client,
+    Sockets\Server as Previous,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
@@ -15,8 +16,25 @@ use Innmind\Immutable\{
 
 final class Server
 {
-    private function __construct()
+    private function __construct(
+        private Previous $socket,
+    ) {
+    }
+
+    /**
+     * @internal
+     */
+    public static function of(Previous $socket): self
     {
+        return new self($socket);
+    }
+
+    /**
+     * @internal
+     */
+    public function internal(): Previous
+    {
+        return $this->socket;
     }
 
     /**
@@ -24,7 +42,9 @@ final class Server
      */
     public function watch(): self
     {
-        return $this;
+        return new self(
+            $this->socket->watch(),
+        );
     }
 
     /**
@@ -32,7 +52,9 @@ final class Server
      */
     public function timeoutAfter(Period $period): self
     {
-        return $this;
+        return new self(
+            $this->socket->timeoutAfter($period->asElapsedPeriod()),
+        );
     }
 
     /**
@@ -40,13 +62,15 @@ final class Server
      */
     public function accept(): Maybe
     {
-        /** @var Maybe<Client> */
-        return Maybe::nothing();
+        return $this
+            ->socket
+            ->accept()
+            ->map(Client::of(...));
     }
 
     public function pool(self $server): Pool
     {
-        return Pool::of($this, $server);
+        return Pool::of($this->socket->with($server->socket));
     }
 
     /**
@@ -54,6 +78,10 @@ final class Server
      */
     public function close(): Maybe
     {
-        return Maybe::just(new SideEffect);
+        return $this
+            ->socket
+            ->unwrap()
+            ->close()
+            ->maybe();
     }
 }
