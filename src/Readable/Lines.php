@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Readable;
 
-use Innmind\IO\Low\Stream\Readable as LowLevelStream;
+use Innmind\IO\Internal\Stream\Readable as LowLevelStream;
 use Innmind\Immutable\{
     Str,
     Maybe,

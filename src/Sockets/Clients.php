@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\IO\Sockets;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Low\Socket\Client as Socket;
-use Innmind\IO\Low\Stream\Watch;
+use Innmind\IO\Internal\Socket\Client as Socket;
+use Innmind\IO\Internal\Stream\Watch;
 
 final class Clients
 {

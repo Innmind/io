@@ -8,11 +8,11 @@ use Innmind\IO\Sockets\{
     Client,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Low\Socket\{
+use Innmind\IO\Internal\Socket\{
     Server as Socket,
     Server\Connection,
 };
-use Innmind\IO\Low\Stream\Watch;
+use Innmind\IO\Internal\Stream\Watch;
 use Innmind\Immutable\{
     Sequence,
     Predicate\Instance,

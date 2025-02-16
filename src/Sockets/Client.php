@@ -10,11 +10,11 @@ use Innmind\IO\Readable\{
     Lines,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Low\Socket\{
+use Innmind\IO\Internal\Socket\{
     Client as Socket,
     Server\Connection,
 };
-use Innmind\IO\Low\Stream\{
+use Innmind\IO\Internal\Stream\{
     Writable,
     Stream\Size,
     Watch,
