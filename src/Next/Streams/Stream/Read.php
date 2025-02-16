@@ -92,6 +92,14 @@ final class Read
     /**
      * @psalm-mutation-free
      */
+    public function poll(): self
+    {
+        return $this->timeoutAfter(Period::second(0));
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
     public function buffer(): self
     {
         // todo

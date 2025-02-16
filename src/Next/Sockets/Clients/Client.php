@@ -55,6 +55,14 @@ final class Client
 
     /**
      * @psalm-mutation-free
+     */
+    public function poll(): self
+    {
+        return $this;
+    }
+
+    /**
+     * @psalm-mutation-free
      *
      * @param callable(): Sequence<Str> $chunks
      */
