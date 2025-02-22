@@ -22,7 +22,7 @@ use Innmind\Immutable\{
     Predicate\Instance,
 };
 
-final class Implementation implements Bidirectional
+final class Implementation
 {
     /** @var resource */
     private $resource;
@@ -87,13 +87,19 @@ final class Implementation implements Bidirectional
         return $this;
     }
 
-    #[\Override]
+    /**
+     * @psalm-mutation-free
+     *
+     * @return resource stream
+     */
     public function resource()
     {
         return $this->resource;
     }
 
-    #[\Override]
+    /**
+     * @return Either<PositionNotSeekable, SideEffect>
+     */
     public function rewind(): Either
     {
         if (!$this->seekable) {
@@ -118,7 +124,6 @@ final class Implementation implements Bidirectional
     /**
      * @psalm-mutation-free
      */
-    #[\Override]
     public function end(): bool
     {
         if ($this->closed()) {
@@ -130,8 +135,9 @@ final class Implementation implements Bidirectional
 
     /**
      * @psalm-mutation-free
+     *
+     * @return Maybe<Size>
      */
-    #[\Override]
     public function size(): Maybe
     {
         if ($this->closed()) {
@@ -166,7 +172,9 @@ final class Implementation implements Bidirectional
             ->keep(Instance::of(Size::class));
     }
 
-    #[\Override]
+    /**
+     * @return Either<FailedToCloseStream, SideEffect>
+     */
     public function close(): Either
     {
         if ($this->closed()) {
@@ -188,14 +196,17 @@ final class Implementation implements Bidirectional
     /**
      * @psalm-mutation-free
      */
-    #[\Override]
     public function closed(): bool
     {
         /** @psalm-suppress DocblockTypeContradiction */
         return $this->closed || !\is_resource($this->resource);
     }
 
-    #[\Override]
+    /**
+     * @param int<1, max>|null $length When omitted will read the remaining of the stream
+     *
+     * @return Maybe<Str>
+     */
     public function read(?int $length = null): Maybe
     {
         if ($this->closed()) {
@@ -211,7 +222,9 @@ final class Implementation implements Bidirectional
         return Maybe::of(\is_string($data) ? Str::of($data) : null);
     }
 
-    #[\Override]
+    /**
+     * @return Maybe<Str>
+     */
     public function readLine(): Maybe
     {
         if ($this->closed()) {
@@ -224,7 +237,9 @@ final class Implementation implements Bidirectional
         return Maybe::of(\is_string($line) ? Str::of($line) : null);
     }
 
-    #[\Override]
+    /**
+     * @return Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect>
+     */
     public function write(Str $data): Either
     {
         if ($this->closed()) {

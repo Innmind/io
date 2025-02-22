@@ -14,14 +14,14 @@ use Innmind\Immutable\{
 final class Write
 {
     private function __construct(
-        private Internal\Stream\Writable $stream,
+        private Internal\Stream\Implementation $stream,
     ) {
     }
 
     /**
      * @internal
      */
-    public static function of(Internal\Stream\Writable $stream): self
+    public static function of(Internal\Stream\Implementation $stream): self
     {
         return new self($stream);
     }
