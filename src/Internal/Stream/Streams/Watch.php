@@ -4,13 +4,12 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Stream\Streams;
 
 use Innmind\IO\Internal\Stream\{
-    Capabilities,
     Watch as WatchInterface,
     Watch\Select,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 
-final class Watch implements Capabilities\Watch
+final class Watch
 {
     private function __construct()
     {
@@ -24,13 +23,11 @@ final class Watch implements Capabilities\Watch
         return new self;
     }
 
-    #[\Override]
     public function timeoutAfter(ElapsedPeriod $timeout): WatchInterface
     {
         return Select::timeoutAfter($timeout);
     }
 
-    #[\Override]
     public function waitForever(): WatchInterface
     {
         return Select::waitForever();

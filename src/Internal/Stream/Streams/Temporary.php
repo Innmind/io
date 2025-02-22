@@ -3,12 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream\Streams;
 
-use Innmind\IO\Internal\Stream\{
-    Capabilities,
-    Implementation,
-};
+use Innmind\IO\Internal\Stream\Implementation;
 
-final class Temporary implements Capabilities\Temporary
+final class Temporary
 {
     private function __construct()
     {
@@ -22,7 +19,6 @@ final class Temporary implements Capabilities\Temporary
         return new self;
     }
 
-    #[\Override]
     public function new(): Implementation
     {
         return Implementation::of(\fopen('php://temp', 'r+'));

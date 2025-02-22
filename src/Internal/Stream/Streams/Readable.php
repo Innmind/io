@@ -3,13 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream\Streams;
 
-use Innmind\IO\Internal\Stream\{
-    Capabilities,
-    Implementation,
-};
+use Innmind\IO\Internal\Stream\Implementation;
 use Innmind\Url\Path;
 
-final class Readable implements Capabilities\Readable
+final class Readable
 {
     private function __construct()
     {
@@ -23,13 +20,14 @@ final class Readable implements Capabilities\Readable
         return new self;
     }
 
-    #[\Override]
     public function open(Path $path): Implementation
     {
         return Implementation::of(\fopen($path->toString(), 'r'));
     }
 
-    #[\Override]
+    /**
+     * @param resource $resource
+     */
     public function acquire($resource): Implementation
     {
         return Implementation::of($resource);
