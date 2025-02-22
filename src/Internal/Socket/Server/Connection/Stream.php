@@ -7,7 +7,7 @@ use Innmind\IO\Internal\Socket\{
     Server\Connection,
 };
 use Innmind\IO\Internal\Stream\{
-    Stream\Size,
+    Size,
     PositionNotSeekable,
     Implementation,
 };

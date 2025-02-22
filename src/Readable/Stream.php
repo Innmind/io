@@ -7,7 +7,7 @@ use Innmind\IO\Next\Frame;
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Stream\{
     Readable as LowLevelStream,
-    Stream\Size,
+    Size,
     Watch,
 };
 use Innmind\Immutable\{

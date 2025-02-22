@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream\Stream;
+namespace Innmind\IO\Internal\Stream;
 
 use Innmind\IO\Internal\Stream\Exception\SizeCantBeNegative;
 

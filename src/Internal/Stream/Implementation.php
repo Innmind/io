@@ -3,10 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream;
 
-use Innmind\IO\Internal\Stream\{
-    Stream\Size,
-    Exception\InvalidArgumentException,
-    Exception\NonBlockingModeNotSupported,
+use Innmind\IO\Internal\Stream\Exception\{
+    InvalidArgumentException,
+    NonBlockingModeNotSupported,
 };
 use Innmind\Validation\{
     Is,

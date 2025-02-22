@@ -16,7 +16,7 @@ use Innmind\IO\Internal\Socket\{
 };
 use Innmind\IO\Internal\Stream\{
     Writable,
-    Stream\Size,
+    Size,
     Watch,
 };
 use Innmind\Immutable\{
