@@ -4,18 +4,37 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Socket;
 
 use Innmind\IO\Internal\Socket\Server\Connection;
-use Innmind\IO\Internal\Stream\Readable;
-use Innmind\Immutable\Maybe;
+use Innmind\IO\Internal\Stream\FailedToCloseStream;
+use Innmind\Immutable\{
+    Maybe,
+    Either,
+    SideEffect,
+};
 
-/**
- * It only implements Readable to be usable with Stream\Watch
- *
- * Read methods are not expected to be called
- */
-interface Server extends Readable
+interface Server
 {
+    /**
+     * @psalm-mutation-free
+     *
+     * @return resource stream
+     */
+    public function resource();
+
     /**
      * @return Maybe<Connection>
      */
     public function accept(): Maybe;
+
+    /**
+     * It returns a SideEffect instead of the stream on the right hand size
+     * because you should no longer use the stream once it's closed
+     *
+     * @return Either<FailedToCloseStream, SideEffect>
+     */
+    public function close(): Either;
+
+    /**
+     * @psalm-mutation-free
+     */
+    public function closed(): bool;
 }

@@ -8,15 +8,12 @@ use Innmind\IO\{
     Next\Sockets\Unix\Address,
 };
 use Innmind\IO\Internal\Stream\{
-    Size,
-    PositionNotSeekable,
     Implementation,
 };
 use Innmind\Immutable\{
     Maybe,
     Either,
     SideEffect,
-    Str,
 };
 
 final class Unix implements Server
@@ -110,44 +107,5 @@ final class Unix implements Server
     public function closed(): bool
     {
         return $this->stream->closed();
-    }
-
-    #[\Override]
-    public function rewind(): Either
-    {
-        return Either::left(new PositionNotSeekable);
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
-    #[\Override]
-    public function end(): bool
-    {
-        return $this->stream->end();
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
-    #[\Override]
-    public function size(): Maybe
-    {
-        /** @var Maybe<Size> */
-        return Maybe::nothing();
-    }
-
-    #[\Override]
-    public function read(?int $length = null): Maybe
-    {
-        /** @var Maybe<Str> */
-        return Maybe::nothing();
-    }
-
-    #[\Override]
-    public function readLine(): Maybe
-    {
-        /** @var Maybe<Str> */
-        return Maybe::nothing();
     }
 }
