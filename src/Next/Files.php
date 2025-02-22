@@ -49,11 +49,16 @@ final class Files
      */
     public function temporary(Sequence $chunks): Maybe
     {
-        $tmp = $this->capabilities->files()->temporary();
         $io = $this->io->readable();
 
-        return Write::temporary($tmp)
-            ->sink($chunks)
-            ->map(static fn() => Read::temporary($io, $tmp));
+        return $this
+            ->capabilities
+            ->files()
+            ->temporary()
+            ->flatMap(
+                static fn($tmp) => Write::temporary($tmp)
+                    ->sink($chunks)
+                    ->map(static fn() => Read::temporary($io, $tmp)),
+            );
     }
 }

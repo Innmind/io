@@ -33,7 +33,13 @@ final class Write
     public static function of(Capabilities $capabilities, Path $path): self
     {
         return new self(
-            static fn() => $capabilities->files()->write($path),
+            static fn() => $capabilities
+                ->files()
+                ->write($path)
+                ->match(
+                    static fn($stream) => $stream,
+                    static fn() => throw new \RuntimeException('Failed to open file'),
+                ),
             true,
         );
     }

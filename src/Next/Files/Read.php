@@ -37,12 +37,13 @@ final class Read
         Path $path,
     ): self {
         return new self(
-            static fn() => $io
-                ->readable()
-                ->wrap(
-                    $capabilities
-                        ->files()
-                        ->read($path),
+            static fn() => $capabilities
+                ->files()
+                ->read($path)
+                ->map($io->readable()->wrap(...))
+                ->match(
+                    static fn($stream) => $stream,
+                    static fn() => throw new \RuntimeException('Failed to read file'),
                 ),
             true,
         );

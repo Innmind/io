@@ -5,6 +5,7 @@ namespace Innmind\IO\Internal\Stream\Capabilities;
 
 use Innmind\IO\Internal\Stream\Stream;
 use Innmind\Url\Path;
+use Innmind\Immutable\Maybe;
 
 final class Files
 {
@@ -20,19 +21,28 @@ final class Files
         return new self;
     }
 
-    public function read(Path $path): Stream
+    /**
+     * @return Maybe<Stream>
+     */
+    public function read(Path $path): Maybe
     {
-        return Stream::of(\fopen($path->toString(), 'r'));
+        return $this->open($path->toString(), 'r');
     }
 
-    public function write(Path $path): Stream
+    /**
+     * @return Maybe<Stream>
+     */
+    public function write(Path $path): Maybe
     {
-        return Stream::of(\fopen($path->toString(), 'w'));
+        return $this->open($path->toString(), 'w');
     }
 
-    public function temporary(): Stream
+    /**
+     * @return Maybe<Stream>
+     */
+    public function temporary(): Maybe
     {
-        return Stream::of(\fopen('php://temp', 'r+'));
+        return $this->open('php://temp', 'r+');
     }
 
     /**
@@ -41,5 +51,20 @@ final class Files
     public function acquire($resource): Stream
     {
         return Stream::of($resource);
+    }
+
+    /**
+     * @return Maybe<Stream>
+     */
+    private function open(string $path, string $mode): Maybe
+    {
+        $stream = \fopen($path, $mode);
+
+        if ($stream === false) {
+            /** @var Maybe<Stream> */
+            return Maybe::nothing();
+        }
+
+        return Maybe::just(Stream::of($stream));
     }
 }
