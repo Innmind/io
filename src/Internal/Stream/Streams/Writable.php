@@ -5,7 +5,6 @@ namespace Innmind\IO\Internal\Stream\Streams;
 
 use Innmind\IO\Internal\Stream\{
     Capabilities,
-    Writable as Write,
     Implementation,
 };
 use Innmind\Url\Path;
@@ -25,13 +24,13 @@ final class Writable implements Capabilities\Writable
     }
 
     #[\Override]
-    public function open(Path $path): Write
+    public function open(Path $path): Implementation
     {
         return Implementation::of(\fopen($path->toString(), 'w'));
     }
 
     #[\Override]
-    public function acquire($resource): Write
+    public function acquire($resource): Implementation
     {
         return Implementation::of($resource);
     }

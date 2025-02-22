@@ -5,7 +5,6 @@ namespace Innmind\IO\Internal\Stream\Streams;
 
 use Innmind\IO\Internal\Stream\{
     Capabilities,
-    Readable as Read,
     Implementation,
 };
 use Innmind\Url\Path;
@@ -25,13 +24,13 @@ final class Readable implements Capabilities\Readable
     }
 
     #[\Override]
-    public function open(Path $path): Read
+    public function open(Path $path): Implementation
     {
         return Implementation::of(\fopen($path->toString(), 'r'));
     }
 
     #[\Override]
-    public function acquire($resource): Read
+    public function acquire($resource): Implementation
     {
         return Implementation::of($resource);
     }

@@ -3,11 +3,11 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream\Watch;
 
-use Innmind\IO\Internal\Stream\{
-    Watch,
-    Stream,
-    Readable,
-    Writable,
+use Innmind\IO\Internal\{
+    Stream\Watch,
+    Stream\Implementation,
+    Socket\Client,
+    Socket\Server,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Immutable\{
@@ -20,9 +20,9 @@ final class Select implements Watch
 {
     /** @var Maybe<ElapsedPeriod> */
     private Maybe $timeout;
-    /** @var Map<resource, Readable> */
+    /** @var Map<resource, Implementation|Client|Server|Server\Connection> */
     private Map $read;
-    /** @var Map<resource, Writable> */
+    /** @var Map<resource, Implementation|Client|Server\Connection> */
     private Map $write;
     /** @var list<resource> */
     private array $readResources;
@@ -32,9 +32,9 @@ final class Select implements Watch
     private function __construct(?ElapsedPeriod $timeout = null)
     {
         $this->timeout = Maybe::of($timeout);
-        /** @var Map<resource, Readable> */
+        /** @var Map<resource, Implementation|Client|Server|Server\Connection> */
         $this->read = Map::of();
-        /** @var Map<resource, Writable> */
+        /** @var Map<resource, Implementation|Client|Server\Connection> */
         $this->write = Map::of();
         $this->readResources = [];
         $this->writeResources = [];
@@ -47,9 +47,9 @@ final class Select implements Watch
             $this->read->empty() &&
             $this->write->empty()
         ) {
-            /** @var Sequence<Readable> */
+            /** @var Sequence<Implementation|Client|Server|Server\Connection> */
             $read = Sequence::of();
-            /** @var Sequence<Writable> */
+            /** @var Sequence<Implementation|Client|Server\Connection> */
             $write = Sequence::of();
 
             return Maybe::just(new Ready($read, $write));
@@ -104,8 +104,10 @@ final class Select implements Watch
      * @psalm-mutation-free
      */
     #[\Override]
-    public function forRead(Readable $read, Readable ...$reads): Watch
-    {
+    public function forRead(
+        Implementation|Client|Server|Server\Connection $read,
+        Implementation|Client|Server|Server\Connection ...$reads,
+    ): Watch {
         $self = clone $this;
         $self->read = ($self->read)(
             $read->resource(),
@@ -128,8 +130,10 @@ final class Select implements Watch
      * @psalm-mutation-free
      */
     #[\Override]
-    public function forWrite(Writable $write, Writable ...$writes): Watch
-    {
+    public function forWrite(
+        Implementation|Client|Server\Connection $write,
+        Implementation|Client|Server\Connection ...$writes,
+    ): Watch {
         $self = clone $this;
         $self->write = ($self->write)(
             $write->resource(),
@@ -152,7 +156,7 @@ final class Select implements Watch
      * @psalm-mutation-free
      */
     #[\Override]
-    public function unwatch(Stream $stream): Watch
+    public function unwatch(Implementation|Client|Server|Server\Connection $stream): Watch
     {
         $resource = $stream->resource();
         $self = clone $this;

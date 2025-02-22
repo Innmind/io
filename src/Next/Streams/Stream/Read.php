@@ -36,7 +36,7 @@ final class Read
     /**
      * @internal
      */
-    public function internal(): Internal\Stream\Readable
+    public function internal(): Internal\Stream\Implementation
     {
         return $this->stream->unwrap();
     }

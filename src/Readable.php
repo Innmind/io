@@ -5,7 +5,7 @@ namespace Innmind\IO;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Stream\{
-    Readable as LowLevelStream,
+    Implementation as LowLevelStream,
     Watch,
 };
 

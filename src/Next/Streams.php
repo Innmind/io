@@ -37,10 +37,6 @@ final class Streams
                 ->capabilities
                 ->readable()
                 ->acquire($resource),
-            $this
-                ->capabilities
-                ->writable()
-                ->acquire($resource),
         );
     }
 }

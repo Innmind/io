@@ -6,7 +6,7 @@ namespace Innmind\IO\Readable;
 use Innmind\IO\Next\Frame;
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Stream\{
-    Readable as LowLevelStream,
+    Implementation as LowLevelStream,
     Size,
     Watch,
 };
@@ -114,9 +114,13 @@ final class Stream
             fn(LowLevelStream $stream) => ($this->watch)(null)
                 ->forRead($stream)()
                 ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(static fn($toRead) => $toRead->find(
-                    static fn($ready) => $ready === $stream,
-                )),
+                ->flatMap(
+                    static fn($toRead) => $toRead
+                        ->find(
+                            static fn($ready) => $ready === $stream,
+                        )
+                        ->map(static fn() => $stream),
+                ),
             $this->encoding,
         );
     }
@@ -135,9 +139,13 @@ final class Stream
             fn(LowLevelStream $stream) => ($this->watch)($timeout)
                 ->forRead($stream)()
                 ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(static fn($toRead) => $toRead->find(
-                    static fn($ready) => $ready === $stream,
-                )),
+                ->flatMap(
+                    static fn($toRead) => $toRead
+                        ->find(
+                            static fn($ready) => $ready === $stream,
+                        )
+                        ->map(static fn() => $stream),
+                ),
             $this->encoding,
         );
     }

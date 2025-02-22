@@ -20,8 +20,7 @@ final class Stream
     private function __construct(
         private Previous $io,
         private Capabilities $capabilities,
-        private Internal\Stream\Readable $readable,
-        private Internal\Stream\Writable $writable,
+        private Internal\Stream\Implementation $stream,
     ) {
     }
 
@@ -31,23 +30,22 @@ final class Stream
     public static function of(
         Previous $io,
         Capabilities $capabilities,
-        Internal\Stream\Readable $readable,
-        Internal\Stream\Writable $writable,
+        Internal\Stream\Implementation $stream,
     ): self {
-        return new self($io, $capabilities, $readable, $writable);
+        return new self($io, $capabilities, $stream);
     }
 
     public function read(): Read
     {
         return Read::of(
             $this->capabilities,
-            $this->io->readable()->wrap($this->readable),
+            $this->io->readable()->wrap($this->stream),
         );
     }
 
     public function write(): Write
     {
-        return Write::of($this->writable);
+        return Write::of($this->stream);
     }
 
     /**
@@ -55,6 +53,6 @@ final class Stream
      */
     public function close(): Maybe
     {
-        return $this->readable->close()->maybe();
+        return $this->stream->close()->maybe();
     }
 }
