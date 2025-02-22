@@ -34,7 +34,7 @@ final class Servers
      */
     public function internet(Transport $transport, IP $ip, Port $port): Maybe
     {
-        return Internal\Socket\Server\Internet::of($transport->toOld(), $ip, $port)
+        return Internal\Socket\Server\Internet::of($transport, $ip, $port)
             ->map($this->io->sockets()->servers()->wrap(...))
             ->map(Server::of(...));
     }
@@ -44,7 +44,7 @@ final class Servers
      */
     public function unix(Address $address): Maybe
     {
-        return Internal\Socket\Server\Unix::of($address->toOld())
+        return Internal\Socket\Server\Unix::of($address)
             ->map($this->io->sockets()->servers()->wrap(...))
             ->map(Server::of(...));
     }
@@ -54,7 +54,7 @@ final class Servers
      */
     public function takeOver(Address $address): Maybe
     {
-        return Internal\Socket\Server\Unix::recoverable($address->toOld())
+        return Internal\Socket\Server\Unix::recoverable($address)
             ->map($this->io->sockets()->servers()->wrap(...))
             ->map(Server::of(...));
     }

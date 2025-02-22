@@ -3,9 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Socket\Client;
 
-use Innmind\IO\Internal\Socket\{
-    Client,
-    Internet\Transport,
+use Innmind\IO\{
+    Internal\Socket\Client,
+    Next\Sockets\Internet\Transport
 };
 use Innmind\IO\Internal\Stream\{
     Stream,

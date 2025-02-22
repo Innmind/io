@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Sockets\Unix;
 
-use Innmind\IO\Internal\Socket\Address\Unix as Old;
 use Innmind\Url\Path;
 
 /**
@@ -33,10 +32,5 @@ final class Address
             $parts['dirname'],
             $parts['filename'],
         );
-    }
-
-    public function toOld(): Old
-    {
-        return new Old($this->path);
     }
 }

@@ -35,7 +35,7 @@ final class Clients
      */
     public function internet(Transport $transport, Authority $authority): Maybe
     {
-        return Internal\Socket\Client\Internet::of($transport->toOld(), $authority)
+        return Internal\Socket\Client\Internet::of($transport, $authority)
             ->map($this->io->sockets()->clients()->wrap(...))
             ->map(Client::of(...));
     }
@@ -45,7 +45,7 @@ final class Clients
      */
     public function unix(Address $address): Maybe
     {
-        return Internal\Socket\Client\Unix::of($address->toOld())
+        return Internal\Socket\Client\Unix::of($address)
             ->map($this->io->sockets()->clients()->wrap(...))
             ->map(Client::of(...));
     }

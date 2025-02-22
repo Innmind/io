@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Sockets\Internet;
 
-use Innmind\IO\{
-    Internal\Socket\Internet\Transport as Old,
-    Internal\Socket\Exception\TransportNotSupportedByTheSystem,
-};
+use Innmind\IO\{Internal\Socket\Exception\TransportNotSupportedByTheSystem;
 use Innmind\Immutable\Map;
 
 final class Transport
@@ -90,28 +87,5 @@ final class Transport
     public function toString(): string
     {
         return $this->transport;
-    }
-
-    /**
-     * @todo remove
-     * @internal
-     */
-    public function toOld(): Old
-    {
-        $old = match ($this->transport) {
-            'tcp' => Old::tcp(),
-            'ssl' => Old::ssl(),
-            'sslv3' => Old::sslv3(),
-            'sslv2' => Old::sslv2(),
-            'tls' => Old::tls(),
-            'tlsv1.0' => Old::tlsv10(),
-            'tlsv1.1' => Old::tlsv11(),
-            'tlsv1.2' => Old::tlsv12(),
-        };
-
-        return $this->options->reduce(
-            $old,
-            static fn(Old $old, $key, $value) => $old->withOption($key, $value),
-        );
     }
 }
