@@ -103,10 +103,7 @@ final class Read
      */
     public function size(): Maybe
     {
-        return ($this->load)()
-            ->size()
-            ->map(static fn($size) => $size->toInt())
-            ->map(Size::of(...));
+        return ($this->load)()->size();
     }
 
     /**

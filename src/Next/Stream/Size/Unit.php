@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Size;
+namespace Innmind\IO\Next\Stream\Size;
 
 /**
  * @psalm-immutable

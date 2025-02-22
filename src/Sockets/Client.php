@@ -8,12 +8,12 @@ use Innmind\IO\{
     Readable\Frames,
     Readable\Lines,
     Next\Frame,
+    Next\Stream\Size,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\Client as Socket;
 use Innmind\IO\Internal\{
     Stream,
-    Size,
     Watch,
 };
 use Innmind\Immutable\{

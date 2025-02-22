@@ -3,11 +3,13 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Readable;
 
-use Innmind\IO\Next\Frame;
+use Innmind\IO\{
+    Next\Frame,
+    Next\Stream\Size,
+};
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\{
     Stream as LowLevelStream,
-    Size,
     Watch,
 };
 use Innmind\Immutable\{

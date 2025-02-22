@@ -3,9 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
-use Innmind\IO\Internal\Exception\{
-    InvalidArgumentException,
-    NonBlockingModeNotSupported,
+use Innmind\IO\{
+    Next\Stream\Size,
+    Internal\Exception\InvalidArgumentException,
+    Internal\Exception\NonBlockingModeNotSupported,
 };
 use Innmind\Validation\{
     Is,

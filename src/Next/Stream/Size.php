@@ -9,7 +9,6 @@ final class Size
     private function __construct(
         private int $value,
     ) {
-        // todo express units (bytes, kilobytes, etc...)
     }
 
     /**
@@ -26,5 +25,15 @@ final class Size
     public function toInt(): int
     {
         return $this->value;
+    }
+
+    public function unit(): Size\Unit
+    {
+        return Size\Unit::for($this->value);
+    }
+
+    public function toString(): string
+    {
+        return Size\Unit::format($this->value);
     }
 }
