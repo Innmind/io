@@ -3,10 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
-use Innmind\IO\{
-    Next\Stream\Size,
-    Internal\Exception\InvalidArgumentException,
-    Internal\Exception\NonBlockingModeNotSupported,
+use Innmind\IO\Next\{
+    Stream\Size,
+    Exception\InvalidArgumentException,
+    Exception\NonBlockingModeNotSupported,
 };
 use Innmind\Validation\{
     Is,
