@@ -6,7 +6,6 @@ namespace Innmind\IO\Internal;
 use Innmind\IO\{
     Stream\Size,
     Exception\InvalidArgumentException,
-    Exception\NonBlockingModeNotSupported,
 };
 use Innmind\Validation\{
     Is,
@@ -61,31 +60,37 @@ final class Stream
         return new self($resource);
     }
 
-    public function nonBlocking(): self
+    /**
+     * @return Maybe<SideEffect>
+     */
+    public function nonBlocking(): Maybe
     {
         $return = \stream_set_blocking($this->resource, false);
 
         if ($return === false) {
-            // todo return Maybe<SideEffect>
-            throw new NonBlockingModeNotSupported;
+            /** @var Maybe<SideEffect> */
+            return Maybe::nothing();
         }
 
         $_ = \stream_set_write_buffer($this->resource, 0);
         $_ = \stream_set_read_buffer($this->resource, 0);
 
-        return $this;
+        return Maybe::just(new SideEffect);
     }
 
-    public function blocking(): self
+    /**
+     * @return Maybe<SideEffect>
+     */
+    public function blocking(): Maybe
     {
         $return = \stream_set_blocking($this->resource, false);
 
         if ($return === false) {
-            // todo return Maybe<SideEffect>
-            throw new NonBlockingModeNotSupported;
+            /** @var Maybe<SideEffect> */
+            return Maybe::nothing();
         }
 
-        return $this;
+        return Maybe::just(new SideEffect);
     }
 
     /**
