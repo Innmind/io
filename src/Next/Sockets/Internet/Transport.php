@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next\Sockets\Internet;
 
-use Innmind\IO\{Internal\Socket\Exception\TransportNotSupportedByTheSystem;
+use Innmind\IO\Internal\Socket\Exception\TransportNotSupportedByTheSystem;
 use Innmind\Immutable\Map;
 
 final class Transport
