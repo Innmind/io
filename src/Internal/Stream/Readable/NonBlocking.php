@@ -6,7 +6,6 @@ namespace Innmind\IO\Internal\Stream\Readable;
 use Innmind\IO\Internal\Stream\{
     Readable,
     Stream\Position,
-    Stream\Position\Mode,
     Exception\NonBlockingModeNotSupported,
 };
 use Innmind\Immutable\{
@@ -63,12 +62,6 @@ final class NonBlocking implements Readable
     public function position(): Position
     {
         return $this->stream->position();
-    }
-
-    #[\Override]
-    public function seek(Position $position, ?Mode $mode = null): Either
-    {
-        return $this->stream->seek($position, $mode);
     }
 
     #[\Override]

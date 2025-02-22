@@ -7,8 +7,7 @@ use Innmind\IO\Internal\Stream\{
     Stream as StreamInterface,
     Stream\Stream as Base,
     Readable,
-    Stream\Position,
-    Stream\Position\Mode
+    Stream\Position
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
@@ -92,12 +91,6 @@ final class Stream implements Readable
     public function position(): Position
     {
         return $this->stream->position();
-    }
-
-    #[\Override]
-    public function seek(Position $position, ?Mode $mode = null): Either
-    {
-        return $this->stream->seek($position, $mode);
     }
 
     #[\Override]

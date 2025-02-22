@@ -7,7 +7,6 @@ use Innmind\IO\Internal\Stream\{
     Readable,
     Writable,
     Bidirectional as BidirectionalInterface,
-    Stream\Position\Mode,
 };
 use Innmind\Immutable\{
     Str,
@@ -67,12 +66,6 @@ final class Bidirectional implements BidirectionalInterface
     public function position(): Position
     {
         return $this->read->position();
-    }
-
-    #[\Override]
-    public function seek(Position $position, ?Mode $mode = null): Either
-    {
-        return $this->read->seek($position, $mode);
     }
 
     #[\Override]

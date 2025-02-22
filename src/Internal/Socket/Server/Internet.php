@@ -11,7 +11,6 @@ use Innmind\IO\Internal\Stream\{
     Stream\Stream,
     Stream\Position,
     Stream\Size,
-    Stream\Position\Mode,
     PositionNotSeekable,
 };
 use Innmind\IP\IP;
@@ -102,12 +101,6 @@ final class Internet implements Server
     public function position(): Position
     {
         return $this->stream->position();
-    }
-
-    #[\Override]
-    public function seek(Position $position, ?Mode $mode = null): Either
-    {
-        return Either::left(new PositionNotSeekable);
     }
 
     #[\Override]

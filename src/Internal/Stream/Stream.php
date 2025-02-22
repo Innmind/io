@@ -6,7 +6,6 @@ namespace Innmind\IO\Internal\Stream;
 use Innmind\IO\Internal\Stream\{
     Stream\Position,
     Stream\Size,
-    Stream\Position\Mode,
 };
 use Innmind\Immutable\{
     Maybe,
@@ -36,11 +35,6 @@ interface Stream
      */
     public function closed(): bool;
     public function position(): Position;
-
-    /**
-     * @return Either<PositionNotSeekable, SideEffect>
-     */
-    public function seek(Position $position, ?Mode $mode = null): Either;
 
     /**
      * @return Either<PositionNotSeekable, SideEffect>

@@ -8,7 +8,6 @@ use Innmind\IO\Internal\Stream\{
     Stream\Stream as Base,
     Writable,
     Stream\Position,
-    Stream\Position\Mode,
     DataPartiallyWritten,
     FailedToWriteToStream,
 };
@@ -77,12 +76,6 @@ final class Stream implements Writable
     public function position(): Position
     {
         return $this->stream->position();
-    }
-
-    #[\Override]
-    public function seek(Position $position, ?Mode $mode = null): Either
-    {
-        return $this->stream->seek($position, $mode);
     }
 
     #[\Override]
