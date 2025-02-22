@@ -7,40 +7,40 @@ use Innmind\IO\Internal\Stream\{
     Readable,
     Writable,
 };
-use Innmind\Immutable\Set;
+use Innmind\Immutable\Sequence;
 
 /**
  * @psalm-immutable
  */
 final class Ready
 {
-    /** @var Set<Readable> */
-    private Set $read;
-    /** @var Set<Writable> */
-    private Set $write;
+    /** @var Sequence<Readable> */
+    private Sequence $read;
+    /** @var Sequence<Writable> */
+    private Sequence $write;
 
     /**
-     * @param Set<Readable> $read
-     * @param Set<Writable> $write
+     * @param Sequence<Readable> $read
+     * @param Sequence<Writable> $write
      */
-    public function __construct(Set $read, Set $write)
+    public function __construct(Sequence $read, Sequence $write)
     {
         $this->read = $read;
         $this->write = $write;
     }
 
     /**
-     * @return Set<Readable>
+     * @return Sequence<Readable>
      */
-    public function toRead(): Set
+    public function toRead(): Sequence
     {
         return $this->read;
     }
 
     /**
-     * @return Set<Writable>
+     * @return Sequence<Writable>
      */
-    public function toWrite(): Set
+    public function toWrite(): Sequence
     {
         return $this->write;
     }

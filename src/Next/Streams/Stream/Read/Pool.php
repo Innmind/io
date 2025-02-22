@@ -134,7 +134,7 @@ final class Pool
 
         $chunks = $watch()
             ->toSequence()
-            ->flatMap(static fn($ready) => $ready->toRead()->unsorted())
+            ->flatMap(static fn($ready) => $ready->toRead())
             ->flatMap(
                 static fn($stream) => $streams
                     ->get($stream)

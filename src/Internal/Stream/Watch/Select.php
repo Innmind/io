@@ -12,7 +12,7 @@ use Innmind\IO\Internal\Stream\{
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Immutable\{
     Map,
-    Set,
+    Sequence,
     Maybe,
 };
 
@@ -47,10 +47,10 @@ final class Select implements Watch
             $this->read->empty() &&
             $this->write->empty()
         ) {
-            /** @var Set<Readable> */
-            $read = Set::of();
-            /** @var Set<Writable> */
-            $write = Set::of();
+            /** @var Sequence<Readable> */
+            $read = Sequence::of();
+            /** @var Sequence<Writable> */
+            $write = Sequence::of();
 
             return Maybe::just(new Ready($read, $write));
         }
@@ -78,28 +78,14 @@ final class Select implements Watch
             return Maybe::nothing();
         }
 
-        /**
-         * @var Set<Readable>
-         */
         $readable = $this
             ->read
             ->filter(static fn($resource) => \in_array($resource, $read, true))
-            ->values()
-            ->reduce(
-                Set::of(),
-                static fn(Set $set, $stream): Set => ($set)($stream),
-            );
-        /**
-         * @var Set<Writable>
-         */
+            ->values();
         $writable = $this
             ->write
             ->filter(static fn($resource) => \in_array($resource, $write, true))
-            ->values()
-            ->reduce(
-                Set::of(),
-                static fn(Set $set, $stream): Set => ($set)($stream),
-            );
+            ->values();
 
         return Maybe::just(new Ready($readable, $writable));
     }
