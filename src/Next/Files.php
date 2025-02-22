@@ -49,7 +49,7 @@ final class Files
      */
     public function temporary(Sequence $chunks): Maybe
     {
-        $tmp = $this->capabilities->temporary()->new();
+        $tmp = $this->capabilities->files()->temporary();
         $io = $this->io->readable();
 
         return Write::temporary($tmp)

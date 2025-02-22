@@ -35,7 +35,7 @@ final class Streams
             $this->capabilities,
             $this
                 ->capabilities
-                ->readable()
+                ->streams()
                 ->acquire($resource),
         );
     }

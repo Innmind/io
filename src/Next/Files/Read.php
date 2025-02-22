@@ -41,11 +41,8 @@ final class Read
                 ->readable()
                 ->wrap(
                     $capabilities
-                        ->readable()
-                        ->acquire(\fopen(
-                            $path->toString(),
-                            'r',
-                        )),
+                        ->files()
+                        ->read($path),
                 ),
             true,
         );

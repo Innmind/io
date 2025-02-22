@@ -5,7 +5,7 @@ namespace Innmind\IO\Internal\Stream\Capabilities;
 
 use Innmind\IO\Internal\Stream\Stream;
 
-final class Temporary
+final class Streams
 {
     private function __construct()
     {
@@ -19,8 +19,11 @@ final class Temporary
         return new self;
     }
 
-    public function new(): Stream
+    /**
+     * @param resource $resource
+     */
+    public function acquire($resource): Stream
     {
-        return Stream::of(\fopen('php://temp', 'r+'));
+        return Stream::of($resource);
     }
 }

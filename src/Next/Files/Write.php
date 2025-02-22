@@ -33,7 +33,7 @@ final class Write
     public static function of(Capabilities $capabilities, Path $path): self
     {
         return new self(
-            static fn() => $capabilities->writable()->open($path),
+            static fn() => $capabilities->files()->write($path),
             true,
         );
     }

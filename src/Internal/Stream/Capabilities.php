@@ -14,19 +14,14 @@ final class Capabilities
         return new self;
     }
 
-    public function temporary(): Capabilities\Temporary
+    public function files(): Capabilities\Files
     {
-        return Capabilities\Temporary::of();
+        return Capabilities\Files::of();
     }
 
-    public function readable(): Capabilities\Readable
+    public function streams(): Capabilities\Streams
     {
-        return Capabilities\Readable::of();
-    }
-
-    public function writable(): Capabilities\Writable
-    {
-        return Capabilities\Writable::of();
+        return Capabilities\Streams::of();
     }
 
     public function watch(): Capabilities\Watch
