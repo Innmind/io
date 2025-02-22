@@ -20,20 +20,20 @@ interface Watch
      * @psalm-mutation-free
      */
     public function forRead(
-        Implementation|Server|Server\Connection $read,
-        Implementation|Server|Server\Connection ...$reads,
+        Implementation|Server $read,
+        Implementation|Server ...$reads,
     ): self;
 
     /**
      * @psalm-mutation-free
      */
     public function forWrite(
-        Implementation|Server\Connection $write,
-        Implementation|Server\Connection ...$writes,
+        Implementation $write,
+        Implementation ...$writes,
     ): self;
 
     /**
      * @psalm-mutation-free
      */
-    public function unwatch(Implementation|Server|Server\Connection $stream): self;
+    public function unwatch(Implementation|Server $stream): self;
 }

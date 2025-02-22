@@ -14,14 +14,14 @@ use Innmind\Immutable\Sequence;
  */
 final class Ready
 {
-    /** @var Sequence<Implementation|Server|Server\Connection> */
+    /** @var Sequence<Implementation|Server> */
     private Sequence $read;
-    /** @var Sequence<Implementation|Server\Connection> */
+    /** @var Sequence<Implementation> */
     private Sequence $write;
 
     /**
-     * @param Sequence<Implementation|Server|Server\Connection> $read
-     * @param Sequence<Implementation|Server\Connection> $write
+     * @param Sequence<Implementation|Server> $read
+     * @param Sequence<Implementation> $write
      */
     public function __construct(Sequence $read, Sequence $write)
     {
@@ -30,7 +30,7 @@ final class Ready
     }
 
     /**
-     * @return Sequence<Implementation|Server|Server\Connection>
+     * @return Sequence<Implementation|Server>
      */
     public function toRead(): Sequence
     {
@@ -38,7 +38,7 @@ final class Ready
     }
 
     /**
-     * @return Sequence<Implementation|Server\Connection>
+     * @return Sequence<Implementation>
      */
     public function toWrite(): Sequence
     {

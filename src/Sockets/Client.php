@@ -10,13 +10,9 @@ use Innmind\IO\{
     Next\Frame,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Internal\Socket\{
-    Client as Socket,
-    Server\Connection,
-};
+use Innmind\IO\Internal\Socket\Client as Socket;
 use Innmind\IO\Internal\Stream\{
     Implementation,
-    Writable,
     Size,
     Watch,
 };
@@ -28,18 +24,14 @@ use Innmind\Immutable\{
     SideEffect,
 };
 
-/**
- * @template-covariant T of Implementation|Connection
- */
 final class Client
 {
-    /** @var T */
-    private Implementation|Connection $socket;
+    private Implementation $socket;
     /** @var callable(?ElapsedPeriod): Watch */
     private $watch;
-    /** @var callable(T): Maybe<T> */
+    /** @var callable(Implementation): Maybe<Implementation> */
     private $readyToRead;
-    /** @var callable(T): Maybe<Writable> */
+    /** @var callable(Implementation): Maybe<Implementation> */
     private $readyToWrite;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
@@ -52,16 +44,15 @@ final class Client
      * @psalm-mutation-free
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param T $socket
-     * @param callable(T): Maybe<T> $readyToRead
-     * @param callable(T): Maybe<Writable> $readyToWrite
+     * @param callable(Implementation): Maybe<Implementation> $readyToRead
+     * @param callable(Implementation): Maybe<Implementation> $readyToWrite
      * @param Maybe<Str\Encoding> $encoding
      * @param Maybe<callable(): Sequence<Str>> $heartbeat
      * @param callable(): bool $abort
      */
     private function __construct(
         callable $watch,
-        Implementation|Connection $socket,
+        Implementation $socket,
         callable $readyToRead,
         callable $readyToWrite,
         Maybe $encoding,
@@ -80,46 +71,36 @@ final class Client
     /**
      * @psalm-mutation-free
      * @internal
-     * @template A of Implementation|Connection
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param A $socket
-     *
-     * @return self<A>
      */
     public static function of(
         callable $watch,
-        Implementation|Connection $socket,
+        Implementation $socket,
     ): self {
         /** @var Maybe<Str\Encoding> */
         $encoding = Maybe::nothing();
         /** @var Maybe<callable(): Sequence<Str>> */
         $heartbeat = Maybe::nothing();
 
-        /** @var self<A> */
         return new self(
             $watch,
             $socket,
-            static fn(Implementation|Connection $socket) => Maybe::just($socket),
-            static fn(Implementation|Connection $socket) => Maybe::just($socket),
+            static fn(Implementation $socket) => Maybe::just($socket),
+            static fn(Implementation $socket) => Maybe::just($socket),
             $encoding,
             $heartbeat,
             static fn() => false,
         );
     }
 
-    /**
-     * @return T
-     */
-    public function unwrap(): Implementation|Connection
+    public function unwrap(): Implementation
     {
         return $this->socket;
     }
 
     /**
      * @psalm-mutation-free
-     *
-     * @return self<T>
      */
     public function toEncoding(Str\Encoding $encoding): self
     {
@@ -138,32 +119,26 @@ final class Client
      * Wait forever for the socket to be ready to read before tryin to use it
      *
      * @psalm-mutation-free
-     *
-     * @return self<T>
      */
     public function watch(): self
     {
-        /** @var self<T> */
         return new self(
             $this->watch,
             $this->socket,
-            fn(Implementation|Connection $socket) => ($this->watch)(null)
+            fn(Implementation $socket) => ($this->watch)(null)
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(
-                    Instance::of(Implementation::class)->or(
-                        Instance::of(Connection::class),
-                    ),
-                ),
-            fn(Implementation|Connection $socket) => ($this->watch)(null)
+                ->keep(Instance::of(Implementation::class)),
+            fn(Implementation $socket) => ($this->watch)(null)
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(
                     static fn($ready) => $ready === $socket,
-                )),
+                ))
+                ->keep(Instance::of(Implementation::class)),
             $this->encoding,
             $this->heartbeat,
             $this->abort,
@@ -172,8 +147,6 @@ final class Client
 
     /**
      * @psalm-mutation-free
-     *
-     * @return self<T>
      */
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
@@ -181,23 +154,20 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            fn(Implementation|Connection $socket) => ($this->watch)($timeout)
+            fn(Implementation $socket) => ($this->watch)($timeout)
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(
-                    Instance::of(Implementation::class)->or(
-                        Instance::of(Connection::class),
-                    ),
-                ),
-            fn(Implementation|Connection $socket) => ($this->watch)($timeout)
+                ->keep(Instance::of(Implementation::class)),
+            fn(Implementation $socket) => ($this->watch)($timeout)
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(
                     static fn($ready) => $ready === $socket,
-                )),
+                ))
+                ->keep(Instance::of(Implementation::class)),
             $this->encoding,
             $this->heartbeat,
             $this->abort,
@@ -210,8 +180,6 @@ final class Client
      * to be readable.
      *
      * @param callable(): Sequence<Str> $provide
-     *
-     * @return self<T>
      */
     public function heartbeatWith(callable $provide): self
     {
@@ -234,8 +202,6 @@ final class Client
      * Use this method to abort the watch when you receive signals.
      *
      * @param callable(): bool $abort
-     *
-     * @return self<T>
      */
     public function abortWhen(callable $abort): self
     {
@@ -317,7 +283,7 @@ final class Client
      *
      * @param Frame<F> $frame
      *
-     * @return Frames<T, F>
+     * @return Frames<Implementation, F>
      */
     public function frames(Frame $frame): Frames
     {
@@ -340,12 +306,12 @@ final class Client
     /**
      * @psalm-mutation-free
      *
-     * @return callable(T): Maybe<T>
+     * @return callable(Implementation): Maybe<Implementation>
      */
     private function readyToRead(): callable
     {
         return $this->heartbeat->match(
-            fn($provide) => function(Implementation|Connection $socket) use ($provide) {
+            fn($provide) => function(Implementation $socket) use ($provide) {
                 do {
                     $ready = ($this->readyToRead)($socket);
                     $socketReadable = $ready->match(
@@ -365,12 +331,12 @@ final class Client
                         );
 
                     if (!$sent) {
-                        /** @var Maybe<T> */
+                        /** @var Maybe<Implementation> */
                         return Maybe::nothing();
                     }
                 } while (!($this->abort)() && !$socket->closed());
 
-                /** @var Maybe<T> */
+                /** @var Maybe<Implementation> */
                 return Maybe::nothing();
             },
             fn() => $this->readyToRead,

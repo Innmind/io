@@ -6,7 +6,6 @@ namespace Innmind\IO\Sockets;
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\{
     Server as Socket,
-    Server\Connection,
 };
 use Innmind\IO\Internal\Stream\Watch;
 use Innmind\Immutable\{
@@ -128,7 +127,7 @@ final class Server
     }
 
     /**
-     * @return Maybe<Client<Connection>>
+     * @return Maybe<Client>
      */
     public function accept(): Maybe
     {

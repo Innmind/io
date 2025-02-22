@@ -10,7 +10,6 @@ use Innmind\IO\Sockets\{
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\{
     Server as Socket,
-    Server\Connection,
 };
 use Innmind\IO\Internal\Stream\Watch;
 use Innmind\Immutable\{
@@ -156,7 +155,7 @@ final class Pool
     }
 
     /**
-     * @return Sequence<Client<Connection>>
+     * @return Sequence<Client>
      */
     public function accept(): Sequence
     {

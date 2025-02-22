@@ -66,12 +66,12 @@ final class Unix implements Server
         $socket = @\stream_socket_accept($this->resource());
 
         if ($socket === false) {
-            /** @var Maybe<Connection> */
+            /** @var Maybe<Implementation> */
             return Maybe::nothing();
         }
 
-        /** @var Maybe<Connection> */
-        return Maybe::just(Connection\Stream::of($socket));
+        /** @var Maybe<Implementation> */
+        return Maybe::just(Implementation::of($socket));
     }
 
     /**

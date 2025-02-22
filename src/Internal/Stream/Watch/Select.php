@@ -19,9 +19,9 @@ final class Select implements Watch
 {
     /** @var Maybe<ElapsedPeriod> */
     private Maybe $timeout;
-    /** @var Map<resource, Implementation|Server|Server\Connection> */
+    /** @var Map<resource, Implementation|Server> */
     private Map $read;
-    /** @var Map<resource, Implementation|Server\Connection> */
+    /** @var Map<resource, Implementation> */
     private Map $write;
     /** @var list<resource> */
     private array $readResources;
@@ -31,9 +31,9 @@ final class Select implements Watch
     private function __construct(?ElapsedPeriod $timeout = null)
     {
         $this->timeout = Maybe::of($timeout);
-        /** @var Map<resource, Implementation|Server|Server\Connection> */
+        /** @var Map<resource, Implementation|Server> */
         $this->read = Map::of();
-        /** @var Map<resource, Implementation|Server\Connection> */
+        /** @var Map<resource, Implementation> */
         $this->write = Map::of();
         $this->readResources = [];
         $this->writeResources = [];
@@ -46,9 +46,9 @@ final class Select implements Watch
             $this->read->empty() &&
             $this->write->empty()
         ) {
-            /** @var Sequence<Implementation|Server|Server\Connection> */
+            /** @var Sequence<Implementation|Server> */
             $read = Sequence::of();
-            /** @var Sequence<Implementation|Server\Connection> */
+            /** @var Sequence<Implementation> */
             $write = Sequence::of();
 
             return Maybe::just(new Ready($read, $write));
@@ -104,8 +104,8 @@ final class Select implements Watch
      */
     #[\Override]
     public function forRead(
-        Implementation|Server|Server\Connection $read,
-        Implementation|Server|Server\Connection ...$reads,
+        Implementation|Server $read,
+        Implementation|Server ...$reads,
     ): Watch {
         $self = clone $this;
         $self->read = ($self->read)(
@@ -130,8 +130,8 @@ final class Select implements Watch
      */
     #[\Override]
     public function forWrite(
-        Implementation|Server\Connection $write,
-        Implementation|Server\Connection ...$writes,
+        Implementation $write,
+        Implementation ...$writes,
     ): Watch {
         $self = clone $this;
         $self->write = ($self->write)(
@@ -155,7 +155,7 @@ final class Select implements Watch
      * @psalm-mutation-free
      */
     #[\Override]
-    public function unwatch(Implementation|Server|Server\Connection $stream): Watch
+    public function unwatch(Implementation|Server $stream): Watch
     {
         $resource = $stream->resource();
         $self = clone $this;
