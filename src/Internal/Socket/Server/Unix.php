@@ -19,43 +19,15 @@ final class Unix implements Server
     private string $path;
     private Stream $stream;
 
-    /**
-     * @param resource $socket
-     */
-    private function __construct(Address $path, $socket)
+    private function __construct(Address $path, Stream $stream)
     {
         $this->path = $path->toString();
-        $this->stream = Stream::of($socket);
+        $this->stream = $stream;
     }
 
-    /**
-     * @return Maybe<self>
-     */
-    public static function of(Address $path): Maybe
+    public static function of(Address $path, Stream $stream): self
     {
-        $socket = @\stream_socket_server('unix://'.$path->toString());
-
-        if ($socket === false) {
-            /** @var Maybe<self> */
-            return Maybe::nothing();
-        }
-
-        return Maybe::just(new self($path, $socket));
-    }
-
-    /**
-     * On open failure it will try to delete existing socket file the ntry to
-     * reopen the socket connection
-     *
-     * @return Maybe<self>
-     */
-    public static function recoverable(Address $path): Maybe
-    {
-        return self::of($path)->otherwise(static function() use ($path) {
-            @\unlink($path->toString());
-
-            return self::of($path);
-        });
+        return new self($path, $stream);
     }
 
     #[\Override]

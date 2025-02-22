@@ -9,6 +9,7 @@ use Innmind\IO\{
     Next\Sockets\Unix\Address,
     IO as Previous,
     Internal,
+    Internal\Stream\Capabilities,
 };
 use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;
@@ -18,15 +19,16 @@ final class Servers
 {
     private function __construct(
         private Previous $io,
+        private Capabilities $capabilities,
     ) {
     }
 
     /**
      * @internal
      */
-    public static function of(Previous $io): self
+    public static function of(Previous $io, Capabilities $capabilities): self
     {
-        return new self($io);
+        return new self($io, $capabilities);
     }
 
     /**
@@ -34,7 +36,11 @@ final class Servers
      */
     public function internet(Transport $transport, IP $ip, Port $port): Maybe
     {
-        return Internal\Socket\Server\Internet::of($transport, $ip, $port)
+        return $this
+            ->capabilities
+            ->sockets()
+            ->servers()
+            ->internet($transport, $ip, $port)
             ->map($this->io->sockets()->servers()->wrap(...))
             ->map(Server::of(...));
     }
@@ -44,7 +50,11 @@ final class Servers
      */
     public function unix(Address $address): Maybe
     {
-        return Internal\Socket\Server\Unix::of($address)
+        return $this
+            ->capabilities
+            ->sockets()
+            ->servers()
+            ->unix($address)
             ->map($this->io->sockets()->servers()->wrap(...))
             ->map(Server::of(...));
     }
@@ -54,7 +64,11 @@ final class Servers
      */
     public function takeOver(Address $address): Maybe
     {
-        return Internal\Socket\Server\Unix::recoverable($address)
+        return $this
+            ->capabilities
+            ->sockets()
+            ->servers()
+            ->takeOver($address)
             ->map($this->io->sockets()->servers()->wrap(...))
             ->map(Server::of(...));
     }

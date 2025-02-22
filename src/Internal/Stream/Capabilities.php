@@ -24,6 +24,11 @@ final class Capabilities
         return Capabilities\Streams::of();
     }
 
+    public function sockets(): Capabilities\Sockets
+    {
+        return Capabilities\Sockets::of();
+    }
+
     public function watch(): Capabilities\Watch
     {
         return Capabilities\Watch::of();

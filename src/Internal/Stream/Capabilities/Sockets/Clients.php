@@ -1,23 +1,34 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Socket\Client;
+namespace Innmind\IO\Internal\Stream\Capabilities\Sockets;
 
-use Innmind\IO\Next\Sockets\Internet\Transport;
-use Innmind\IO\Internal\Stream\Stream;
+use Innmind\IO\{
+    Next\Sockets\Internet\Transport,
+    Next\Sockets\Unix\Address,
+    Internal\Stream\Stream,
+};
 use Innmind\Url\Authority;
 use Innmind\Immutable\Maybe;
 
-final class Internet
+final class Clients
 {
     private function __construct()
     {
     }
 
     /**
+     * @internal
+     */
+    public static function of(): self
+    {
+        return new self;
+    }
+
+    /**
      * @return Maybe<Stream>
      */
-    public static function of(Transport $transport, Authority $authority): Maybe
+    public function internet(Transport $transport, Authority $authority): Maybe
     {
         $socket = @\stream_socket_client(\sprintf(
             '%s://%s',
@@ -44,6 +55,21 @@ final class Internet
                     return $socket;
                 },
             );
+
+        return Maybe::just(Stream::of($socket));
+    }
+
+    /**
+     * @return Maybe<Stream>
+     */
+    public function unix(Address $path): Maybe
+    {
+        $socket = @\stream_socket_client('unix://'.$path->toString());
+
+        if ($socket === false) {
+            /** @var Maybe<Stream> */
+            return Maybe::nothing();
+        }
 
         return Maybe::just(Stream::of($socket));
     }

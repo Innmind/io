@@ -3,13 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Socket\Server;
 
-use Innmind\IO\{
-    Internal\Socket\Server,
-    Next\Sockets\Internet\Transport,
-};
+use Innmind\IO\Internal\Socket\Server;
 use Innmind\IO\Internal\Stream\Stream;
-use Innmind\IP\IP;
-use Innmind\Url\Authority\Port;
 use Innmind\Immutable\{
     Maybe,
     Either,
@@ -17,37 +12,14 @@ use Innmind\Immutable\{
 
 final class Internet implements Server
 {
-    private Stream $stream;
-
-    /**
-     * @param resource $socket
-     */
-    private function __construct($socket)
-    {
-        $this->stream = Stream::of($socket);
+    private function __construct(
+        private Stream $stream,
+    ) {
     }
 
-    /**
-     * @return Maybe<self>
-     */
-    public static function of(
-        Transport $transport,
-        IP $ip,
-        Port $port,
-    ): Maybe {
-        $socket = @\stream_socket_server(\sprintf(
-            '%s://%s:%s',
-            $transport->toString(),
-            $ip->toString(),
-            $port->toString(),
-        ));
-
-        if ($socket === false) {
-            /** @var Maybe<self> */
-            return Maybe::nothing();
-        }
-
-        return Maybe::just(new self($socket));
+    public static function of(Stream $stream): self
+    {
+        return new self($stream);
     }
 
     #[\Override]
