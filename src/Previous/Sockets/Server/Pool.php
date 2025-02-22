@@ -17,26 +17,15 @@ use Innmind\Immutable\{
 
 final class Pool
 {
-    /** @var non-empty-list<Socket> */
-    private array $sockets;
-    private Watch $watch;
-    /** @var callable(Socket): Sequence<Socket> */
-    private $wait;
-
     /**
      * @psalm-mutation-free
      *
-     * @param non-empty-list<Socket> $sockets
-     * @param callable(Socket): Sequence<Socket> $wait
+     * @param Sequence<Socket> $sockets
      */
     private function __construct(
-        Watch $watch,
-        array $sockets,
-        callable $wait,
+        private Watch $watch,
+        private Sequence $sockets,
     ) {
-        $this->watch = $watch;
-        $this->sockets = $sockets;
-        $this->wait = $wait;
     }
 
     /**
@@ -49,18 +38,16 @@ final class Pool
         Socket $second,
     ): self {
         return new self(
-            $watch,
-            [$first, $second],
-            static fn(Socket $socket) => Sequence::of($socket),
+            $watch->forRead($first, $second),
+            Sequence::of($first, $second),
         );
     }
 
     public function with(Server $server): self
     {
         return new self(
-            $this->watch,
-            [...$this->sockets, $server->unwrap()],
-            $this->wait,
+            $this->watch->forRead($server->unwrap()),
+            $this->sockets->add($server->unwrap()),
         );
     }
 
@@ -69,7 +56,7 @@ final class Pool
      */
     public function unwrap(): Sequence
     {
-        return Sequence::of(...$this->sockets);
+        return $this->sockets;
     }
 
     /**
@@ -79,27 +66,9 @@ final class Pool
      */
     public function watch(): self
     {
-        /** @var self<T> */
         return new self(
             $this->watch->waitForever(),
             $this->sockets,
-            fn(Socket $socket, Socket ...$sockets) => $this
-                ->watch
-                ->forRead($socket, ...$sockets)()
-                ->map(
-                    static fn($ready) => $ready
-                        ->toRead()
-                        ->filter(static fn($ready) => \in_array(
-                            $ready,
-                            [$socket, ...$sockets],
-                            true,
-                        ))
-                        ->keep(Instance::of(Socket::class)),
-                )
-                ->toSequence()
-                ->flatMap(
-                    static fn($toRead) => Sequence::of(...$toRead->toList()),
-                ),
         );
     }
 
@@ -111,23 +80,6 @@ final class Pool
         return new self(
             $this->watch->timeoutAfter($timeout),
             $this->sockets,
-            fn(Socket $socket, Socket ...$sockets) => $this
-                ->watch
-                ->forRead($socket, ...$sockets)()
-                ->map(
-                    static fn($ready) => $ready
-                        ->toRead()
-                        ->filter(static fn($ready) => \in_array(
-                            $ready,
-                            [$socket, ...$sockets],
-                            true,
-                        ))
-                        ->keep(Instance::of(Socket::class)),
-                )
-                ->toSequence()
-                ->flatMap(
-                    static fn($toRead) => Sequence::of(...$toRead->toList()),
-                ),
         );
     }
 
@@ -136,7 +88,19 @@ final class Pool
      */
     public function accept(): Sequence
     {
-        return ($this->wait)(...$this->sockets)
+        $sockets = $this->sockets;
+
+        return ($this->watch)()
+            ->map(
+                static fn($ready) => $ready
+                    ->toRead()
+                    ->keep(Instance::of(Socket::class))
+                    ->filter(static fn($ready) => $sockets->contains($ready)),
+            )
+            ->toSequence()
+            ->flatMap(
+                static fn($toRead) => Sequence::of(...$toRead->toList()),
+            )
             ->flatMap(
                 static fn($socket) => $socket
                     ->accept()

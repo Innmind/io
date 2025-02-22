@@ -17,22 +17,16 @@ final class Server
 {
     private Socket $socket;
     private Watch $watch;
-    /** @var callable(Socket): Maybe<Socket> */
-    private $wait;
 
     /**
      * @psalm-mutation-free
-     *
-     * @param callable(Socket): Maybe<Socket> $wait
      */
     private function __construct(
         Watch $watch,
         Socket $socket,
-        callable $wait,
     ) {
         $this->watch = $watch;
         $this->socket = $socket;
-        $this->wait = $wait;
     }
 
     /**
@@ -44,15 +38,18 @@ final class Server
         Socket $socket,
     ): self {
         return new self(
-            $watch,
+            $watch->forRead($socket),
             $socket,
-            static fn(Socket $socket) => Maybe::just($socket),
         );
     }
 
     public function with(self $socket): Server\Pool
     {
-        return Server\Pool::of($this->watch, $this->socket, $socket->unwrap());
+        return Server\Pool::of(
+            $this->watch->unwatch($this->socket),
+            $this->socket,
+            $socket->unwrap(),
+        );
     }
 
     public function unwrap(): Socket
@@ -70,14 +67,6 @@ final class Server
         return new self(
             $this->watch->waitForever(),
             $this->socket,
-            fn(Socket $socket) => $this
-                ->watch
-                ->forRead($socket)()
-                ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(static fn($toRead) => $toRead->find(
-                    static fn($ready) => $ready === $socket,
-                ))
-                ->keep(Instance::of(Socket::class)),
         );
     }
 
@@ -89,14 +78,6 @@ final class Server
         return new self(
             $this->watch->timeoutAfter($timeout),
             $this->socket,
-            fn(Socket $socket) => $this
-                ->watch
-                ->forRead($socket)()
-                ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(static fn($toRead) => $toRead->find(
-                    static fn($ready) => $ready === $socket,
-                ))
-                ->keep(Instance::of(Socket::class)),
         );
     }
 
@@ -105,10 +86,17 @@ final class Server
      */
     public function accept(): Maybe
     {
-        return ($this->wait)($this->socket)
+        $socket = $this->socket;
+
+        return ($this->watch)()
+            ->map(static fn($ready) => $ready->toRead())
+            ->flatMap(static fn($toRead) => $toRead->find(
+                static fn($ready) => $ready === $socket,
+            ))
+            ->keep(Instance::of(Socket::class))
             ->flatMap(static fn($socket) => $socket->accept())
             ->map(fn($client) => Client::of(
-                $this->watch,
+                $this->watch->clear(),
                 $client,
             ));
     }
