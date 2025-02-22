@@ -3,16 +3,13 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\IO;
 
-use Innmind\IO\{
+use Innmind\IO\Next\{
     IO,
-    Readable\Frame,
-    Next,
+    Sockets\Unix\Address,
+    Frame,
 };
 use Innmind\TimeContinuum\Period;
-use Innmind\IO\Internal\Stream\{
-    Readable\Stream,
-    Watch\Select,
-};
+use Innmind\IO\Internal\Stream\Readable\Stream;
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Sequence,
@@ -41,12 +38,12 @@ class FunctionalTest extends TestCase
                 $tmp = \tmpfile();
                 \fwrite($tmp, 'foobarbaz');
 
-                $chunks = Next\IO::fromAmbientAuthority()
+                $chunks = IO::fromAmbientAuthority()
                     ->streams()
                     ->acquire($tmp)
                     ->read()
                     ->watch()
-                    ->frames(Next\Frame::chunk($size))
+                    ->frames(Frame::chunk($size))
                     ->lazy()
                     ->rewindable()
                     ->sequence()
@@ -62,13 +59,13 @@ class FunctionalTest extends TestCase
         $tmp = \tmpfile();
         \fwrite($tmp, 'foob');
 
-        $chunks = Next\IO::fromAmbientAuthority()
+        $chunks = IO::fromAmbientAuthority()
             ->streams()
             ->acquire($tmp)
             ->read()
             ->watch()
             ->toEncoding(Str\Encoding::ascii)
-            ->frames(Next\Frame::chunk(1))
+            ->frames(Frame::chunk(1))
             ->lazy()
             ->rewindable()
             ->sequence()
@@ -106,13 +103,13 @@ class FunctionalTest extends TestCase
                 $tmp = \tmpfile();
                 \fwrite($tmp, $content);
 
-                $chunks = Next\IO::fromAmbientAuthority()
+                $chunks = IO::fromAmbientAuthority()
                     ->streams()
                     ->acquire($tmp)
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Next\Frame::chunk($size))
+                    ->frames(Frame::chunk($size))
                     ->lazy()
                     ->rewindable()
                     ->sequence();
@@ -149,13 +146,13 @@ class FunctionalTest extends TestCase
                 $tmp = \tmpfile();
                 \fwrite($tmp, $content);
 
-                $chunks = Next\IO::fromAmbientAuthority()
+                $chunks = IO::fromAmbientAuthority()
                     ->streams()
                     ->acquire($tmp)
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Next\Frame::chunk($size))
+                    ->frames(Frame::chunk($size))
                     ->lazy()
                     ->rewindable()
                     ->sequence();
@@ -192,13 +189,13 @@ class FunctionalTest extends TestCase
                 $tmp = \tmpfile();
                 \fwrite($tmp, $content);
 
-                $lines = Next\IO::fromAmbientAuthority()
+                $lines = IO::fromAmbientAuthority()
                     ->streams()
                     ->acquire($tmp)
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Next\Frame::line())
+                    ->frames(Frame::line())
                     ->lazy()
                     ->rewindable()
                     ->sequence();
@@ -235,13 +232,13 @@ class FunctionalTest extends TestCase
                 $tmp = \tmpfile();
                 \fwrite($tmp, $content);
 
-                $lines = Next\IO::fromAmbientAuthority()
+                $lines = IO::fromAmbientAuthority()
                     ->streams()
                     ->acquire($tmp)
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Next\Frame::line())
+                    ->frames(Frame::line())
                     ->lazy()
                     ->sequence();
 
@@ -260,7 +257,7 @@ class FunctionalTest extends TestCase
 
     public function testReadRealFileByLines()
     {
-        $lines = Next\IO::fromAmbientAuthority()
+        $lines = IO::fromAmbientAuthority()
             ->files()
             ->read(Path::of(\dirname(__DIR__).'/LICENSE'))
             ->toEncoding(Str\Encoding::ascii)
@@ -282,7 +279,7 @@ class FunctionalTest extends TestCase
                 $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
                 \file_put_contents($tmp, $content);
 
-                $size = Next\IO::fromAmbientAuthority()
+                $size = IO::fromAmbientAuthority()
                     ->files()
                     ->read(Path::of($tmp))
                     ->size()
@@ -313,18 +310,18 @@ class FunctionalTest extends TestCase
         $tmp = \tmpfile();
         \fwrite($tmp, $someStream);
 
-        $payloads = Next\IO::fromAmbientAuthority()
+        $payloads = IO::fromAmbientAuthority()
             ->streams()
             ->acquire($tmp)
             ->read()
             ->toEncoding(Str\Encoding::ascii)
             ->watch()
             ->frames(
-                Next\Frame::line()->flatMap(
-                    static fn() => Next\Frame::line()
+                Frame::line()->flatMap(
+                    static fn() => Frame::line()
                         ->map(static fn($line) => $line->trim())
                         ->flatMap(
-                            static fn($line) => Next\Frame::line()
+                            static fn($line) => Frame::line()
                                 ->map(static fn() => $line->toString()),
                         ),
                 ),
@@ -361,19 +358,19 @@ class FunctionalTest extends TestCase
         $tmp = \tmpfile();
         \fwrite($tmp, $someStream);
 
-        $payload = Next\IO::fromAmbientAuthority()
+        $payload = IO::fromAmbientAuthority()
             ->streams()
             ->acquire($tmp)
             ->read()
             ->toEncoding(Str\Encoding::ascii)
             ->watch()
             ->frames(
-                Next\Frame::line()->flatMap(
-                    static fn() => Next\Frame::line()
+                Frame::line()->flatMap(
+                    static fn() => Frame::line()
                         ->map(static fn($line) => $line->trim())
                         ->filter(static fn($line) => $line->endsWith('B'))
                         ->flatMap(
-                            static fn($line) => Next\Frame::line()
+                            static fn($line) => Frame::line()
                                 ->map(static fn() => $line->toString()),
                         ),
                 ),
@@ -399,14 +396,14 @@ class FunctionalTest extends TestCase
         $tmp = \tmpfile();
         \fwrite($tmp, $someStream);
 
-        $payload = Next\IO::fromAmbientAuthority()
+        $payload = IO::fromAmbientAuthority()
             ->streams()
             ->acquire($tmp)
             ->read()
             ->toEncoding(Str\Encoding::ascii)
             ->watch()
             ->frames(
-                Next\Frame::sequence(Next\Frame::line())->map(
+                Frame::sequence(Frame::line())->map(
                     static fn($lines) => $lines
                         ->map(static fn($line) => $line->match(
                             static fn($line) => $line,
@@ -437,8 +434,8 @@ class FunctionalTest extends TestCase
     public function testSocketClientSend()
     {
         @\unlink('/tmp/foo.sock');
-        $sockets = Next\IO::fromAmbientAuthority()->sockets();
-        $address = Next\Sockets\Unix\Address::of(Path::of('/tmp/foo'));
+        $sockets = IO::fromAmbientAuthority()->sockets();
+        $address = Address::of(Path::of('/tmp/foo'));
 
         $server = $sockets
             ->servers()
@@ -487,7 +484,7 @@ class FunctionalTest extends TestCase
                 ->flatMap(
                     static fn($client) => $client
                         ->watch()
-                        ->frames(Next\Frame::chunk(34))
+                        ->frames(Frame::chunk(34))
                         ->one(),
                 )
                 ->match(
@@ -503,8 +500,8 @@ class FunctionalTest extends TestCase
     public function testSocketClientHeartbeatWithSocketClosing()
     {
         @\unlink('/tmp/foo.sock');
-        $sockets = Next\IO::fromAmbientAuthority()->sockets();
-        $address = Next\Sockets\Unix\Address::of(Path::of('/tmp/foo'));
+        $sockets = IO::fromAmbientAuthority()->sockets();
+        $address = Address::of(Path::of('/tmp/foo'));
 
         $server = $sockets
             ->servers()
@@ -545,7 +542,7 @@ class FunctionalTest extends TestCase
                             ->accept()
                             ->flatMap(
                                 static fn($client) => $client
-                                    ->frames(Next\Frame::chunk(3))
+                                    ->frames(Frame::chunk(3))
                                     ->one(),
                             )
                             ->match(
@@ -558,8 +555,8 @@ class FunctionalTest extends TestCase
 
                 return Sequence::of();
             })
-            // todo remove the filter if it's implemented in Next\Frame\Chunk
-            ->frames(Next\Frame::chunk(1)->filter(
+            // todo remove the filter if it's implemented in Frame\Chunk
+            ->frames(Frame::chunk(1)->filter(
                 static fn($chunk) => $chunk->length() === 1,
             ))
             ->one()
@@ -577,8 +574,8 @@ class FunctionalTest extends TestCase
     public function testSocketClientHeartbeat()
     {
         @\unlink('/tmp/foo.sock');
-        $sockets = Next\IO::fromAmbientAuthority()->sockets();
-        $address = Next\Sockets\Unix\Address::of(Path::of('/tmp/foo'));
+        $sockets = IO::fromAmbientAuthority()->sockets();
+        $address = Address::of(Path::of('/tmp/foo'));
 
         $server = $sockets
             ->servers()
@@ -624,7 +621,7 @@ class FunctionalTest extends TestCase
                             )
                             ->flatMap(
                                 static fn($client) => $client
-                                    ->frames(Next\Frame::chunk(3))
+                                    ->frames(Frame::chunk(3))
                                     ->one(),
                             )
                             ->match(
@@ -636,7 +633,7 @@ class FunctionalTest extends TestCase
 
                 return Sequence::of();
             })
-            ->frames(Next\Frame::chunk(3))
+            ->frames(Frame::chunk(3))
             ->one()
             ->match(
                 static fn($response) => $response->toString(),
@@ -652,8 +649,8 @@ class FunctionalTest extends TestCase
     public function testSocketAbort()
     {
         @\unlink('/tmp/foo.sock');
-        $sockets = Next\IO::fromAmbientAuthority()->sockets();
-        $address = Next\Sockets\Unix\Address::of(Path::of('/tmp/foo'));
+        $sockets = IO::fromAmbientAuthority()->sockets();
+        $address = Address::of(Path::of('/tmp/foo'));
 
         $server = $sockets
             ->servers()
@@ -692,7 +689,7 @@ class FunctionalTest extends TestCase
                     $this->assertSame(
                         'foo',
                         $clientFromServerSide
-                            ->frames(Next\Frame::chunk(3))
+                            ->frames(Frame::chunk(3))
                             ->one()
                             ->match(
                                 static fn($data) => $data->toString(),
@@ -708,7 +705,7 @@ class FunctionalTest extends TestCase
             ->abortWhen(static function() use (&$heartbeats) {
                 return $heartbeats > 2;
             })
-            ->frames(Next\Frame::chunk(3))
+            ->frames(Frame::chunk(3))
             ->one()
             ->match(
                 static fn($response) => $response->toString(),
@@ -724,8 +721,8 @@ class FunctionalTest extends TestCase
     public function testServerAcceptConnection()
     {
         @\unlink('/tmp/foo.sock');
-        $sockets = Next\IO::fromAmbientAuthority()->sockets();
-        $address = Next\Sockets\Unix\Address::of(Path::of('/tmp/foo'));
+        $sockets = IO::fromAmbientAuthority()->sockets();
+        $address = Address::of(Path::of('/tmp/foo'));
 
         $server = $sockets
             ->servers()
@@ -759,7 +756,7 @@ class FunctionalTest extends TestCase
             ->accept()
             ->flatMap(
                 static fn($client) => $client
-                    ->frames(Next\Frame::chunk(3))
+                    ->frames(Frame::chunk(3))
                     ->one(),
             )
             ->match(
@@ -777,10 +774,10 @@ class FunctionalTest extends TestCase
         @\unlink('/tmp/foo.sock');
         @\unlink('/tmp/bar.sock');
         @\unlink('/tmp/baz.sock');
-        $sockets = Next\IO::fromAmbientAuthority()->sockets();
-        $addressFoo = Next\Sockets\Unix\Address::of(Path::of('/tmp/foo'));
-        $addressBar = Next\Sockets\Unix\Address::of(Path::of('/tmp/bar'));
-        $addressBaz = Next\Sockets\Unix\Address::of(Path::of('/tmp/baz'));
+        $sockets = IO::fromAmbientAuthority()->sockets();
+        $addressFoo = Address::of(Path::of('/tmp/foo'));
+        $addressBar = Address::of(Path::of('/tmp/bar'));
+        $addressBaz = Address::of(Path::of('/tmp/baz'));
         $serverFoo = $sockets
             ->servers()
             ->takeOver($addressFoo)
@@ -860,9 +857,6 @@ class FunctionalTest extends TestCase
                 static fn() => null,
             );
 
-        $servers = IO::of(Select::timeoutAfter(...))
-            ->sockets()
-            ->servers();
         $result = $serverFoo
             ->timeoutAfter(Period::second(1))
             ->pool($serverBar)
@@ -870,7 +864,7 @@ class FunctionalTest extends TestCase
             ->accept()
             ->flatMap(
                 static fn($client) => $client
-                    ->frames(Next\Frame::chunk(3))
+                    ->frames(Frame::chunk(3))
                     ->one()
                     ->toSequence(),
             )

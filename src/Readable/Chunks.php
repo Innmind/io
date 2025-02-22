@@ -7,7 +7,6 @@ use Innmind\IO\Internal\Stream\Readable as LowLevelStream;
 use Innmind\Immutable\{
     Str,
     Maybe,
-    Either,
 };
 
 /**
