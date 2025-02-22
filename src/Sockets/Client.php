@@ -3,11 +3,11 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Sockets;
 
-use Innmind\IO\Readable\{
-    Chunks,
-    Frames,
-    Frame,
-    Lines,
+use Innmind\IO\{
+    Readable\Chunks,
+    Readable\Frames,
+    Readable\Lines,
+    Next\Frame,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\{

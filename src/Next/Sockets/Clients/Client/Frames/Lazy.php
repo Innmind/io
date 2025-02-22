@@ -43,7 +43,7 @@ final class Lazy
     {
         return $this
             ->socket
-            ->frames($this->frame->toOld())
+            ->frames($this->frame)
             ->sequence();
     }
 }

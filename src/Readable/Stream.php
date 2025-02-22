@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Readable;
 
+use Innmind\IO\Next\Frame;
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Stream\{
     Readable as LowLevelStream,

@@ -97,7 +97,7 @@ final class Lazy
             }
 
             yield $stream
-                ->frames($frame->toOld())
+                ->frames($frame)
                 ->sequence();
         })->flatMap(static fn($frames) => $frames);
     }

@@ -49,7 +49,7 @@ final class Frames
         // todo handle non blocking
         return $this
             ->stream
-            ->frames($this->frame->toOld())
+            ->frames($this->frame)
             ->one();
     }
 

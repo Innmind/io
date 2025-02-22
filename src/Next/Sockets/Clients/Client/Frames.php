@@ -41,7 +41,7 @@ final class Frames
     {
         return $this
             ->socket
-            ->frames($this->frame->toOld())
+            ->frames($this->frame)
             ->one();
     }
 
