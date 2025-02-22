@@ -8,10 +8,7 @@ use Innmind\IO\{
     Internal,
     Internal\Capabilities,
 };
-use Innmind\TimeContinuum\{
-    ElapsedPeriod,
-    Period,
-};
+use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
     Map,
     Sequence,
@@ -31,7 +28,7 @@ final class Pool
     private function __construct(
         private Capabilities $capabilities,
         private Map $streams,
-        private ?ElapsedPeriod $timeout,
+        private ?Period $timeout,
         private ?Str\Encoding $encoding,
     ) {
     }
@@ -98,7 +95,7 @@ final class Pool
         return new self(
             $this->capabilities,
             $this->streams,
-            $timeout->asElapsedPeriod(),
+            $timeout,
             $this->encoding,
         );
     }

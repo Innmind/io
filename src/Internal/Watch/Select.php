@@ -9,7 +9,6 @@ use Innmind\IO\Internal\{
     Socket\Server,
 };
 use Innmind\TimeContinuum\Period;
-use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Immutable\{
     Map,
     Sequence,
@@ -80,16 +79,7 @@ final class Select implements Watch
         return Maybe::just(new Ready($readable, $writable));
     }
 
-    public static function timeoutAfter(ElapsedPeriod $timeout): self
-    {
-        return new self(
-            Maybe::just($timeout->asPeriod()),
-            Map::of(),
-            Map::of(),
-        );
-    }
-
-    public static function waitForever(): self
+    public static function new(): self
     {
         /** @var Maybe<Period> */
         $timeout = Maybe::nothing();
@@ -99,6 +89,44 @@ final class Select implements Watch
             Map::of(),
             Map::of(),
         );
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    #[\Override]
+    public function timeoutAfter(Period $timeout): self
+    {
+        return new self(
+            Maybe::just($timeout),
+            $this->read,
+            $this->write,
+        );
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    #[\Override]
+    public function waitForever(): self
+    {
+        /** @var Maybe<Period> */
+        $timeout = Maybe::nothing();
+
+        return new self(
+            $timeout,
+            $this->read,
+            $this->write,
+        );
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    #[\Override]
+    public function poll(): self
+    {
+        return $this->timeoutAfter(Period::second(0));
     }
 
     /**

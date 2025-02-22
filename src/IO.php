@@ -24,7 +24,7 @@ final class IO
         return new self(
             Previous::of(static fn(?ElapsedPeriod $timeout) => match ($timeout) {
                 null => $capabilities->watch()->waitForever(),
-                default => $capabilities->watch()->timeoutAfter($timeout),
+                default => $capabilities->watch()->timeoutAfter($timeout->asPeriod()),
             }),
             $capabilities,
         );

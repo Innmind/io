@@ -7,7 +7,7 @@ use Innmind\IO\Internal\{
     Watch as WatchInterface,
     Watch\Select,
 };
-use Innmind\TimeContinuum\ElapsedPeriod;
+use Innmind\TimeContinuum\Period;
 
 final class Watch
 {
@@ -23,13 +23,13 @@ final class Watch
         return new self;
     }
 
-    public function timeoutAfter(ElapsedPeriod $timeout): WatchInterface
+    public function timeoutAfter(Period $timeout): WatchInterface
     {
-        return Select::timeoutAfter($timeout);
+        return Select::new()->timeoutAfter($timeout);
     }
 
     public function waitForever(): WatchInterface
     {
-        return Select::waitForever();
+        return Select::new();
     }
 }
