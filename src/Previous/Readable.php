@@ -1,12 +1,15 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO;
+namespace Innmind\IO\Previous;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Internal\Watch;
+use Innmind\IO\Internal\{
+    Stream as LowLevelStream,
+    Watch,
+};
 
-final class Sockets
+final class Readable
 {
     /** @var callable(?ElapsedPeriod): Watch */
     private $watch;
@@ -35,16 +38,8 @@ final class Sockets
     /**
      * @psalm-mutation-free
      */
-    public function clients(): Sockets\Clients
+    public function wrap(LowLevelStream $stream): Readable\Stream
     {
-        return Sockets\Clients::of($this->watch);
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
-    public function servers(): Sockets\Servers
-    {
-        return Sockets\Servers::of($this->watch);
+        return Readable\Stream::of($this->watch, $stream);
     }
 }

@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Sockets\Clients,
     Next\Sockets\Clients\Client,
     Next\Sockets\Servers,
-    IO as Previous,
+    Previous\IO as Previous,
     Internal\Capabilities,
 };
 

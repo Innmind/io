@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Sockets;
+namespace Innmind\IO\Previous\Sockets;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Stream;

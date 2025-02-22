@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Readable;
+namespace Innmind\IO\Previous\Readable;
 
 use Innmind\IO\Next\Frame;
-use Innmind\IO\Exception\FailedToLoadStream;
+use Innmind\IO\Previous\Exception\FailedToLoadStream;
 use Innmind\IO\Internal\Stream as LowLevelStream;
 use Innmind\Immutable\{
     Str,

@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Sockets\Server;
+namespace Innmind\IO\Previous\Sockets\Server;
 
-use Innmind\IO\Sockets\{
+use Innmind\IO\Previous\Sockets\{
     Server,
     Client,
 };

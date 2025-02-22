@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Next;
 
 use Innmind\IO\{
-    IO as Previous,
+    Previous\IO as Previous,
     Internal\Capabilities,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;

@@ -6,7 +6,7 @@ namespace Innmind\IO\Next;
 use Innmind\IO\{
     Next\Files\Read,
     Next\Files\Write,
-    IO as Previous,
+    Previous\IO as Previous,
     Internal\Capabilities,
 };
 use Innmind\Url\Path;

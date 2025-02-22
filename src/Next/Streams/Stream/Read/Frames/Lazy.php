@@ -5,7 +5,7 @@ namespace Innmind\IO\Next\Streams\Stream\Read\Frames;
 
 use Innmind\IO\{
     Next\Frame,
-    Readable,
+    Previous\Readable,
 };
 use Innmind\Immutable\Sequence;
 

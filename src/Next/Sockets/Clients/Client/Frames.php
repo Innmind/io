@@ -6,7 +6,7 @@ namespace Innmind\IO\Next\Sockets\Clients\Client;
 use Innmind\IO\{
     Next\Sockets\Clients\Client\Frames\Lazy,
     Next\Frame,
-    Sockets\Client as Previous,
+    Previous\Sockets\Client as Previous,
 };
 use Innmind\Immutable\Maybe;
 

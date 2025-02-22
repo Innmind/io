@@ -8,7 +8,7 @@ use Innmind\IO\{
     Next\Streams\Stream\Write,
     Internal,
     Internal\Capabilities,
-    IO as Previous,
+    Previous\IO as Previous,
 };
 use Innmind\Immutable\{
     Maybe,

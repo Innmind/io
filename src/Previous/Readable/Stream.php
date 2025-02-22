@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Readable;
+namespace Innmind\IO\Previous\Readable;
 
 use Innmind\IO\{
     Next\Frame,

@@ -1,12 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Sockets;
+namespace Innmind\IO\Previous\Sockets;
 
 use Innmind\IO\{
-    Readable\Chunks,
-    Readable\Frames,
-    Readable\Lines,
+    Previous\Readable\Chunks,
+    Previous\Readable\Frames,
+    Previous\Readable\Lines,
     Next\Frame,
     Next\Stream\Size,
 };

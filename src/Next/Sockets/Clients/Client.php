@@ -6,7 +6,7 @@ namespace Innmind\IO\Next\Sockets\Clients;
 use Innmind\IO\{
     Next\Sockets\Clients\Client\Frames,
     Next\Frame,
-    Sockets\Client as Previous,
+    Previous\Sockets\Client as Previous,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{

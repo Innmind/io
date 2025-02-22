@@ -5,7 +5,7 @@ namespace Innmind\IO\Next\Sockets\Clients\Client\Frames;
 
 use Innmind\IO\{
     Next\Frame,
-    Sockets\Client as Previous,
+    Previous\Sockets\Client as Previous,
 };
 use Innmind\Immutable\Sequence;
 

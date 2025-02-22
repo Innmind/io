@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Streams\Stream\Read\Frames,
     Next\Streams\Stream\Read\Pool,
     Next\Frame,
-    Readable,
+    Previous\Readable,
     Internal,
     Internal\Capabilities,
 };

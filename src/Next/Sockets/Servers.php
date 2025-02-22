@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Sockets\Servers\Server,
     Next\Sockets\Internet\Transport,
     Next\Sockets\Unix\Address,
-    IO as Previous,
+    Previous\IO as Previous,
     Internal\Capabilities,
 };
 use Innmind\IP\IP;

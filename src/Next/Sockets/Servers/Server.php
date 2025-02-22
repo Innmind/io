@@ -6,7 +6,7 @@ namespace Innmind\IO\Next\Sockets\Servers;
 use Innmind\IO\{
     Next\Sockets\Servers\Server\Pool,
     Next\Sockets\Clients\Client,
-    Sockets\Server as Previous,
+    Previous\Sockets\Server as Previous,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{

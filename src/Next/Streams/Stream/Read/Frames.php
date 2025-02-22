@@ -6,7 +6,7 @@ namespace Innmind\IO\Next\Streams\Stream\Read;
 use Innmind\IO\{
     Next\Streams\Stream\Read\Frames\Lazy,
     Next\Frame,
-    Readable,
+    Previous\Readable,
 };
 use Innmind\Immutable\Maybe;
 

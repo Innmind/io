@@ -5,10 +5,10 @@ namespace Innmind\IO\Next\Files;
 
 use Innmind\IO\{
     Next\Stream\Size,
-    IO as Previous,
+    Previous\IO as Previous,
     Internal,
     Internal\Capabilities,
-    Readable,
+    Previous\Readable,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{

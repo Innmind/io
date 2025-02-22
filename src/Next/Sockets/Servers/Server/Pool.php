@@ -6,7 +6,7 @@ namespace Innmind\IO\Next\Sockets\Servers\Server;
 use Innmind\IO\{
     Next\Sockets\Servers\Server,
     Next\Sockets\Clients\Client,
-    Sockets\Server\Pool as Previous,
+    Previous\Sockets\Server\Pool as Previous,
 };
 use Innmind\Immutable\Sequence;
 

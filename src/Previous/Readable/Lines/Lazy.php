@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Readable\Lines;
+namespace Innmind\IO\Previous\Readable\Lines;
 
-use Innmind\IO\Exception\FailedToLoadStream;
+use Innmind\IO\Previous\Exception\FailedToLoadStream;
 use Innmind\IO\Internal\Stream as LowLevelStream;
 use Innmind\Immutable\{
     Str,
