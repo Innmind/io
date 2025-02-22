@@ -5,7 +5,7 @@ namespace Innmind\IO\Previous\Readable;
 
 use Innmind\IO\Frame;
 use Innmind\IO\Previous\Exception\FailedToLoadStream;
-use Innmind\IO\Internal\Stream as LowLevelStream;
+use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Str,
     Maybe,
@@ -13,16 +13,14 @@ use Innmind\Immutable\{
 };
 
 /**
- * @template-covariant T of LowLevelStream
  * @template-covariant F
  */
 final class Frames
 {
     /** @var Frame<F> */
     private Frame $frame;
-    /** @var T */
-    private LowLevelStream $stream;
-    /** @var callable(T): Maybe<T> */
+    private Stream $stream;
+    /** @var callable(Stream): Maybe<Stream> */
     private $ready;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
@@ -31,13 +29,12 @@ final class Frames
      * @psalm-mutation-free
      *
      * @param Frame<F> $frame
-     * @param T $stream
-     * @param callable(T): Maybe<T> $ready
+     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
         Frame $frame,
-        LowLevelStream $stream,
+        Stream $stream,
         callable $ready,
         Maybe $encoding,
     ) {
@@ -50,19 +47,17 @@ final class Frames
     /**
      * @psalm-mutation-free
      * @internal
-     * @template A of LowLevelStream
-     * @template B
+     * @template A
      *
-     * @param Frame<B> $frame
-     * @param A $stream
-     * @param callable(A): Maybe<A> $ready
+     * @param Frame<A> $frame
+     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      *
-     * @return self<A, B>
+     * @return self<A>
      */
     public static function of(
         Frame $frame,
-        LowLevelStream $stream,
+        Stream $stream,
         callable $ready,
         Maybe $encoding,
     ): self {

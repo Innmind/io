@@ -283,7 +283,7 @@ final class Client
      *
      * @param Frame<F> $frame
      *
-     * @return Frames<Stream, F>
+     * @return Frames<F>
      */
     public function frames(Frame $frame): Frames
     {

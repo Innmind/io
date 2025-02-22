@@ -13,24 +13,19 @@ use Innmind\Immutable\{
     Predicate\Instance,
 };
 
-/**
- * @template-covariant T of Socket
- */
 final class Server
 {
-    /** @var T */
     private Socket $socket;
     /** @var callable(?ElapsedPeriod): Watch */
     private $watch;
-    /** @var callable(T): Maybe<T> */
+    /** @var callable(Socket): Maybe<Socket> */
     private $wait;
 
     /**
      * @psalm-mutation-free
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param T $socket
-     * @param callable(T): Maybe<T> $wait
+     * @param callable(Socket): Maybe<Socket> $wait
      */
     private function __construct(
         callable $watch,
@@ -45,18 +40,13 @@ final class Server
     /**
      * @psalm-mutation-free
      * @internal
-     * @template A of Socket
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param A $socket
-     *
-     * @return self<A>
      */
     public static function of(
         callable $watch,
         Socket $socket,
     ): self {
-        /** @var self<A> */
         return new self(
             $watch,
             $socket,
@@ -64,19 +54,11 @@ final class Server
         );
     }
 
-    /**
-     * @param self<T> $socket
-     *
-     * @return Server\Pool<T>
-     */
     public function with(self $socket): Server\Pool
     {
         return Server\Pool::of($this->watch, $this->socket, $socket->unwrap());
     }
 
-    /**
-     * @return T
-     */
     public function unwrap(): Socket
     {
         return $this->socket;
@@ -86,12 +68,9 @@ final class Server
      * Wait forever for the socket to be ready to read before tryin to use it
      *
      * @psalm-mutation-free
-     *
-     * @return self<T>
      */
     public function watch(): self
     {
-        /** @var self<T> */
         return new self(
             $this->watch,
             $this->socket,
@@ -107,12 +86,9 @@ final class Server
 
     /**
      * @psalm-mutation-free
-     *
-     * @return self<T>
      */
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
-        /** @var self<T> */
         return new self(
             $this->watch,
             $this->socket,

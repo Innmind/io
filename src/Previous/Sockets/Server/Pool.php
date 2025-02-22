@@ -8,33 +8,28 @@ use Innmind\IO\Previous\Sockets\{
     Client,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Internal\Socket\{
-    Server as Socket,
-};
+use Innmind\IO\Internal\Socket\Server as Socket;
 use Innmind\IO\Internal\Watch;
 use Innmind\Immutable\{
     Sequence,
     Predicate\Instance,
 };
 
-/**
- * @template-covariant T of Socket
- */
 final class Pool
 {
-    /** @var non-empty-list<T> */
+    /** @var non-empty-list<Socket> */
     private array $sockets;
     /** @var callable(?ElapsedPeriod): Watch */
     private $watch;
-    /** @var callable(T): Sequence<T> */
+    /** @var callable(Socket): Sequence<Socket> */
     private $wait;
 
     /**
      * @psalm-mutation-free
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param non-empty-list<T> $sockets
-     * @param callable(T): Sequence<T> $wait
+     * @param non-empty-list<Socket> $sockets
+     * @param callable(Socket): Sequence<Socket> $wait
      */
     private function __construct(
         callable $watch,
@@ -49,20 +44,14 @@ final class Pool
     /**
      * @psalm-mutation-free
      * @internal
-     * @template A of Socket
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param A $first
-     * @param A $second
-     *
-     * @return self<A>
      */
     public static function of(
         callable $watch,
         Socket $first,
         Socket $second,
     ): self {
-        /** @var self<A> */
         return new self(
             $watch,
             [$first, $second],
@@ -70,11 +59,6 @@ final class Pool
         );
     }
 
-    /**
-     * @param Server<T> $server
-     *
-     * @return self<T>
-     */
     public function with(Server $server): self
     {
         return new self(
@@ -85,7 +69,7 @@ final class Pool
     }
 
     /**
-     * @return Sequence<T>
+     * @return Sequence<Socket>
      */
     public function unwrap(): Sequence
     {
@@ -96,8 +80,6 @@ final class Pool
      * Wait forever for the socket to be ready to read before tryin to use it
      *
      * @psalm-mutation-free
-     *
-     * @return self<T>
      */
     public function watch(): self
     {
@@ -126,12 +108,9 @@ final class Pool
 
     /**
      * @psalm-mutation-free
-     *
-     * @return self<T>
      */
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
-        /** @var self<T> */
         return new self(
             $this->watch,
             $this->sockets,

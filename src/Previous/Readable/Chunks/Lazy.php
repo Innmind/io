@@ -4,40 +4,35 @@ declare(strict_types = 1);
 namespace Innmind\IO\Previous\Readable\Chunks;
 
 use Innmind\IO\Previous\Exception\FailedToLoadStream;
-use Innmind\IO\Internal\Stream as LowLevelStream;
+use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Str,
     Sequence,
     Maybe,
 };
 
-/**
- * @template-covariant T of LowLevelStream
- */
 final class Lazy
 {
-    /** @var T */
-    private LowLevelStream $stream;
-    /** @var callable(T): Maybe<T> */
+    private Stream $stream;
+    /** @var callable(Stream): Maybe<Stream> */
     private $ready;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
     /** @var positive-int */
     private int $size;
-    /** @var callable(T): void */
+    /** @var callable(Stream): void */
     private $rewind;
 
     /**
      * @psalm-mutation-free
      *
-     * @param T $stream
-     * @param callable(T): Maybe<T> $ready
+     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
-     * @param callable(T): void $rewind
+     * @param callable(Stream): void $rewind
      */
     private function __construct(
-        LowLevelStream $stream,
+        Stream $stream,
         callable $ready,
         Maybe $encoding,
         int $size,
@@ -53,17 +48,13 @@ final class Lazy
     /**
      * @psalm-mutation-free
      * @internal
-     * @template A of LowLevelStream
      *
-     * @param A $stream
-     * @param callable(A): Maybe<A> $ready
+     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
-     *
-     * @return self<A>
      */
     public static function of(
-        LowLevelStream $stream,
+        Stream $stream,
         callable $ready,
         Maybe $encoding,
         int $size,
@@ -81,7 +72,7 @@ final class Lazy
             $this->ready,
             $this->encoding,
             $this->size,
-            static fn(LowLevelStream $stream) => $stream->rewind()->match(
+            static fn(Stream $stream) => $stream->rewind()->match(
                 static fn() => null,
                 static fn() => throw new FailedToLoadStream,
             ),

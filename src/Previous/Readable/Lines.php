@@ -3,20 +3,16 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Previous\Readable;
 
-use Innmind\IO\Internal\Stream as LowLevelStream;
+use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Str,
     Maybe,
 };
 
-/**
- * @template-covariant T of LowLevelStream
- */
 final class Lines
 {
-    /** @var T */
-    private LowLevelStream $stream;
-    /** @var callable(T): Maybe<T> */
+    private Stream $stream;
+    /** @var callable(Stream): Maybe<Stream> */
     private $ready;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
@@ -24,12 +20,11 @@ final class Lines
     /**
      * @psalm-mutation-free
      *
-     * @param T $stream
-     * @param callable(T): Maybe<T> $ready
+     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
-        LowLevelStream $stream,
+        Stream $stream,
         callable $ready,
         Maybe $encoding,
     ) {
@@ -41,16 +36,12 @@ final class Lines
     /**
      * @psalm-mutation-free
      * @internal
-     * @template A of LowLevelStream
      *
-     * @param A $stream
-     * @param callable(A): Maybe<A> $ready
+     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
-     *
-     * @return self<A>
      */
     public static function of(
-        LowLevelStream $stream,
+        Stream $stream,
         callable $ready,
         Maybe $encoding,
     ): self {
