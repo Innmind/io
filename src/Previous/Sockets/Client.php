@@ -178,6 +178,8 @@ final class Client
      * data provided by the callback and then restart watching for the socket
      * to be readable.
      *
+     * @psalm-mutation-free
+     *
      * @param callable(): Sequence<Str> $provide
      */
     public function heartbeatWith(callable $provide): self
@@ -199,6 +201,8 @@ final class Client
      * sending messages (the abort is triggered before trying to send a message).
      *
      * Use this method to abort the watch when you receive signals.
+     *
+     * @psalm-mutation-free
      *
      * @param callable(): bool $abort
      */

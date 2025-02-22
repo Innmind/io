@@ -43,6 +43,9 @@ final class Pool
         );
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function with(Server $server): self
     {
         return new self(
