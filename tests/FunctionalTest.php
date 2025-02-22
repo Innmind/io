@@ -559,7 +559,6 @@ class FunctionalTest extends TestCase
                 static fn($chunk) => $chunk->length() === 1,
             ))
             ->one()
-            ->map(dump(...))
             ->match(
                 static fn() => true,
                 static fn() => false,
