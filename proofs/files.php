@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-use Innmind\IO\Next\{
+use Innmind\IO\{
     IO,
     Files\Read,
 };

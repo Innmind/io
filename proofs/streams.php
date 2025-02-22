@@ -2,8 +2,8 @@
 declare(strict_types = 1);
 
 use Innmind\IO\{
-    Next\IO,
-    Next\Frame,
+    IO,
+    Frame,
 };
 use Innmind\Immutable\{
     Str,

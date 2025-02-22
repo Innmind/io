@@ -3,13 +3,12 @@ declare(strict_types = 1);
 
 namespace Tests\Innmind\IO;
 
-use Innmind\IO\Next\{
+use Innmind\IO\{
     IO,
-    Sockets\Unix\Address,
     Frame,
+    Sockets\Unix\Address,
 };
 use Innmind\TimeContinuum\Period;
-use Innmind\IO\Internal\Stream\Readable\Stream;
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Sequence,

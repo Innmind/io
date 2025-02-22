@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-use Innmind\IO\Next\Frame;
+use Innmind\IO\Frame;
 use Innmind\Immutable\{
     Str,
     Maybe,
