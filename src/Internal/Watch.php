@@ -55,4 +55,9 @@ interface Watch
      * @psalm-mutation-free
      */
     public function unwatch(Stream|Server $stream): self;
+
+    /**
+     * @psalm-mutation-free
+     */
+    public function clear(): self;
 }

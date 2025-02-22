@@ -18,6 +18,8 @@ use Innmind\Immutable\{
 final class Select implements Watch
 {
     /**
+     * @psalm-mutation-free
+     *
      * @param Maybe<Period> $timeout
      * @param Map<resource, Stream|Server> $read
      * @param Map<resource, Stream> $write
@@ -79,6 +81,9 @@ final class Select implements Watch
         return Maybe::just(new Ready($readable, $writable));
     }
 
+    /**
+     * @psalm-pure
+     */
     public static function new(): self
     {
         /** @var Maybe<Period> */
@@ -196,6 +201,15 @@ final class Select implements Watch
             $this->read->remove($resource),
             $this->write->remove($resource),
         );
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    #[\Override]
+    public function clear(): self
+    {
+        return self::new();
     }
 
     /**
