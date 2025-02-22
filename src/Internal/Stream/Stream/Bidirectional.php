@@ -63,12 +63,6 @@ final class Bidirectional implements BidirectionalInterface
     }
 
     #[\Override]
-    public function position(): Position
-    {
-        return $this->read->position();
-    }
-
-    #[\Override]
     public function rewind(): Either
     {
         return $this->read->rewind();

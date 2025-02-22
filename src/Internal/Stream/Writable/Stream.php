@@ -7,7 +7,6 @@ use Innmind\IO\Internal\Stream\{
     Stream as StreamInterface,
     Stream\Stream as Base,
     Writable,
-    Stream\Position,
     DataPartiallyWritten,
     FailedToWriteToStream,
 };
@@ -70,12 +69,6 @@ final class Stream implements Writable
 
         /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
         return Either::right(new SideEffect);
-    }
-
-    #[\Override]
-    public function position(): Position
-    {
-        return $this->stream->position();
     }
 
     #[\Override]

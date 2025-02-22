@@ -5,7 +5,6 @@ namespace Innmind\IO\Internal\Stream\Readable;
 
 use Innmind\IO\Internal\Stream\{
     Readable,
-    Stream\Position,
     Exception\NonBlockingModeNotSupported,
 };
 use Innmind\Immutable\{
@@ -56,12 +55,6 @@ final class NonBlocking implements Readable
     public function readLine(): Maybe
     {
         return $this->stream->readLine();
-    }
-
-    #[\Override]
-    public function position(): Position
-    {
-        return $this->stream->position();
     }
 
     #[\Override]

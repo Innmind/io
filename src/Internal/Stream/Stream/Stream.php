@@ -68,16 +68,6 @@ final class Stream implements StreamInterface
     }
 
     #[\Override]
-    public function position(): Position
-    {
-        if ($this->closed()) {
-            return new Position(0);
-        }
-
-        return new Position(\ftell($this->resource));
-    }
-
-    #[\Override]
     public function rewind(): Either
     {
         if (!$this->seekable) {

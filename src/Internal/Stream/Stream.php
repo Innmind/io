@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream;
 
-use Innmind\IO\Internal\Stream\{
-    Stream\Position,
-    Stream\Size,
-};
+use Innmind\IO\Internal\Stream\Stream\Size;
 use Innmind\Immutable\{
     Maybe,
     Either,
@@ -34,7 +31,6 @@ interface Stream
      * @psalm-mutation-free
      */
     public function closed(): bool;
-    public function position(): Position;
 
     /**
      * @return Either<PositionNotSeekable, SideEffect>

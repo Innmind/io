@@ -6,8 +6,7 @@ namespace Innmind\IO\Internal\Stream\Readable;
 use Innmind\IO\Internal\Stream\{
     Stream as StreamInterface,
     Stream\Stream as Base,
-    Readable,
-    Stream\Position
+    Readable
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
@@ -85,12 +84,6 @@ final class Stream implements Readable
         $line = \fgets($this->resource);
 
         return Maybe::of(\is_string($line) ? Str::of($line) : null);
-    }
-
-    #[\Override]
-    public function position(): Position
-    {
-        return $this->stream->position();
     }
 
     #[\Override]

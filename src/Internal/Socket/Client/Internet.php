@@ -9,7 +9,6 @@ use Innmind\IO\{
 };
 use Innmind\IO\Internal\Stream\{
     Stream,
-    Stream\Position,
     Stream\Size,
     PositionNotSeekable,
 };
@@ -88,12 +87,6 @@ final class Internet implements Client
     public function closed(): bool
     {
         return $this->stream->closed();
-    }
-
-    #[\Override]
-    public function position(): Position
-    {
-        return $this->stream->position();
     }
 
     #[\Override]
