@@ -19,7 +19,7 @@ use Innmind\Immutable\{
 final class Write
 {
     /**
-     * @param \Closure(): Internal\Stream\Implementation $load
+     * @param \Closure(): Internal\Stream\Stream $load
      */
     private function __construct(
         private \Closure $load,
@@ -41,7 +41,7 @@ final class Write
     /**
      * @internal
      */
-    public static function temporary(Internal\Stream\Implementation $stream): self
+    public static function temporary(Internal\Stream\Stream $stream): self
     {
         return new self(static fn() => $stream, false);
     }

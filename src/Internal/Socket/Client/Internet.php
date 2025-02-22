@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Socket\Client;
 
 use Innmind\IO\Next\Sockets\Internet\Transport;
-use Innmind\IO\Internal\Stream\Implementation;
+use Innmind\IO\Internal\Stream\Stream;
 use Innmind\Url\Authority;
 use Innmind\Immutable\Maybe;
 
@@ -15,7 +15,7 @@ final class Internet
     }
 
     /**
-     * @return Maybe<Implementation>
+     * @return Maybe<Stream>
      */
     public static function of(Transport $transport, Authority $authority): Maybe
     {
@@ -26,7 +26,7 @@ final class Internet
         ));
 
         if ($socket === false) {
-            /** @var Maybe<Implementation> */
+            /** @var Maybe<Stream> */
             return Maybe::nothing();
         }
 
@@ -45,6 +45,6 @@ final class Internet
                 },
             );
 
-        return Maybe::just(Implementation::of($socket));
+        return Maybe::just(Stream::of($socket));
     }
 }

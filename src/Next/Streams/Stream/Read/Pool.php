@@ -26,7 +26,7 @@ use Innmind\Immutable\{
 final class Pool
 {
     /**
-     * @param Map<Internal\Stream\Implementation, T> $streams
+     * @param Map<Internal\Stream\Stream, T> $streams
      */
     private function __construct(
         private Capabilities $capabilities,
@@ -136,7 +136,7 @@ final class Pool
         $chunks = $watch()
             ->toSequence()
             ->flatMap(static fn($ready) => $ready->toRead())
-            ->keep(Instance::of(Internal\Stream\Implementation::class))
+            ->keep(Instance::of(Internal\Stream\Stream::class))
             ->flatMap(
                 static fn($stream) => $streams
                     ->get($stream)

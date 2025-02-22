@@ -7,9 +7,7 @@ use Innmind\IO\{
     Internal\Socket\Server,
     Next\Sockets\Unix\Address,
 };
-use Innmind\IO\Internal\Stream\{
-    Implementation,
-};
+use Innmind\IO\Internal\Stream\Stream;
 use Innmind\Immutable\{
     Maybe,
     Either,
@@ -19,7 +17,7 @@ use Innmind\Immutable\{
 final class Unix implements Server
 {
     private string $path;
-    private Implementation $stream;
+    private Stream $stream;
 
     /**
      * @param resource $socket
@@ -27,7 +25,7 @@ final class Unix implements Server
     private function __construct(Address $path, $socket)
     {
         $this->path = $path->toString();
-        $this->stream = Implementation::of($socket);
+        $this->stream = Stream::of($socket);
     }
 
     /**
@@ -66,12 +64,12 @@ final class Unix implements Server
         $socket = @\stream_socket_accept($this->resource());
 
         if ($socket === false) {
-            /** @var Maybe<Implementation> */
+            /** @var Maybe<Stream> */
             return Maybe::nothing();
         }
 
-        /** @var Maybe<Implementation> */
-        return Maybe::just(Implementation::of($socket));
+        /** @var Maybe<Stream> */
+        return Maybe::just(Stream::of($socket));
     }
 
     /**

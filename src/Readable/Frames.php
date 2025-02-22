@@ -5,7 +5,7 @@ namespace Innmind\IO\Readable;
 
 use Innmind\IO\Next\Frame;
 use Innmind\IO\Exception\FailedToLoadStream;
-use Innmind\IO\Internal\Stream\Implementation as LowLevelStream;
+use Innmind\IO\Internal\Stream\Stream as LowLevelStream;
 use Innmind\Immutable\{
     Str,
     Maybe,

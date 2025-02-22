@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream\Capabilities;
 
-use Innmind\IO\Internal\Stream\Implementation;
+use Innmind\IO\Internal\Stream\Stream;
 
 final class Temporary
 {
@@ -19,8 +19,8 @@ final class Temporary
         return new self;
     }
 
-    public function new(): Implementation
+    public function new(): Stream
     {
-        return Implementation::of(\fopen('php://temp', 'r+'));
+        return Stream::of(\fopen('php://temp', 'r+'));
     }
 }

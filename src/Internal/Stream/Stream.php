@@ -22,7 +22,7 @@ use Innmind\Immutable\{
     Predicate\Instance,
 };
 
-final class Implementation
+final class Stream
 {
     /** @var resource */
     private $resource;

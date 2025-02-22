@@ -7,9 +7,7 @@ use Innmind\IO\{
     Internal\Socket\Server,
     Next\Sockets\Internet\Transport,
 };
-use Innmind\IO\Internal\Stream\{
-    Implementation,
-};
+use Innmind\IO\Internal\Stream\Stream;
 use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;
 use Innmind\Immutable\{
@@ -19,14 +17,14 @@ use Innmind\Immutable\{
 
 final class Internet implements Server
 {
-    private Implementation $stream;
+    private Stream $stream;
 
     /**
      * @param resource $socket
      */
     private function __construct($socket)
     {
-        $this->stream = Implementation::of($socket);
+        $this->stream = Stream::of($socket);
     }
 
     /**
@@ -58,12 +56,12 @@ final class Internet implements Server
         $socket = @\stream_socket_accept($this->resource());
 
         if ($socket === false) {
-            /** @var Maybe<Implementation> */
+            /** @var Maybe<Stream> */
             return Maybe::nothing();
         }
 
-        /** @var Maybe<Implementation> */
-        return Maybe::just(Implementation::of($socket));
+        /** @var Maybe<Stream> */
+        return Maybe::just(Stream::of($socket));
     }
 
     /**

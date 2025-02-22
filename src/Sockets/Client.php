@@ -12,7 +12,7 @@ use Innmind\IO\{
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\Client as Socket;
 use Innmind\IO\Internal\Stream\{
-    Implementation,
+    Stream,
     Size,
     Watch,
 };
@@ -26,12 +26,12 @@ use Innmind\Immutable\{
 
 final class Client
 {
-    private Implementation $socket;
+    private Stream $socket;
     /** @var callable(?ElapsedPeriod): Watch */
     private $watch;
-    /** @var callable(Implementation): Maybe<Implementation> */
+    /** @var callable(Stream): Maybe<Stream> */
     private $readyToRead;
-    /** @var callable(Implementation): Maybe<Implementation> */
+    /** @var callable(Stream): Maybe<Stream> */
     private $readyToWrite;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
@@ -44,15 +44,15 @@ final class Client
      * @psalm-mutation-free
      *
      * @param callable(?ElapsedPeriod): Watch $watch
-     * @param callable(Implementation): Maybe<Implementation> $readyToRead
-     * @param callable(Implementation): Maybe<Implementation> $readyToWrite
+     * @param callable(Stream): Maybe<Stream> $readyToRead
+     * @param callable(Stream): Maybe<Stream> $readyToWrite
      * @param Maybe<Str\Encoding> $encoding
      * @param Maybe<callable(): Sequence<Str>> $heartbeat
      * @param callable(): bool $abort
      */
     private function __construct(
         callable $watch,
-        Implementation $socket,
+        Stream $socket,
         callable $readyToRead,
         callable $readyToWrite,
         Maybe $encoding,
@@ -76,7 +76,7 @@ final class Client
      */
     public static function of(
         callable $watch,
-        Implementation $socket,
+        Stream $socket,
     ): self {
         /** @var Maybe<Str\Encoding> */
         $encoding = Maybe::nothing();
@@ -86,15 +86,15 @@ final class Client
         return new self(
             $watch,
             $socket,
-            static fn(Implementation $socket) => Maybe::just($socket),
-            static fn(Implementation $socket) => Maybe::just($socket),
+            static fn(Stream $socket) => Maybe::just($socket),
+            static fn(Stream $socket) => Maybe::just($socket),
             $encoding,
             $heartbeat,
             static fn() => false,
         );
     }
 
-    public function unwrap(): Implementation
+    public function unwrap(): Stream
     {
         return $this->socket;
     }
@@ -125,20 +125,20 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            fn(Implementation $socket) => ($this->watch)(null)
+            fn(Stream $socket) => ($this->watch)(null)
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(Instance::of(Implementation::class)),
-            fn(Implementation $socket) => ($this->watch)(null)
+                ->keep(Instance::of(Stream::class)),
+            fn(Stream $socket) => ($this->watch)(null)
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(Instance::of(Implementation::class)),
+                ->keep(Instance::of(Stream::class)),
             $this->encoding,
             $this->heartbeat,
             $this->abort,
@@ -154,20 +154,20 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            fn(Implementation $socket) => ($this->watch)($timeout)
+            fn(Stream $socket) => ($this->watch)($timeout)
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(Instance::of(Implementation::class)),
-            fn(Implementation $socket) => ($this->watch)($timeout)
+                ->keep(Instance::of(Stream::class)),
+            fn(Stream $socket) => ($this->watch)($timeout)
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(
                     static fn($ready) => $ready === $socket,
                 ))
-                ->keep(Instance::of(Implementation::class)),
+                ->keep(Instance::of(Stream::class)),
             $this->encoding,
             $this->heartbeat,
             $this->abort,
@@ -283,7 +283,7 @@ final class Client
      *
      * @param Frame<F> $frame
      *
-     * @return Frames<Implementation, F>
+     * @return Frames<Stream, F>
      */
     public function frames(Frame $frame): Frames
     {
@@ -306,12 +306,12 @@ final class Client
     /**
      * @psalm-mutation-free
      *
-     * @return callable(Implementation): Maybe<Implementation>
+     * @return callable(Stream): Maybe<Stream>
      */
     private function readyToRead(): callable
     {
         return $this->heartbeat->match(
-            fn($provide) => function(Implementation $socket) use ($provide) {
+            fn($provide) => function(Stream $socket) use ($provide) {
                 do {
                     $ready = ($this->readyToRead)($socket);
                     $socketReadable = $ready->match(
@@ -331,12 +331,12 @@ final class Client
                         );
 
                     if (!$sent) {
-                        /** @var Maybe<Implementation> */
+                        /** @var Maybe<Stream> */
                         return Maybe::nothing();
                     }
                 } while (!($this->abort)() && !$socket->closed());
 
-                /** @var Maybe<Implementation> */
+                /** @var Maybe<Stream> */
                 return Maybe::nothing();
             },
             fn() => $this->readyToRead,

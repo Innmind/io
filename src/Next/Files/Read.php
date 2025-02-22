@@ -54,7 +54,7 @@ final class Read
     /**
      * @internal
      */
-    public static function temporary(Readable $io, Internal\Stream\Implementation $stream): self
+    public static function temporary(Readable $io, Internal\Stream\Stream $stream): self
     {
         return new self(
             static fn() => $stream

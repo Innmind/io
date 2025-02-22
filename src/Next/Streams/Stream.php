@@ -20,7 +20,7 @@ final class Stream
     private function __construct(
         private Previous $io,
         private Capabilities $capabilities,
-        private Internal\Stream\Implementation $stream,
+        private Internal\Stream\Stream $stream,
     ) {
     }
 
@@ -30,7 +30,7 @@ final class Stream
     public static function of(
         Previous $io,
         Capabilities $capabilities,
-        Internal\Stream\Implementation $stream,
+        Internal\Stream\Stream $stream,
     ): self {
         return new self($io, $capabilities, $stream);
     }

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Stream\Watch;
 
 use Innmind\IO\Internal\{
-    Stream\Implementation,
+    Stream\Stream,
     Socket\Server,
 };
 use Innmind\Immutable\Sequence;
@@ -14,14 +14,14 @@ use Innmind\Immutable\Sequence;
  */
 final class Ready
 {
-    /** @var Sequence<Implementation|Server> */
+    /** @var Sequence<Stream|Server> */
     private Sequence $read;
-    /** @var Sequence<Implementation> */
+    /** @var Sequence<Stream> */
     private Sequence $write;
 
     /**
-     * @param Sequence<Implementation|Server> $read
-     * @param Sequence<Implementation> $write
+     * @param Sequence<Stream|Server> $read
+     * @param Sequence<Stream> $write
      */
     public function __construct(Sequence $read, Sequence $write)
     {
@@ -30,7 +30,7 @@ final class Ready
     }
 
     /**
-     * @return Sequence<Implementation|Server>
+     * @return Sequence<Stream|Server>
      */
     public function toRead(): Sequence
     {
@@ -38,7 +38,7 @@ final class Ready
     }
 
     /**
-     * @return Sequence<Implementation>
+     * @return Sequence<Stream>
      */
     public function toWrite(): Sequence
     {
