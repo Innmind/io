@@ -3,13 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Next;
 
-use Innmind\IO\{
-    Next\Frame\Implementation,
-    Next\Frame\Maybe as M,
-    Next\Frame\Chunk,
-    Next\Frame\Line,
-    Next\Frame\Sequence,
-    Readable\Frame as Old,
+use Innmind\IO\Next\Frame\{
+    Implementation,
+    Maybe as M,
+    Chunk,
+    Line,
+    Sequence,
 };
 use Innmind\Immutable\{
     Str,
@@ -144,56 +143,5 @@ final class Frame
     public function flatMap(callable $map): self
     {
         return new self($this->implementation->flatMap($map));
-    }
-
-    /**
-     * @psalm-suppress all
-     * @todo delete when switching between old and new implementation of IO
-     *
-     * @return Old<T>
-     */
-    public function toOld(): Old
-    {
-        return new class($this) implements Old {
-            public function __construct(
-                private namespace\Frame $self,
-            ) {
-            }
-
-            #[\Override]
-            public function __invoke(
-                callable $read,
-                callable $readLine,
-            ): Maybe {
-                return ($this->self)($read, $readLine);
-            }
-
-            /**
-             * @psalm-mutation-free
-             */
-            #[\Override]
-            public function filter(callable $predicate): Old
-            {
-                return $this->self->filter($predicate)->toOld();
-            }
-
-            /**
-             * @psalm-mutation-free
-             */
-            #[\Override]
-            public function map(callable $map): Old
-            {
-                return $this->self->map($map)->toOld();
-            }
-
-            /**
-             * @psalm-mutation-free
-             */
-            #[\Override]
-            public function flatMap(callable $map): Old
-            {
-                return $this->self->flatMap($map)->toOld();
-            }
-        };
     }
 }
