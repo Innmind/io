@@ -8,6 +8,7 @@ use Innmind\IO\Internal\{
     Stream,
     Socket\Server,
 };
+use Innmind\TimeContinuum\Period;
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\Immutable\{
     Map,
@@ -17,26 +18,16 @@ use Innmind\Immutable\{
 
 final class Select implements Watch
 {
-    /** @var Maybe<ElapsedPeriod> */
-    private Maybe $timeout;
-    /** @var Map<resource, Stream|Server> */
-    private Map $read;
-    /** @var Map<resource, Stream> */
-    private Map $write;
-    /** @var list<resource> */
-    private array $readResources;
-    /** @var list<resource> */
-    private array $writeResources;
-
-    private function __construct(?ElapsedPeriod $timeout = null)
-    {
-        $this->timeout = Maybe::of($timeout);
-        /** @var Map<resource, Stream|Server> */
-        $this->read = Map::of();
-        /** @var Map<resource, Stream> */
-        $this->write = Map::of();
-        $this->readResources = [];
-        $this->writeResources = [];
+    /**
+     * @param Maybe<Period> $timeout
+     * @param Map<resource, Stream|Server> $read
+     * @param Map<resource, Stream> $write
+     */
+    private function __construct(
+        private Maybe $timeout,
+        private Map $read,
+        private Map $write,
+    ) {
     }
 
     #[\Override]
@@ -54,13 +45,13 @@ final class Select implements Watch
             return Maybe::just(new Ready($read, $write));
         }
 
-        $read = $this->readResources;
-        $write = $this->writeResources;
+        $read = $this->read->keys()->toList();
+        $write = $this->write->keys()->toList();
         $outOfBand = [];
         [$seconds, $microseconds] = $this
             ->timeout
             ->match(
-                $this->timeout(...),
+                self::timeout(...),
                 static fn() => [null, null],
             );
 
@@ -91,12 +82,23 @@ final class Select implements Watch
 
     public static function timeoutAfter(ElapsedPeriod $timeout): self
     {
-        return new self($timeout);
+        return new self(
+            Maybe::just($timeout->asPeriod()),
+            Map::of(),
+            Map::of(),
+        );
     }
 
     public static function waitForever(): self
     {
-        return new self;
+        /** @var Maybe<Period> */
+        $timeout = Maybe::nothing();
+
+        return new self(
+            $timeout,
+            Map::of(),
+            Map::of(),
+        );
     }
 
     /**
@@ -107,22 +109,23 @@ final class Select implements Watch
         Stream|Server $read,
         Stream|Server ...$reads,
     ): Watch {
-        $self = clone $this;
-        $self->read = ($self->read)(
+        $streams = ($this->read)(
             $read->resource(),
             $read,
         );
-        $self->readResources[] = $read->resource();
 
         foreach ($reads as $read) {
-            $self->read = ($self->read)(
+            $streams = $streams(
                 $read->resource(),
                 $read,
             );
-            $self->readResources[] = $read->resource();
         }
 
-        return $self;
+        return new self(
+            $this->timeout,
+            $streams,
+            $this->write,
+        );
     }
 
     /**
@@ -133,22 +136,23 @@ final class Select implements Watch
         Stream $write,
         Stream ...$writes,
     ): Watch {
-        $self = clone $this;
-        $self->write = ($self->write)(
+        $streams = ($this->write)(
             $write->resource(),
             $write,
         );
-        $self->writeResources[] = $write->resource();
 
         foreach ($writes as $write) {
-            $self->write = ($self->write)(
+            $streams = $streams(
                 $write->resource(),
                 $write,
             );
-            $self->writeResources[] = $write->resource();
         }
 
-        return $self;
+        return new self(
+            $this->timeout,
+            $this->read,
+            $streams,
+        );
     }
 
     /**
@@ -158,35 +162,21 @@ final class Select implements Watch
     public function unwatch(Stream|Server $stream): Watch
     {
         $resource = $stream->resource();
-        $self = clone $this;
-        $self->read = $self->read->remove($resource);
-        $self->write = $self->write->remove($resource);
-        /** @var list<resource> */
-        $self->readResources = \array_values(\array_filter(
-            $self->readResources,
-            static function($read) use ($resource): bool {
-                return $read !== $resource;
-            },
-        ));
-        /** @var list<resource> */
-        $self->writeResources = \array_values(\array_filter(
-            $self->writeResources,
-            static function($write) use ($resource): bool {
-                return $write !== $resource;
-            },
-        ));
 
-        return $self;
+        return new self(
+            $this->timeout,
+            $this->read->remove($resource),
+            $this->write->remove($resource),
+        );
     }
 
     /**
      * @return array{0: int, 1: int}
      */
-    private function timeout(ElapsedPeriod $timeout): array
+    private static function timeout(Period $timeout): array
     {
-        $period = $timeout->asPeriod();
-        $seconds = $period->seconds();
-        $microseconds = ($period->milliseconds() * 1_000) + $period->microseconds();
+        $seconds = $timeout->seconds();
+        $microseconds = ($timeout->milliseconds() * 1_000) + $timeout->microseconds();
 
         return [$seconds, $microseconds];
     }
