@@ -8,15 +8,7 @@ use Innmind\IO\{
     Readable\Frame,
     Next,
 };
-use Innmind\TimeContinuum\{
-    ElapsedPeriod,
-    Period,
-};
-use Innmind\IO\Internal\Socket\{
-    Server,
-    Client,
-    Address,
-};
+use Innmind\TimeContinuum\Period;
 use Innmind\IO\Internal\Stream\{
     Readable\Stream,
     Watch\Select,
@@ -24,7 +16,6 @@ use Innmind\IO\Internal\Stream\{
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Sequence,
-    Fold,
     Str,
 };
 use Innmind\BlackBox\{
@@ -569,7 +560,7 @@ class FunctionalTest extends TestCase
                     static fn($client) => $client
                         ->watch()
                         ->frames(Next\Frame::chunk(34))
-                        ->one()
+                        ->one(),
                 )
                 ->match(
                     static fn($chunk) => $chunk->toString(),
