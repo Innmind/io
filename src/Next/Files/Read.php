@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Stream\Size,
     IO as Previous,
     Internal,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
     Readable,
 };
 use Innmind\Url\Path;
@@ -52,7 +52,7 @@ final class Read
     /**
      * @internal
      */
-    public static function temporary(Readable $io, Internal\Stream\Stream $stream): self
+    public static function temporary(Readable $io, Internal\Stream $stream): self
     {
         return new self(
             static fn() => $stream

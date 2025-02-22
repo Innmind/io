@@ -5,7 +5,7 @@ namespace Innmind\IO\Readable;
 
 use Innmind\IO\Next\Frame;
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Internal\Stream\{
+use Innmind\IO\Internal\{
     Stream as LowLevelStream,
     Size,
     Watch,

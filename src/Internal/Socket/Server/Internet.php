@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Socket\Server;
 
 use Innmind\IO\Internal\Socket\Server;
-use Innmind\IO\Internal\Stream\Stream;
+use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Maybe,
     Either,

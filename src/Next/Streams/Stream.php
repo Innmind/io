@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Streams\Stream\Read,
     Next\Streams\Stream\Write,
     Internal,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
     IO as Previous,
 };
 use Innmind\Immutable\{
@@ -20,7 +20,7 @@ final class Stream
     private function __construct(
         private Previous $io,
         private Capabilities $capabilities,
-        private Internal\Stream\Stream $stream,
+        private Internal\Stream $stream,
     ) {
     }
 
@@ -30,7 +30,7 @@ final class Stream
     public static function of(
         Previous $io,
         Capabilities $capabilities,
-        Internal\Stream\Stream $stream,
+        Internal\Stream $stream,
     ): self {
         return new self($io, $capabilities, $stream);
     }

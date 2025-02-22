@@ -11,7 +11,7 @@ use Innmind\IO\{
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\Client as Socket;
-use Innmind\IO\Internal\Stream\{
+use Innmind\IO\Internal\{
     Stream,
     Size,
     Watch,

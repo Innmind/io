@@ -8,8 +8,7 @@ use Innmind\IO\{
     Next\Sockets\Internet\Transport,
     Next\Sockets\Unix\Address,
     IO as Previous,
-    Internal,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
 };
 use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;

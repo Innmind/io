@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream;
+namespace Innmind\IO\Internal;
 
-use Innmind\IO\Internal\Stream\Exception\SizeCantBeNegative;
+use Innmind\IO\Internal\Exception\SizeCantBeNegative;
 
 /**
  * @psalm-immutable

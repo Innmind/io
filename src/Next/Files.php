@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Files\Read,
     Next\Files\Write,
     IO as Previous,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{

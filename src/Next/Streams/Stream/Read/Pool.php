@@ -6,7 +6,7 @@ namespace Innmind\IO\Next\Streams\Stream\Read;
 use Innmind\IO\{
     Next\Streams\Stream\Read,
     Internal,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
 };
 use Innmind\TimeContinuum\{
     ElapsedPeriod,
@@ -26,7 +26,7 @@ use Innmind\Immutable\{
 final class Pool
 {
     /**
-     * @param Map<Internal\Stream\Stream, T> $streams
+     * @param Map<Internal\Stream, T> $streams
      */
     private function __construct(
         private Capabilities $capabilities,
@@ -129,14 +129,14 @@ final class Pool
             ->filter(static fn($stream) => !$stream->closed())
             ->reduce(
                 $watch,
-                static fn(Internal\Stream\Watch $watch, $stream) => $watch->forRead($stream),
+                static fn(Internal\Watch $watch, $stream) => $watch->forRead($stream),
             );
         $streams = $this->streams;
 
         $chunks = $watch()
             ->toSequence()
             ->flatMap(static fn($ready) => $ready->toRead())
-            ->keep(Instance::of(Internal\Stream\Stream::class))
+            ->keep(Instance::of(Internal\Stream::class))
             ->flatMap(
                 static fn($stream) => $streams
                     ->get($stream)

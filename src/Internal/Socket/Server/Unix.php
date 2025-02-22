@@ -7,7 +7,7 @@ use Innmind\IO\{
     Internal\Socket\Server,
     Next\Sockets\Unix\Address,
 };
-use Innmind\IO\Internal\Stream\Stream;
+use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Maybe,
     Either,

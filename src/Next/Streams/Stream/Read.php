@@ -9,7 +9,7 @@ use Innmind\IO\{
     Next\Frame,
     Readable,
     Internal,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\Str;
@@ -36,7 +36,7 @@ final class Read
     /**
      * @internal
      */
-    public function internal(): Internal\Stream\Stream
+    public function internal(): Internal\Stream
     {
         return $this->stream->unwrap();
     }

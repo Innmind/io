@@ -5,7 +5,7 @@ namespace Innmind\IO\Next\Files;
 
 use Innmind\IO\{
     Internal,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
 };
 use Innmind\Url\Path;
 use Innmind\Validation\Is;
@@ -19,7 +19,7 @@ use Innmind\Immutable\{
 final class Write
 {
     /**
-     * @param \Closure(): Internal\Stream\Stream $load
+     * @param \Closure(): Internal\Stream $load
      */
     private function __construct(
         private \Closure $load,
@@ -47,7 +47,7 @@ final class Write
     /**
      * @internal
      */
-    public static function temporary(Internal\Stream\Stream $stream): self
+    public static function temporary(Internal\Stream $stream): self
     {
         return new self(static fn() => $stream, false);
     }

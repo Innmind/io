@@ -11,7 +11,7 @@ use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\{
     Server as Socket,
 };
-use Innmind\IO\Internal\Stream\Watch;
+use Innmind\IO\Internal\Watch;
 use Innmind\Immutable\{
     Sequence,
     Predicate\Instance,

@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream\Capabilities;
+namespace Innmind\IO\Internal\Capabilities;
 
 final class Sockets
 {

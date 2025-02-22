@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream\Watch;
+namespace Innmind\IO\Internal\Watch;
 
 use Innmind\IO\Internal\{
-    Stream\Stream,
+    Stream,
     Socket\Server,
 };
 use Innmind\Immutable\Sequence;

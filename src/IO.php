@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Internal\Stream\Watch;
+use Innmind\IO\Internal\Watch;
 
 final class IO
 {

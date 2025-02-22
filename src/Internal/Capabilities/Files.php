@@ -1,9 +1,9 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream\Capabilities;
+namespace Innmind\IO\Internal\Capabilities;
 
-use Innmind\IO\Internal\Stream\Stream;
+use Innmind\IO\Internal\Stream;
 use Innmind\Url\Path;
 use Innmind\Immutable\Maybe;
 

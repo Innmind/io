@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Readable\Chunks;
 
 use Innmind\IO\Exception\FailedToLoadStream;
-use Innmind\IO\Internal\Stream\Stream as LowLevelStream;
+use Innmind\IO\Internal\Stream as LowLevelStream;
 use Innmind\Immutable\{
     Str,
     Sequence,

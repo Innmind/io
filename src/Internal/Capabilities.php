@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream;
+namespace Innmind\IO\Internal;
 
 final class Capabilities
 {

@@ -5,7 +5,7 @@ namespace Innmind\IO\Next;
 
 use Innmind\IO\{
     IO as Previous,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 

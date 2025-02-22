@@ -1,10 +1,10 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream;
+namespace Innmind\IO\Internal;
 
 use Innmind\IO\Internal\{
-    Stream\Watch\Ready,
+    Watch\Ready,
     Socket\Server,
 };
 use Innmind\Immutable\Maybe;

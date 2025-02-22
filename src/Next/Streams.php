@@ -6,7 +6,7 @@ namespace Innmind\IO\Next;
 use Innmind\IO\{
     Next\Streams\Stream,
     IO as Previous,
-    Internal\Stream\Capabilities,
+    Internal\Capabilities,
 };
 
 final class Streams

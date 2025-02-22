@@ -3,8 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Socket;
 
-use Innmind\IO\Internal\Stream\Stream;
-use Innmind\IO\Internal\Stream\FailedToCloseStream;
+use Innmind\IO\Internal\Stream;
+use Innmind\IO\Internal\FailedToCloseStream;
 use Innmind\Immutable\{
     Maybe,
     Either,

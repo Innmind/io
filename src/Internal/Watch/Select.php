@@ -1,11 +1,11 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream\Watch;
+namespace Innmind\IO\Internal\Watch;
 
 use Innmind\IO\Internal\{
-    Stream\Watch,
-    Stream\Stream,
+    Watch,
+    Stream,
     Socket\Server,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
