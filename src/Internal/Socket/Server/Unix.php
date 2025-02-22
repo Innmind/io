@@ -8,9 +8,9 @@ use Innmind\IO\{
     Next\Sockets\Unix\Address,
 };
 use Innmind\IO\Internal\Stream\{
-    Stream\Stream,
     Stream\Size,
     PositionNotSeekable,
+    Implementation,
 };
 use Innmind\Immutable\{
     Maybe,
@@ -22,9 +22,7 @@ use Innmind\Immutable\{
 final class Unix implements Server
 {
     private string $path;
-    /** @var resource */
-    private $resource;
-    private Stream $stream;
+    private Implementation $stream;
 
     /**
      * @param resource $socket
@@ -32,8 +30,7 @@ final class Unix implements Server
     private function __construct(Address $path, $socket)
     {
         $this->path = $path->toString();
-        $this->resource = $socket;
-        $this->stream = Stream::of($socket);
+        $this->stream = Implementation::of($socket);
     }
 
     /**
@@ -86,7 +83,7 @@ final class Unix implements Server
     #[\Override]
     public function resource()
     {
-        return $this->resource;
+        return $this->stream->resource();
     }
 
     #[\Override]

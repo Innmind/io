@@ -8,9 +8,9 @@ use Innmind\IO\{
     Next\Sockets\Internet\Transport,
 };
 use Innmind\IO\Internal\Stream\{
-    Stream\Stream,
     Stream\Size,
     PositionNotSeekable,
+    Implementation,
 };
 use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;
@@ -22,17 +22,14 @@ use Innmind\Immutable\{
 
 final class Internet implements Server
 {
-    /** @var resource */
-    private $resource;
-    private Stream $stream;
+    private Implementation $stream;
 
     /**
      * @param resource $socket
      */
     private function __construct($socket)
     {
-        $this->resource = $socket;
-        $this->stream = Stream::of($socket);
+        $this->stream = Implementation::of($socket);
     }
 
     /**
@@ -78,7 +75,7 @@ final class Internet implements Server
     #[\Override]
     public function resource()
     {
-        return $this->resource;
+        return $this->stream->resource();
     }
 
     #[\Override]

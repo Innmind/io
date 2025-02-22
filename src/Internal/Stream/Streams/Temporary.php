@@ -6,7 +6,7 @@ namespace Innmind\IO\Internal\Stream\Streams;
 use Innmind\IO\Internal\Stream\{
     Capabilities,
     Bidirectional,
-    Stream,
+    Implementation,
 };
 
 final class Temporary implements Capabilities\Temporary
@@ -26,6 +26,6 @@ final class Temporary implements Capabilities\Temporary
     #[\Override]
     public function new(): Bidirectional
     {
-        return Stream\Bidirectional::of(\fopen('php://temp', 'r+'));
+        return Implementation::of(\fopen('php://temp', 'r+'));
     }
 }

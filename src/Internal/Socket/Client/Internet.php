@@ -8,9 +8,9 @@ use Innmind\IO\{
     Next\Sockets\Internet\Transport
 };
 use Innmind\IO\Internal\Stream\{
-    Stream,
     Stream\Size,
     PositionNotSeekable,
+    Implementation,
 };
 use Innmind\Url\Authority;
 use Innmind\Immutable\{
@@ -21,14 +21,14 @@ use Innmind\Immutable\{
 
 final class Internet implements Client
 {
-    private Stream\Bidirectional $stream;
+    private Implementation $stream;
 
     /**
      * @param resource $socket
      */
     private function __construct($socket)
     {
-        $this->stream = Stream\Bidirectional::of($socket);
+        $this->stream = Implementation::of($socket);
     }
 
     /**

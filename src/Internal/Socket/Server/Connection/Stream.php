@@ -7,9 +7,9 @@ use Innmind\IO\Internal\Socket\{
     Server\Connection,
 };
 use Innmind\IO\Internal\Stream\{
-    Stream\Bidirectional,
     Stream\Size,
     PositionNotSeekable,
+    Implementation,
 };
 use Innmind\Immutable\{
     Str,
@@ -19,14 +19,14 @@ use Innmind\Immutable\{
 
 final class Stream implements Connection
 {
-    private Bidirectional $stream;
+    private Implementation $stream;
 
     /**
      * @param resource $resource
      */
     private function __construct($resource)
     {
-        $this->stream = Bidirectional::of($resource);
+        $this->stream = Implementation::of($resource);
     }
 
     /**
