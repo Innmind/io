@@ -5,7 +5,6 @@ namespace Innmind\IO\Internal\Stream;
 
 use Innmind\IO\Internal\{
     Stream\Watch\Ready,
-    Socket\Client,
     Socket\Server,
 };
 use Innmind\Immutable\Maybe;
@@ -21,20 +20,20 @@ interface Watch
      * @psalm-mutation-free
      */
     public function forRead(
-        Implementation|Client|Server|Server\Connection $read,
-        Implementation|Client|Server|Server\Connection ...$reads,
+        Implementation|Server|Server\Connection $read,
+        Implementation|Server|Server\Connection ...$reads,
     ): self;
 
     /**
      * @psalm-mutation-free
      */
     public function forWrite(
-        Implementation|Client|Server\Connection $write,
-        Implementation|Client|Server\Connection ...$writes,
+        Implementation|Server\Connection $write,
+        Implementation|Server\Connection ...$writes,
     ): self;
 
     /**
      * @psalm-mutation-free
      */
-    public function unwatch(Implementation|Client|Server|Server\Connection $stream): self;
+    public function unwatch(Implementation|Server|Server\Connection $stream): self;
 }

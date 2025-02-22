@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Sockets;
 
 use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\IO\Internal\Socket\Client as Socket;
+use Innmind\IO\Internal\Stream\Implementation;
 use Innmind\IO\Internal\Stream\Watch;
 
 final class Clients
@@ -36,7 +36,7 @@ final class Clients
     /**
      * @psalm-mutation-free
      */
-    public function wrap(Socket $socket): Client
+    public function wrap(Implementation $socket): Client
     {
         return Client::of($this->watch, $socket);
     }
