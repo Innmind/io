@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Streams\Stream\Read,
     Next\Streams\Stream\Write,
     Internal,
-    Internal\Stream\Streams as Capabilities,
+    Internal\Stream\Capabilities,
     IO as Previous,
 };
 use Innmind\Immutable\{

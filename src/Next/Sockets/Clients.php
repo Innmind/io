@@ -9,7 +9,7 @@ use Innmind\IO\{
     Next\Sockets\Unix\Address,
     IO as Previous,
     Internal,
-    Internal\Stream\Streams as Capabilities,
+    Internal\Stream\Capabilities,
 };
 use Innmind\Url\Authority;
 use Innmind\Immutable\Maybe;

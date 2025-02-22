@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Stream\Size,
     IO as Previous,
     Internal,
-    Internal\Stream\Streams,
+    Internal\Stream\Capabilities,
     Readable,
 };
 use Innmind\Url\Path;
@@ -33,7 +33,7 @@ final class Read
      */
     public static function of(
         Previous $io,
-        Streams $capabilities,
+        Capabilities $capabilities,
         Path $path,
     ): self {
         return new self(

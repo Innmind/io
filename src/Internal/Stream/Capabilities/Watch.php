@@ -1,7 +1,7 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream\Streams;
+namespace Innmind\IO\Internal\Stream\Capabilities;
 
 use Innmind\IO\Internal\Stream\{
     Watch as WatchInterface,

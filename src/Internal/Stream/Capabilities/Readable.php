@@ -1,12 +1,12 @@
 <?php
 declare(strict_types = 1);
 
-namespace Innmind\IO\Internal\Stream\Streams;
+namespace Innmind\IO\Internal\Stream\Capabilities;
 
 use Innmind\IO\Internal\Stream\Implementation;
 use Innmind\Url\Path;
 
-final class Writable
+final class Readable
 {
     private function __construct()
     {
@@ -22,7 +22,7 @@ final class Writable
 
     public function open(Path $path): Implementation
     {
-        return Implementation::of(\fopen($path->toString(), 'w'));
+        return Implementation::of(\fopen($path->toString(), 'r'));
     }
 
     /**

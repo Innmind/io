@@ -5,7 +5,7 @@ namespace Innmind\IO\Next\Files;
 
 use Innmind\IO\{
     Internal,
-    Internal\Stream\Streams as Capabilities,
+    Internal\Stream\Capabilities,
 };
 use Innmind\Url\Path;
 use Innmind\Validation\Is;

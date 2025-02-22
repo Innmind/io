@@ -6,7 +6,7 @@ namespace Innmind\IO\Next\Streams\Stream\Read;
 use Innmind\IO\{
     Next\Streams\Stream\Read,
     Internal,
-    Internal\Stream\Streams as Capabilities,
+    Internal\Stream\Capabilities,
 };
 use Innmind\TimeContinuum\{
     ElapsedPeriod,

@@ -7,7 +7,7 @@ use Innmind\IO\{
     Next\Files\Read,
     Next\Files\Write,
     IO as Previous,
-    Internal\Stream\Streams,
+    Internal\Stream\Capabilities,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
@@ -20,14 +20,14 @@ final class Files
 {
     private function __construct(
         private Previous $io,
-        private Streams $capabilities,
+        private Capabilities $capabilities,
     ) {
     }
 
     /**
      * @internal
      */
-    public static function of(Previous $io, Streams $capabilities): self
+    public static function of(Previous $io, Capabilities $capabilities): self
     {
         return new self($io, $capabilities);
     }

@@ -9,7 +9,7 @@ use Innmind\IO\{
     Next\Frame,
     Readable,
     Internal,
-    Internal\Stream\Streams as Capabilities,
+    Internal\Stream\Capabilities,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\Str;

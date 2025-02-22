@@ -8,7 +8,7 @@ use Innmind\IO\{
     Next\Sockets\Clients\Client,
     Next\Sockets\Servers,
     IO as Previous,
-    Internal\Stream\Streams as Capabilities,
+    Internal\Stream\Capabilities,
 };
 
 final class Sockets
