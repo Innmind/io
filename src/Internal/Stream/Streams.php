@@ -9,15 +9,6 @@ final class Streams implements Capabilities
     {
     }
 
-    /**
-     * @deprecated
-     * @see ::fromAmbientAuthority()
-     */
-    public static function of(): self
-    {
-        return new self;
-    }
-
     public static function fromAmbientAuthority(): self
     {
         return new self;
