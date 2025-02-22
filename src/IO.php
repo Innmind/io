@@ -7,7 +7,6 @@ use Innmind\IO\{
     Previous\IO as Previous,
     Internal\Capabilities,
 };
-use Innmind\TimeContinuum\ElapsedPeriod;
 
 final class IO
 {
@@ -22,10 +21,7 @@ final class IO
         $capabilities = Capabilities::fromAmbientAuthority();
 
         return new self(
-            Previous::of(static fn(?ElapsedPeriod $timeout) => match ($timeout) {
-                null => $capabilities->watch()->waitForever(),
-                default => $capabilities->watch()->timeoutAfter($timeout->asPeriod()),
-            }),
+            Previous::of($capabilities->watch()->new()),
             $capabilities,
         );
     }

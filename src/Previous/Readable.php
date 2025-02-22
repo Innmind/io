@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Previous;
 
-use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\{
     Stream as LowLevelStream,
     Watch,
@@ -11,15 +10,12 @@ use Innmind\IO\Internal\{
 
 final class Readable
 {
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
+    private Watch $watch;
 
     /**
      * @psalm-mutation-free
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
-    private function __construct(callable $watch)
+    private function __construct(Watch $watch)
     {
         $this->watch = $watch;
     }
@@ -27,10 +23,8 @@ final class Readable
     /**
      * @internal
      * @psalm-pure
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
-    public static function of(callable $watch): self
+    public static function of(Watch $watch): self
     {
         return new self($watch);
     }

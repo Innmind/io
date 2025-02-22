@@ -16,19 +16,17 @@ use Innmind\Immutable\{
 final class Server
 {
     private Socket $socket;
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
+    private Watch $watch;
     /** @var callable(Socket): Maybe<Socket> */
     private $wait;
 
     /**
      * @psalm-mutation-free
      *
-     * @param callable(?ElapsedPeriod): Watch $watch
      * @param callable(Socket): Maybe<Socket> $wait
      */
     private function __construct(
-        callable $watch,
+        Watch $watch,
         Socket $socket,
         callable $wait,
     ) {
@@ -40,11 +38,9 @@ final class Server
     /**
      * @psalm-mutation-free
      * @internal
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
     public static function of(
-        callable $watch,
+        Watch $watch,
         Socket $socket,
     ): self {
         return new self(
@@ -72,9 +68,10 @@ final class Server
     public function watch(): self
     {
         return new self(
-            $this->watch,
+            $this->watch->waitForever(),
             $this->socket,
-            fn(Socket $socket) => ($this->watch)(null)
+            fn(Socket $socket) => $this
+                ->watch
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
@@ -90,9 +87,10 @@ final class Server
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
         return new self(
-            $this->watch,
+            $this->watch->timeoutAfter($timeout->asPeriod()),
             $this->socket,
-            fn(Socket $socket) => ($this->watch)($timeout)
+            fn(Socket $socket) => $this
+                ->watch
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(

@@ -20,8 +20,7 @@ use Innmind\Immutable\{
 final class Stream
 {
     private LowLevelStream $stream;
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
+    private Watch $watch;
     /** @var callable(LowLevelStream): Maybe<LowLevelStream> */
     private $ready;
     /** @var Maybe<Str\Encoding> */
@@ -30,12 +29,11 @@ final class Stream
     /**
      * @psalm-mutation-free
      *
-     * @param callable(?ElapsedPeriod): Watch $watch
      * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
-        callable $watch,
+        Watch $watch,
         LowLevelStream $stream,
         callable $ready,
         Maybe $encoding,
@@ -49,17 +47,14 @@ final class Stream
     /**
      * @psalm-mutation-free
      * @internal
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
     public static function of(
-        callable $watch,
+        Watch $watch,
         LowLevelStream $stream,
     ): self {
         /** @var Maybe<Str\Encoding> */
         $encoding = Maybe::nothing();
 
-        /** @var self<A> */
         return new self(
             $watch,
             $stream,
@@ -93,11 +88,12 @@ final class Stream
      */
     public function watch(): self
     {
-        /** @var self<T> */
+        $watch = $this->watch->waitForever();
+
         return new self(
-            $this->watch,
+            $watch,
             $this->stream,
-            fn(LowLevelStream $stream) => ($this->watch)(null)
+            static fn(LowLevelStream $stream) => $watch
                 ->forRead($stream)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(
@@ -116,11 +112,12 @@ final class Stream
      */
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
-        /** @var self<T> */
+        $watch = $this->watch->timeoutAfter($timeout->asPeriod());
+
         return new self(
-            $this->watch,
+            $watch,
             $this->stream,
-            fn(LowLevelStream $stream) => ($this->watch)($timeout)
+            static fn(LowLevelStream $stream) => $watch
                 ->forRead($stream)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(

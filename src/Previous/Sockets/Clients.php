@@ -3,21 +3,17 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Previous\Sockets;
 
-use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Stream;
 use Innmind\IO\Internal\Watch;
 
 final class Clients
 {
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
+    private Watch $watch;
 
     /**
      * @psalm-mutation-free
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
-    private function __construct(callable $watch)
+    private function __construct(Watch $watch)
     {
         $this->watch = $watch;
     }
@@ -25,10 +21,8 @@ final class Clients
     /**
      * @internal
      * @psalm-pure
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
-    public static function of(callable $watch): self
+    public static function of(Watch $watch): self
     {
         return new self($watch);
     }

@@ -27,8 +27,7 @@ use Innmind\Immutable\{
 final class Client
 {
     private Stream $socket;
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
+    private Watch $watch;
     /** @var callable(Stream): Maybe<Stream> */
     private $readyToRead;
     /** @var callable(Stream): Maybe<Stream> */
@@ -43,7 +42,6 @@ final class Client
     /**
      * @psalm-mutation-free
      *
-     * @param callable(?ElapsedPeriod): Watch $watch
      * @param callable(Stream): Maybe<Stream> $readyToRead
      * @param callable(Stream): Maybe<Stream> $readyToWrite
      * @param Maybe<Str\Encoding> $encoding
@@ -51,7 +49,7 @@ final class Client
      * @param callable(): bool $abort
      */
     private function __construct(
-        callable $watch,
+        Watch $watch,
         Stream $socket,
         callable $readyToRead,
         callable $readyToWrite,
@@ -71,11 +69,9 @@ final class Client
     /**
      * @psalm-mutation-free
      * @internal
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
     public static function of(
-        callable $watch,
+        Watch $watch,
         Stream $socket,
     ): self {
         /** @var Maybe<Str\Encoding> */
@@ -122,17 +118,19 @@ final class Client
      */
     public function watch(): self
     {
+        $watch = $this->watch->waitForever();
+
         return new self(
-            $this->watch,
+            $watch,
             $this->socket,
-            fn(Stream $socket) => ($this->watch)(null)
+            static fn(Stream $socket) => $watch
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
                 ->keep(Instance::of(Stream::class)),
-            fn(Stream $socket) => ($this->watch)(null)
+            static fn(Stream $socket) => $watch
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(
@@ -150,18 +148,19 @@ final class Client
      */
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
-        /** @var self<T> */
+        $watch = $this->watch->timeoutAfter($timeout->asPeriod());
+
         return new self(
-            $this->watch,
+            $watch,
             $this->socket,
-            fn(Stream $socket) => ($this->watch)($timeout)
+            static fn(Stream $socket) => $watch
                 ->forRead($socket)()
                 ->map(static fn($ready) => $ready->toRead())
                 ->flatMap(static fn($toRead) => $toRead->find(
                     static fn($ready) => $ready === $socket,
                 ))
                 ->keep(Instance::of(Stream::class)),
-            fn(Stream $socket) => ($this->watch)($timeout)
+            static fn(Stream $socket) => $watch
                 ->forWrite($socket)()
                 ->map(static fn($ready) => $ready->toWrite())
                 ->flatMap(static fn($toWrite) => $toWrite->find(

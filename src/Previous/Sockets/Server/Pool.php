@@ -19,20 +19,18 @@ final class Pool
 {
     /** @var non-empty-list<Socket> */
     private array $sockets;
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
+    private Watch $watch;
     /** @var callable(Socket): Sequence<Socket> */
     private $wait;
 
     /**
      * @psalm-mutation-free
      *
-     * @param callable(?ElapsedPeriod): Watch $watch
      * @param non-empty-list<Socket> $sockets
      * @param callable(Socket): Sequence<Socket> $wait
      */
     private function __construct(
-        callable $watch,
+        Watch $watch,
         array $sockets,
         callable $wait,
     ) {
@@ -44,11 +42,9 @@ final class Pool
     /**
      * @psalm-mutation-free
      * @internal
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
     public static function of(
-        callable $watch,
+        Watch $watch,
         Socket $first,
         Socket $second,
     ): self {
@@ -85,9 +81,10 @@ final class Pool
     {
         /** @var self<T> */
         return new self(
-            $this->watch,
+            $this->watch->waitForever(),
             $this->sockets,
-            fn(Socket $socket, Socket ...$sockets) => ($this->watch)(null)
+            fn(Socket $socket, Socket ...$sockets) => $this
+                ->watch
                 ->forRead($socket, ...$sockets)()
                 ->map(
                     static fn($ready) => $ready
@@ -112,9 +109,10 @@ final class Pool
     public function timeoutAfter(ElapsedPeriod $timeout): self
     {
         return new self(
-            $this->watch,
+            $this->watch->timeoutAfter($timeout->asPeriod()),
             $this->sockets,
-            fn(Socket $socket, Socket ...$sockets) => ($this->watch)($timeout)
+            fn(Socket $socket, Socket ...$sockets) => $this
+                ->watch
                 ->forRead($socket, ...$sockets)()
                 ->map(
                     static fn($ready) => $ready

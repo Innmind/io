@@ -32,4 +32,9 @@ final class Watch
     {
         return Select::new();
     }
+
+    public function new(): WatchInterface
+    {
+        return Select::new();
+    }
 }
