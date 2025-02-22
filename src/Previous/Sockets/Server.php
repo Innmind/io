@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Previous\Sockets;
 
-use Innmind\TimeContinuum\ElapsedPeriod;
+use Innmind\TimeContinuum\Period;
 use Innmind\IO\Internal\Socket\{
     Server as Socket,
 };
@@ -84,10 +84,10 @@ final class Server
     /**
      * @psalm-mutation-free
      */
-    public function timeoutAfter(ElapsedPeriod $timeout): self
+    public function timeoutAfter(Period $timeout): self
     {
         return new self(
-            $this->watch->timeoutAfter($timeout->asPeriod()),
+            $this->watch->timeoutAfter($timeout),
             $this->socket,
             fn(Socket $socket) => $this
                 ->watch

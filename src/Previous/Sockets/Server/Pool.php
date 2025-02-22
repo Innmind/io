@@ -7,7 +7,7 @@ use Innmind\IO\Previous\Sockets\{
     Server,
     Client,
 };
-use Innmind\TimeContinuum\ElapsedPeriod;
+use Innmind\TimeContinuum\Period;
 use Innmind\IO\Internal\Socket\Server as Socket;
 use Innmind\IO\Internal\Watch;
 use Innmind\Immutable\{
@@ -106,10 +106,10 @@ final class Pool
     /**
      * @psalm-mutation-free
      */
-    public function timeoutAfter(ElapsedPeriod $timeout): self
+    public function timeoutAfter(Period $timeout): self
     {
         return new self(
-            $this->watch->timeoutAfter($timeout->asPeriod()),
+            $this->watch->timeoutAfter($timeout),
             $this->sockets,
             fn(Socket $socket, Socket ...$sockets) => $this
                 ->watch

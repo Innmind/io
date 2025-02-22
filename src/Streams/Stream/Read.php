@@ -84,7 +84,7 @@ final class Read
     {
         return new self(
             $this->capabilities,
-            $this->stream->timeoutAfter($period->asElapsedPeriod()),
+            $this->stream->timeoutAfter($period),
             $this->blocking,
         );
     }

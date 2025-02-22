@@ -7,7 +7,7 @@ use Innmind\IO\{
     Frame,
     Stream\Size,
 };
-use Innmind\TimeContinuum\ElapsedPeriod;
+use Innmind\TimeContinuum\Period;
 use Innmind\IO\Internal\{
     Stream as LowLevelStream,
     Watch,
@@ -110,9 +110,9 @@ final class Stream
     /**
      * @psalm-mutation-free
      */
-    public function timeoutAfter(ElapsedPeriod $timeout): self
+    public function timeoutAfter(Period $timeout): self
     {
-        $watch = $this->watch->timeoutAfter($timeout->asPeriod());
+        $watch = $this->watch->timeoutAfter($timeout);
 
         return new self(
             $watch,

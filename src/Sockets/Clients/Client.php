@@ -66,7 +66,7 @@ final class Client
     public function timeoutAfter(Period $period): self
     {
         return new self(
-            $this->socket->timeoutAfter($period->asElapsedPeriod()),
+            $this->socket->timeoutAfter($period),
         );
     }
 
