@@ -21,9 +21,4 @@ interface Readable extends Stream
      * @return Maybe<Str>
      */
     public function readLine(): Maybe;
-
-    /**
-     * @return Maybe<string>
-     */
-    public function toString(): Maybe;
 }

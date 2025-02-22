@@ -116,10 +116,4 @@ final class Bidirectional implements BidirectionalInterface
     {
         return $this->write->write($data);
     }
-
-    #[\Override]
-    public function toString(): Maybe
-    {
-        return $this->read->toString();
-    }
 }

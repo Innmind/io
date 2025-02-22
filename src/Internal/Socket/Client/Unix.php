@@ -125,11 +125,4 @@ final class Unix implements Client
     {
         return $this->stream->write($data);
     }
-
-    #[\Override]
-    public function toString(): Maybe
-    {
-        /** @var Maybe<string> */
-        return Maybe::nothing();
-    }
 }

@@ -148,11 +148,4 @@ final class Internet implements Server
         /** @var Maybe<Str> */
         return Maybe::nothing();
     }
-
-    #[\Override]
-    public function toString(): Maybe
-    {
-        /** @var Maybe<string> */
-        return Maybe::nothing();
-    }
 }

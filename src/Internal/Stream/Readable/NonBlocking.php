@@ -109,10 +109,4 @@ final class NonBlocking implements Readable
     {
         return $this->stream->closed();
     }
-
-    #[\Override]
-    public function toString(): Maybe
-    {
-        return $this->stream->toString();
-    }
 }

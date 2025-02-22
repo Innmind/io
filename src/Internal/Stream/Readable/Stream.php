@@ -138,18 +138,4 @@ final class Stream implements Readable
     {
         return $this->stream->closed();
     }
-
-    #[\Override]
-    public function toString(): Maybe
-    {
-        /** @var Maybe<Str> */
-        $data = $this
-            ->rewind()
-            ->match(
-                fn() => $this->read(),
-                static fn() => Maybe::nothing(),
-            );
-
-        return $data->map(static fn($data) => $data->toString());
-    }
 }
