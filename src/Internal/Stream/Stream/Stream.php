@@ -80,7 +80,23 @@ final class Stream implements StreamInterface
     #[\Override]
     public function rewind(): Either
     {
-        return $this->seek(new Position(0));
+        if (!$this->seekable) {
+            /** @var Either<PositionNotSeekable, SideEffect> */
+            return Either::left(new PositionNotSeekable);
+        }
+
+        if ($this->closed()) {
+            /** @var Either<PositionNotSeekable, SideEffect> */
+            return Either::right(new SideEffect);
+        }
+
+        $status = \fseek($this->resource, 0);
+
+        /** @var Either<PositionNotSeekable, SideEffect> */
+        return match ($status) {
+            -1 => Either::left(new PositionNotSeekable),
+            default => Either::right(new SideEffect),
+        };
     }
 
     /**
@@ -161,74 +177,5 @@ final class Stream implements StreamInterface
     {
         /** @psalm-suppress DocblockTypeContradiction */
         return $this->closed || !\is_resource($this->resource);
-    }
-
-    /**
-     * @return Either<PositionNotSeekable, SideEffect>
-     */
-    private function seek(Position $position): Either
-    {
-        if (!$this->seekable) {
-            /** @var Either<PositionNotSeekable, SideEffect> */
-            return Either::left(new PositionNotSeekable);
-        }
-
-        if ($this->closed()) {
-            /** @var Either<PositionNotSeekable, SideEffect> */
-            return Either::right(new SideEffect);
-        }
-
-        $previous = $this->position();
-
-        /** @var Either<PositionNotSeekable, SideEffect> */
-        return $this
-            ->seekable($position)
-            ->flatMap(fn() => $this->doSeek(
-                $position,
-                $previous,
-            ));
-    }
-
-    /**
-     * @return Either<PositionNotSeekable, SideEffect>
-     */
-    private function seekable(Position $position): Either
-    {
-        $targetPosition = $position->toInt();
-
-        return $this
-            ->size()
-            ->filter(static fn($size) => $targetPosition <= $size->toInt())
-            ->match(
-                static fn() => Either::right(new SideEffect),
-                static fn() => Either::left(new PositionNotSeekable),
-            );
-    }
-
-    /**
-     * @return Either<PositionNotSeekable, SideEffect>
-     */
-    private function doSeek(
-        Position $position,
-        Position $previous,
-    ): Either {
-        $status = \fseek(
-            $this->resource,
-            $position->toInt(),
-        );
-
-        if ($status === -1) {
-            /** @psalm-suppress ImpureMethodCall */
-            \fseek(
-                $this->resource,
-                $previous->toInt(),
-            );
-
-            /** @var Either<PositionNotSeekable, SideEffect> */
-            return Either::left(new PositionNotSeekable);
-        }
-
-        /** @var Either<PositionNotSeekable, SideEffect> */
-        return Either::right(new SideEffect);
     }
 }
