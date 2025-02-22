@@ -42,14 +42,15 @@ final class Write
      */
     public function sink(Sequence $chunks): Maybe
     {
+        $stream = $this->stream;
+
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
-            ->sink($this->stream)
+            ->sink(new SideEffect)
             ->maybe(
-                static fn($stream, $chunk) => $stream
+                static fn($_, $chunk) => $stream
                     ->write($chunk)
                     ->maybe(),
-            )
-            ->map(static fn() => new SideEffect);
+            );
     }
 }

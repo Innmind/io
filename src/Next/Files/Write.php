@@ -72,16 +72,15 @@ final class Write
 
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
-            ->sink($stream)
+            ->sink(new SideEffect)
             ->maybe(
-                static fn($stream, $chunk) => $stream
+                static fn($_, $chunk) => $stream
                     ->write($chunk)
                     ->maybe(),
             )
-            ->flatMap(static fn($stream) => match ($autoClose) {
+            ->flatMap(static fn($sideEffect) => match ($autoClose) {
                 true => $stream->close()->maybe(),
-                false => Maybe::just($stream),
-            })
-            ->map(static fn() => new SideEffect);
+                false => Maybe::just($sideEffect),
+            });
     }
 }

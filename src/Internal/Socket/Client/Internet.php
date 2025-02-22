@@ -9,13 +9,10 @@ use Innmind\IO\{
 };
 use Innmind\IO\Internal\Stream\{
     Stream,
-    Writable,
     Stream\Position,
     Stream\Size,
     Stream\Position\Mode,
     PositionNotSeekable,
-    DataPartiallyWritten,
-    FailedToWriteToStream,
 };
 use Innmind\Url\Authority;
 use Innmind\Immutable\{
@@ -146,11 +143,7 @@ final class Internet implements Client
     #[\Override]
     public function write(Str $data): Either
     {
-        /** @var Either<DataPartiallyWritten|FailedToWriteToStream, Writable> */
-        return $this
-            ->stream
-            ->write($data)
-            ->map(fn() => $this);
+        return $this->stream->write($data);
     }
 
     #[\Override]

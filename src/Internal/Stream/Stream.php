@@ -38,12 +38,12 @@ interface Stream
     public function position(): Position;
 
     /**
-     * @return Either<PositionNotSeekable, self>
+     * @return Either<PositionNotSeekable, SideEffect>
      */
     public function seek(Position $position, ?Mode $mode = null): Either;
 
     /**
-     * @return Either<PositionNotSeekable, self>
+     * @return Either<PositionNotSeekable, SideEffect>
      */
     public function rewind(): Either;
 

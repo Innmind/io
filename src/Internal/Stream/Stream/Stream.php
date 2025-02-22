@@ -82,23 +82,22 @@ final class Stream implements StreamInterface
     public function seek(Position $position, ?Mode $mode = null): Either
     {
         if (!$this->seekable) {
-            /** @var Either<PositionNotSeekable, StreamInterface> */
+            /** @var Either<PositionNotSeekable, SideEffect> */
             return Either::left(new PositionNotSeekable);
         }
 
         if ($this->closed()) {
-            /** @var Either<PositionNotSeekable, StreamInterface> */
-            return Either::right($this);
+            /** @var Either<PositionNotSeekable, SideEffect> */
+            return Either::right(new SideEffect);
         }
 
         $previous = $this->position();
         $mode ??= Mode::fromStart;
 
-        /** @var Either<PositionNotSeekable, StreamInterface> */
+        /** @var Either<PositionNotSeekable, SideEffect> */
         return $this
             ->seekable($position, $mode)
-            ->flatMap(fn($stream) => $this->doSeek(
-                $stream,
+            ->flatMap(fn() => $this->doSeek(
                 $position,
                 $mode,
                 $previous,
@@ -192,7 +191,7 @@ final class Stream implements StreamInterface
     }
 
     /**
-     * @return Either<PositionNotSeekable, self>
+     * @return Either<PositionNotSeekable, SideEffect>
      */
     private function seekable(Position $position, Mode $mode): Either
     {
@@ -205,22 +204,21 @@ final class Stream implements StreamInterface
             ->size()
             ->filter(static fn($size) => $targetPosition <= $size->toInt())
             ->match(
-                fn() => Either::right($this),
+                static fn() => Either::right(new SideEffect),
                 static fn() => Either::left(new PositionNotSeekable),
             );
     }
 
     /**
-     * @return Either<PositionNotSeekable, self>
+     * @return Either<PositionNotSeekable, SideEffect>
      */
     private function doSeek(
-        self $stream,
         Position $position,
         Mode $mode,
         Position $previous,
     ): Either {
         $status = \fseek(
-            $stream->resource,
+            $this->resource,
             $position->toInt(),
             $mode->toInt(),
         );
@@ -228,16 +226,16 @@ final class Stream implements StreamInterface
         if ($status === -1) {
             /** @psalm-suppress ImpureMethodCall */
             \fseek(
-                $stream->resource,
+                $this->resource,
                 $previous->toInt(),
                 Mode::fromStart->toInt(),
             );
 
-            /** @var Either<PositionNotSeekable, self> */
+            /** @var Either<PositionNotSeekable, SideEffect> */
             return Either::left(new PositionNotSeekable);
         }
 
-        /** @var Either<PositionNotSeekable, self> */
-        return Either::right($stream);
+        /** @var Either<PositionNotSeekable, SideEffect> */
+        return Either::right(new SideEffect);
     }
 }

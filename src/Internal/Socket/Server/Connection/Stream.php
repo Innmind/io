@@ -7,14 +7,11 @@ use Innmind\IO\Internal\Socket\{
     Server\Connection,
 };
 use Innmind\IO\Internal\Stream\{
-    Writable,
     Stream\Bidirectional,
     Stream\Position,
     Stream\Size,
     Stream\Position\Mode,
     PositionNotSeekable,
-    DataPartiallyWritten,
-    FailedToWriteToStream,
 };
 use Innmind\Immutable\{
     Str,
@@ -118,11 +115,7 @@ final class Stream implements Connection
     #[\Override]
     public function write(Str $data): Either
     {
-        /** @var Either<DataPartiallyWritten|FailedToWriteToStream, Writable> */
-        return $this
-            ->stream
-            ->write($data)
-            ->map(fn() => $this);
+        return $this->stream->write($data);
     }
 
     #[\Override]

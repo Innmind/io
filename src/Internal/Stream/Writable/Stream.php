@@ -16,6 +16,7 @@ use Innmind\Immutable\{
     Str,
     Maybe,
     Either,
+    SideEffect,
 };
 
 final class Stream implements Writable
@@ -52,24 +53,24 @@ final class Stream implements Writable
     public function write(Str $data): Either
     {
         if ($this->closed()) {
-            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, Writable> */
+            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
             return Either::left(new FailedToWriteToStream);
         }
 
         $written = @\fwrite($this->resource, $data->toString());
 
         if ($written === false) {
-            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, Writable> */
+            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
             return Either::left(new FailedToWriteToStream);
         }
 
         if ($written !== $data->length()) {
-            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, Writable> */
+            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
             return Either::left(new DataPartiallyWritten($data, $written));
         }
 
-        /** @var Either<FailedToWriteToStream|DataPartiallyWritten, Writable> */
-        return Either::right($this);
+        /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
+        return Either::right(new SideEffect);
     }
 
     #[\Override]
@@ -78,20 +79,16 @@ final class Stream implements Writable
         return $this->stream->position();
     }
 
-    /** @psalm-suppress InvalidReturnType */
     #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
-        /** @psalm-suppress InvalidReturnStatement */
-        return $this->stream->seek($position, $mode)->map(fn() => $this);
+        return $this->stream->seek($position, $mode);
     }
 
-    /** @psalm-suppress InvalidReturnType */
     #[\Override]
     public function rewind(): Either
     {
-        /** @psalm-suppress InvalidReturnStatement */
-        return $this->stream->rewind()->map(fn() => $this);
+        return $this->stream->rewind();
     }
 
     /**

@@ -9,13 +9,10 @@ use Innmind\IO\{
 };
 use Innmind\IO\Internal\Stream\{
     Stream,
-    Writable,
     Stream\Position,
     Stream\Size,
     Stream\Position\Mode,
     PositionNotSeekable,
-    DataPartiallyWritten,
-    FailedToWriteToStream,
 };
 use Innmind\Immutable\{
     Str,
@@ -126,11 +123,7 @@ final class Unix implements Client
     #[\Override]
     public function write(Str $data): Either
     {
-        /** @var Either<DataPartiallyWritten|FailedToWriteToStream, Writable> */
-        return $this
-            ->stream
-            ->write($data)
-            ->map(fn() => $this);
+        return $this->stream->write($data);
     }
 
     #[\Override]

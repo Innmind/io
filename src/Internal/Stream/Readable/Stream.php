@@ -94,20 +94,16 @@ final class Stream implements Readable
         return $this->stream->position();
     }
 
-    /** @psalm-suppress InvalidReturnType */
     #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
-        /** @psalm-suppress InvalidReturnStatement */
-        return $this->stream->seek($position, $mode)->map(fn() => $this);
+        return $this->stream->seek($position, $mode);
     }
 
-    /** @psalm-suppress InvalidReturnType */
     #[\Override]
     public function rewind(): Either
     {
-        /** @psalm-suppress InvalidReturnStatement */
-        return $this->stream->rewind()->map(fn() => $this);
+        return $this->stream->rewind();
     }
 
     /**

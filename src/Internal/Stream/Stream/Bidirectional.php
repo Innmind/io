@@ -69,20 +69,16 @@ final class Bidirectional implements BidirectionalInterface
         return $this->read->position();
     }
 
-    /** @psalm-suppress InvalidReturnType */
     #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
-        /** @psalm-suppress InvalidReturnStatement */
-        return $this->read->seek($position, $mode)->map(fn() => $this);
+        return $this->read->seek($position, $mode);
     }
 
-    /** @psalm-suppress InvalidReturnType */
     #[\Override]
     public function rewind(): Either
     {
-        /** @psalm-suppress InvalidReturnStatement */
-        return $this->read->rewind()->map(fn() => $this);
+        return $this->read->rewind();
     }
 
     /**
@@ -115,12 +111,10 @@ final class Bidirectional implements BidirectionalInterface
         return $this->read->readLine();
     }
 
-    /** @psalm-suppress InvalidReturnType */
     #[\Override]
     public function write(Str $data): Either
     {
-        /** @psalm-suppress InvalidReturnStatement */
-        return $this->write->write($data)->map(fn() => $this);
+        return $this->write->write($data);
     }
 
     #[\Override]

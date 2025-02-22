@@ -59,6 +59,7 @@ final class Read
         return new self(
             static fn() => $stream
                 ->rewind()
+                ->map(static fn() => $stream)
                 ->map($io->wrap(...))
                 ->match(
                     static fn($stream) => $stream,
