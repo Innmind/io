@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
-use Innmind\IO\Next\{
+use Innmind\IO\{
     Stream\Size,
     Exception\InvalidArgumentException,
     Exception\NonBlockingModeNotSupported,

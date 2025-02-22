@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Socket\Server;
 
 use Innmind\IO\{
+    Sockets\Unix\Address,
     Internal\Socket\Server,
-    Next\Sockets\Unix\Address,
 };
 use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{

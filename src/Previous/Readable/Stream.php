@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\IO\Previous\Readable;
 
 use Innmind\IO\{
-    Next\Frame,
-    Next\Stream\Size,
+    Frame,
+    Stream\Size,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\{

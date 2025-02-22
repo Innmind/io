@@ -7,8 +7,8 @@ use Innmind\IO\{
     Previous\Readable\Chunks,
     Previous\Readable\Frames,
     Previous\Readable\Lines,
-    Next\Frame,
-    Next\Stream\Size,
+    Frame,
+    Stream\Size,
 };
 use Innmind\TimeContinuum\ElapsedPeriod;
 use Innmind\IO\Internal\Socket\Client as Socket;

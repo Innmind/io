@@ -4,8 +4,8 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Capabilities\Sockets;
 
 use Innmind\IO\{
-    Next\Sockets\Internet\Transport,
-    Next\Sockets\Unix\Address,
+    Sockets\Internet\Transport,
+    Sockets\Unix\Address,
     Internal\Stream,
     Internal\Socket\Server,
     Internal\Socket\Server\Internet,
