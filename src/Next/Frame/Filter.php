@@ -30,6 +30,7 @@ final class Filter implements Implementation
         $this->predicate = $predicate;
     }
 
+    #[\Override]
     public function __invoke(
         callable $read,
         callable $readLine,
@@ -60,6 +61,7 @@ final class Filter implements Implementation
      *
      * @return Implementation<T>
      */
+    #[\Override]
     public function filter(callable $predicate): Implementation
     {
         return new self($this, $predicate);
@@ -74,6 +76,7 @@ final class Filter implements Implementation
      *
      * @return Implementation<U>
      */
+    #[\Override]
     public function map(callable $map): Implementation
     {
         return Map::of($this, $map);
@@ -88,6 +91,7 @@ final class Filter implements Implementation
      *
      * @return Implementation<U>
      */
+    #[\Override]
     public function flatMap(callable $map): Implementation
     {
         return FlatMap::of($this, $map);

@@ -40,6 +40,7 @@ final class Select implements Watch
         $this->writeResources = [];
     }
 
+    #[\Override]
     public function __invoke(): Maybe
     {
         if (
@@ -116,6 +117,7 @@ final class Select implements Watch
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function forRead(Readable $read, Readable ...$reads): Watch
     {
         $self = clone $this;
@@ -139,6 +141,7 @@ final class Select implements Watch
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function forWrite(Writable $write, Writable ...$writes): Watch
     {
         $self = clone $this;
@@ -162,6 +165,7 @@ final class Select implements Watch
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function unwatch(Stream $stream): Watch
     {
         $resource = $stream->resource();

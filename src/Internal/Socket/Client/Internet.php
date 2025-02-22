@@ -73,11 +73,13 @@ final class Internet implements Client
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function resource()
     {
         return $this->stream->resource();
     }
 
+    #[\Override]
     public function close(): Either
     {
         return $this->stream->close();
@@ -86,21 +88,25 @@ final class Internet implements Client
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function closed(): bool
     {
         return $this->stream->closed();
     }
 
+    #[\Override]
     public function position(): Position
     {
         return $this->stream->position();
     }
 
+    #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
         return Either::left(new PositionNotSeekable);
     }
 
+    #[\Override]
     public function rewind(): Either
     {
         return Either::left(new PositionNotSeekable);
@@ -109,6 +115,7 @@ final class Internet implements Client
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function end(): bool
     {
         return $this->stream->end();
@@ -117,22 +124,26 @@ final class Internet implements Client
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function size(): Maybe
     {
         /** @var Maybe<Size> */
         return Maybe::nothing();
     }
 
+    #[\Override]
     public function read(?int $length = null): Maybe
     {
         return $this->stream->read($length);
     }
 
+    #[\Override]
     public function readLine(): Maybe
     {
         return $this->stream->readLine();
     }
 
+    #[\Override]
     public function write(Str $data): Either
     {
         /** @var Either<DataPartiallyWritten|FailedToWriteToStream, Writable> */
@@ -142,6 +153,7 @@ final class Internet implements Client
             ->map(fn() => $this);
     }
 
+    #[\Override]
     public function toString(): Maybe
     {
         /** @var Maybe<string> */

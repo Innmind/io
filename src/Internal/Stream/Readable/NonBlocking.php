@@ -41,27 +41,32 @@ final class NonBlocking implements Readable
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function resource()
     {
         return $this->stream->resource();
     }
 
+    #[\Override]
     public function read(?int $length = null): Maybe
     {
         return $this->stream->read($length);
     }
 
+    #[\Override]
     public function readLine(): Maybe
     {
         return $this->stream->readLine();
     }
 
+    #[\Override]
     public function position(): Position
     {
         return $this->stream->position();
     }
 
     /** @psalm-suppress InvalidReturnType */
+    #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
         /** @psalm-suppress InvalidReturnStatement */
@@ -69,6 +74,7 @@ final class NonBlocking implements Readable
     }
 
     /** @psalm-suppress InvalidReturnType */
+    #[\Override]
     public function rewind(): Either
     {
         /** @psalm-suppress InvalidReturnStatement */
@@ -78,6 +84,7 @@ final class NonBlocking implements Readable
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function end(): bool
     {
         return $this->stream->end();
@@ -86,11 +93,13 @@ final class NonBlocking implements Readable
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function size(): Maybe
     {
         return $this->stream->size();
     }
 
+    #[\Override]
     public function close(): Either
     {
         return $this->stream->close();
@@ -99,11 +108,13 @@ final class NonBlocking implements Readable
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function closed(): bool
     {
         return $this->stream->closed();
     }
 
+    #[\Override]
     public function toString(): Maybe
     {
         return $this->stream->toString();

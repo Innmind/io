@@ -29,6 +29,7 @@ final class Filter implements Frame
         $this->predicate = $predicate;
     }
 
+    #[\Override]
     public function __invoke(
         callable $read,
         callable $readLine,
@@ -59,6 +60,7 @@ final class Filter implements Frame
      *
      * @return Frame<T>
      */
+    #[\Override]
     public function filter(callable $predicate): Frame
     {
         return new self($this, $predicate);
@@ -73,6 +75,7 @@ final class Filter implements Frame
      *
      * @return Frame<U>
      */
+    #[\Override]
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
@@ -87,6 +90,7 @@ final class Filter implements Frame
      *
      * @return Frame<U>
      */
+    #[\Override]
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

@@ -23,11 +23,13 @@ final class Readable implements Capabilities\Readable
         return new self;
     }
 
+    #[\Override]
     public function open(Path $path): Read
     {
         return Read\Stream::open($path);
     }
 
+    #[\Override]
     public function acquire($resource): Read
     {
         return Read\Stream::of($resource);

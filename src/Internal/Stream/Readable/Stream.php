@@ -53,11 +53,13 @@ final class Stream implements Readable
         return new self($resource);
     }
 
+    #[\Override]
     public function resource()
     {
         return $this->resource;
     }
 
+    #[\Override]
     public function read(?int $length = null): Maybe
     {
         if ($this->closed()) {
@@ -73,6 +75,7 @@ final class Stream implements Readable
         return Maybe::of(\is_string($data) ? Str::of($data) : null);
     }
 
+    #[\Override]
     public function readLine(): Maybe
     {
         if ($this->closed()) {
@@ -85,12 +88,14 @@ final class Stream implements Readable
         return Maybe::of(\is_string($line) ? Str::of($line) : null);
     }
 
+    #[\Override]
     public function position(): Position
     {
         return $this->stream->position();
     }
 
     /** @psalm-suppress InvalidReturnType */
+    #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
         /** @psalm-suppress InvalidReturnStatement */
@@ -98,6 +103,7 @@ final class Stream implements Readable
     }
 
     /** @psalm-suppress InvalidReturnType */
+    #[\Override]
     public function rewind(): Either
     {
         /** @psalm-suppress InvalidReturnStatement */
@@ -107,6 +113,7 @@ final class Stream implements Readable
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function end(): bool
     {
         return $this->stream->end();
@@ -115,11 +122,13 @@ final class Stream implements Readable
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function size(): Maybe
     {
         return $this->stream->size();
     }
 
+    #[\Override]
     public function close(): Either
     {
         return $this->stream->close();
@@ -128,11 +137,13 @@ final class Stream implements Readable
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function closed(): bool
     {
         return $this->stream->closed();
     }
 
+    #[\Override]
     public function toString(): Maybe
     {
         /** @var Maybe<Str> */

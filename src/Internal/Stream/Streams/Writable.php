@@ -23,11 +23,13 @@ final class Writable implements Capabilities\Writable
         return new self;
     }
 
+    #[\Override]
     public function open(Path $path): Write
     {
         return Write\Stream::of(\fopen($path->toString(), 'w'));
     }
 
+    #[\Override]
     public function acquire($resource): Write
     {
         return Write\Stream::of($resource);

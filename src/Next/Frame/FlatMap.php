@@ -26,6 +26,7 @@ final class FlatMap implements Implementation
     ) {
     }
 
+    #[\Override]
     public function __invoke(
         callable $read,
         callable $readLine,
@@ -60,6 +61,7 @@ final class FlatMap implements Implementation
      *
      * @return Implementation<U>
      */
+    #[\Override]
     public function filter(callable $predicate): Implementation
     {
         return Filter::of($this, $predicate);
@@ -74,6 +76,7 @@ final class FlatMap implements Implementation
      *
      * @return Implementation<V>
      */
+    #[\Override]
     public function map(callable $map): Implementation
     {
         return Map::of($this, $map);
@@ -88,6 +91,7 @@ final class FlatMap implements Implementation
      *
      * @return Implementation<V>
      */
+    #[\Override]
     public function flatMap(callable $map): Implementation
     {
         return self::of($this, $map);

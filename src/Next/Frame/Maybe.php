@@ -25,6 +25,7 @@ final class Maybe implements Implementation
     ) {
     }
 
+    #[\Override]
     public function __invoke(
         callable $read,
         callable $readLine,
@@ -65,6 +66,7 @@ final class Maybe implements Implementation
      *
      * @return Implementation<T>
      */
+    #[\Override]
     public function filter(callable $predicate): Implementation
     {
         return Filter::of($this, $predicate);
@@ -79,6 +81,7 @@ final class Maybe implements Implementation
      *
      * @return Implementation<U>
      */
+    #[\Override]
     public function map(callable $map): Implementation
     {
         return Map::of($this, $map);
@@ -93,6 +96,7 @@ final class Maybe implements Implementation
      *
      * @return Implementation<U>
      */
+    #[\Override]
     public function flatMap(callable $map): Implementation
     {
         return FlatMap::of($this, $map);

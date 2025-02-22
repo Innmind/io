@@ -24,11 +24,13 @@ final class Watch implements Capabilities\Watch
         return new self;
     }
 
+    #[\Override]
     public function timeoutAfter(ElapsedPeriod $timeout): WatchInterface
     {
         return Select::timeoutAfter($timeout);
     }
 
+    #[\Override]
     public function waitForever(): WatchInterface
     {
         return Select::waitForever();

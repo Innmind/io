@@ -23,6 +23,7 @@ final class Temporary implements Capabilities\Temporary
         return new self;
     }
 
+    #[\Override]
     public function new(): Bidirectional
     {
         return Stream\Bidirectional::of(\fopen('php://temp', 'r+'));

@@ -42,11 +42,13 @@ final class Bidirectional implements BidirectionalInterface
         return new self($resource);
     }
 
+    #[\Override]
     public function resource()
     {
         return $this->resource;
     }
 
+    #[\Override]
     public function close(): Either
     {
         return $this->write->close();
@@ -55,17 +57,20 @@ final class Bidirectional implements BidirectionalInterface
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function closed(): bool
     {
         return $this->write->closed();
     }
 
+    #[\Override]
     public function position(): Position
     {
         return $this->read->position();
     }
 
     /** @psalm-suppress InvalidReturnType */
+    #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
         /** @psalm-suppress InvalidReturnStatement */
@@ -73,6 +78,7 @@ final class Bidirectional implements BidirectionalInterface
     }
 
     /** @psalm-suppress InvalidReturnType */
+    #[\Override]
     public function rewind(): Either
     {
         /** @psalm-suppress InvalidReturnStatement */
@@ -82,6 +88,7 @@ final class Bidirectional implements BidirectionalInterface
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function end(): bool
     {
         return $this->read->end();
@@ -90,28 +97,33 @@ final class Bidirectional implements BidirectionalInterface
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function size(): Maybe
     {
         return $this->read->size();
     }
 
+    #[\Override]
     public function read(?int $length = null): Maybe
     {
         return $this->read->read($length);
     }
 
+    #[\Override]
     public function readLine(): Maybe
     {
         return $this->read->readLine();
     }
 
     /** @psalm-suppress InvalidReturnType */
+    #[\Override]
     public function write(Str $data): Either
     {
         /** @psalm-suppress InvalidReturnStatement */
         return $this->write->write($data)->map(fn() => $this);
     }
 
+    #[\Override]
     public function toString(): Maybe
     {
         return $this->read->toString();

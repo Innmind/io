@@ -39,6 +39,7 @@ final class Chunks implements Frame
         $this->until = $until;
     }
 
+    #[\Override]
     public function __invoke(
         callable $read,
         callable $readLine,
@@ -105,6 +106,7 @@ final class Chunks implements Frame
      *
      * @return Frame<Seq<Str>>
      */
+    #[\Override]
     public function filter(callable $predicate): Frame
     {
         return Filter::of($this, $predicate);
@@ -119,6 +121,7 @@ final class Chunks implements Frame
      *
      * @return Frame<U>
      */
+    #[\Override]
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
@@ -133,6 +136,7 @@ final class Chunks implements Frame
      *
      * @return Frame<U>
      */
+    #[\Override]
     public function flatMap(callable $map): Frame
     {
         return FlatMap::of($this, $map);

@@ -62,11 +62,13 @@ final class Stream implements StreamInterface
         return new self($resource);
     }
 
+    #[\Override]
     public function resource()
     {
         return $this->resource;
     }
 
+    #[\Override]
     public function position(): Position
     {
         if ($this->closed()) {
@@ -76,6 +78,7 @@ final class Stream implements StreamInterface
         return new Position(\ftell($this->resource));
     }
 
+    #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
         if (!$this->seekable) {
@@ -102,6 +105,7 @@ final class Stream implements StreamInterface
             ));
     }
 
+    #[\Override]
     public function rewind(): Either
     {
         return $this->seek(new Position(0));
@@ -110,6 +114,7 @@ final class Stream implements StreamInterface
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function end(): bool
     {
         if ($this->closed()) {
@@ -122,6 +127,7 @@ final class Stream implements StreamInterface
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function size(): Maybe
     {
         if ($this->closed()) {
@@ -156,6 +162,7 @@ final class Stream implements StreamInterface
             ->keep(Instance::of(Size::class));
     }
 
+    #[\Override]
     public function close(): Either
     {
         if ($this->closed()) {
@@ -177,6 +184,7 @@ final class Stream implements StreamInterface
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function closed(): bool
     {
         /** @psalm-suppress DocblockTypeContradiction */

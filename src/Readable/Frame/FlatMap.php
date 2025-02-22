@@ -30,6 +30,7 @@ final class FlatMap implements Frame
         $this->map = $map;
     }
 
+    #[\Override]
     public function __invoke(
         callable $read,
         callable $readLine,
@@ -62,6 +63,7 @@ final class FlatMap implements Frame
      *
      * @return Frame<U>
      */
+    #[\Override]
     public function filter(callable $predicate): Frame
     {
         return Filter::of($this, $predicate);
@@ -76,6 +78,7 @@ final class FlatMap implements Frame
      *
      * @return Frame<V>
      */
+    #[\Override]
     public function map(callable $map): Frame
     {
         return Map::of($this, $map);
@@ -90,6 +93,7 @@ final class FlatMap implements Frame
      *
      * @return Frame<V>
      */
+    #[\Override]
     public function flatMap(callable $map): Frame
     {
         return new self($this, $map);

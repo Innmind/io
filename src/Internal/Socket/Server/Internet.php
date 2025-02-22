@@ -60,6 +60,7 @@ final class Internet implements Server
         return Maybe::just(new self($socket));
     }
 
+    #[\Override]
     public function accept(): Maybe
     {
         $socket = @\stream_socket_accept($this->resource());
@@ -76,11 +77,13 @@ final class Internet implements Server
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function resource()
     {
         return $this->resource;
     }
 
+    #[\Override]
     public function close(): Either
     {
         return $this->stream->close();
@@ -89,21 +92,25 @@ final class Internet implements Server
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function closed(): bool
     {
         return $this->stream->closed();
     }
 
+    #[\Override]
     public function position(): Position
     {
         return $this->stream->position();
     }
 
+    #[\Override]
     public function seek(Position $position, ?Mode $mode = null): Either
     {
         return Either::left(new PositionNotSeekable);
     }
 
+    #[\Override]
     public function rewind(): Either
     {
         return Either::left(new PositionNotSeekable);
@@ -112,6 +119,7 @@ final class Internet implements Server
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function end(): bool
     {
         return $this->stream->end();
@@ -120,24 +128,28 @@ final class Internet implements Server
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function size(): Maybe
     {
         /** @var Maybe<Size> */
         return Maybe::nothing();
     }
 
+    #[\Override]
     public function read(?int $length = null): Maybe
     {
         /** @var Maybe<Str> */
         return Maybe::nothing();
     }
 
+    #[\Override]
     public function readLine(): Maybe
     {
         /** @var Maybe<Str> */
         return Maybe::nothing();
     }
 
+    #[\Override]
     public function toString(): Maybe
     {
         /** @var Maybe<string> */

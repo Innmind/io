@@ -23,6 +23,7 @@ final class Logger implements Watch
         $this->logger = $logger;
     }
 
+    #[\Override]
     public function __invoke(): Maybe
     {
         return ($this->watch)()->map(fn($ready) => $this->log($ready));
@@ -36,6 +37,7 @@ final class Logger implements Watch
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function forRead(Readable $read, Readable ...$reads): Watch
     {
         /** @psalm-suppress ImpureMethodCall */
@@ -53,6 +55,7 @@ final class Logger implements Watch
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function forWrite(Writable $write, Writable ...$writes): Watch
     {
         /** @psalm-suppress ImpureMethodCall */
@@ -70,6 +73,7 @@ final class Logger implements Watch
     /**
      * @psalm-mutation-free
      */
+    #[\Override]
     public function unwatch(Stream $stream): Watch
     {
         /** @psalm-suppress ImpureMethodCall */

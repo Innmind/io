@@ -160,6 +160,7 @@ final class Frame
             ) {
             }
 
+            #[\Override]
             public function __invoke(
                 callable $read,
                 callable $readLine,
@@ -170,6 +171,7 @@ final class Frame
             /**
              * @psalm-mutation-free
              */
+            #[\Override]
             public function filter(callable $predicate): Old
             {
                 return $this->self->filter($predicate)->toOld();
@@ -178,6 +180,7 @@ final class Frame
             /**
              * @psalm-mutation-free
              */
+            #[\Override]
             public function map(callable $map): Old
             {
                 return $this->self->map($map)->toOld();
@@ -186,6 +189,7 @@ final class Frame
             /**
              * @psalm-mutation-free
              */
+            #[\Override]
             public function flatMap(callable $map): Old
             {
                 return $this->self->flatMap($map)->toOld();
