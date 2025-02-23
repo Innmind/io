@@ -8,7 +8,6 @@ use Innmind\IO\{
     Previous\Readable\Frames,
     Previous\Readable\Lines,
     Frame,
-    Stream\Size,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\IO\Internal\Socket\Client as Socket;
@@ -258,14 +257,6 @@ final class Client
             $this->readyToRead(),
             $this->encoding,
         );
-    }
-
-    /**
-     * @return Maybe<Size>
-     */
-    public function size(): Maybe
-    {
-        return $this->socket->size();
     }
 
     /**
