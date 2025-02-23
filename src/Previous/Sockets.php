@@ -33,12 +33,4 @@ final class Sockets
     {
         return Sockets\Clients::of($this->watch);
     }
-
-    /**
-     * @psalm-mutation-free
-     */
-    public function servers(): Sockets\Servers
-    {
-        return Sockets\Servers::of($this->watch);
-    }
 }
