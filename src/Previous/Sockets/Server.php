@@ -43,15 +43,6 @@ final class Server
         );
     }
 
-    public function with(self $socket): Server\Pool
-    {
-        return Server\Pool::of(
-            $this->watch->unwatch($this->socket),
-            $this->socket,
-            $socket->unwrap(),
-        );
-    }
-
     public function unwrap(): Socket
     {
         return $this->socket;
