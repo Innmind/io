@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Previous\Readable;
 
-use Innmind\IO\{
-    Frame,
-    Stream\Size,
-};
+use Innmind\IO\Frame;
 use Innmind\TimeContinuum\Period;
 use Innmind\IO\Internal\{
     Stream as LowLevelStream,
@@ -102,33 +99,6 @@ final class Stream
 
     /**
      * @psalm-mutation-free
-     *
-     * @param positive-int $size
-     */
-    public function chunks(int $size): Chunks
-    {
-        return Chunks::of(
-            $this->stream,
-            LowLevelStream\Wait::of($this->watch, $this->stream),
-            $this->encoding,
-            $size,
-        );
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
-    public function lines(): Lines
-    {
-        return Lines::of(
-            $this->stream,
-            LowLevelStream\Wait::of($this->watch, $this->stream),
-            $this->encoding,
-        );
-    }
-
-    /**
-     * @psalm-mutation-free
      * @template F
      *
      * @param Frame<F> $frame
@@ -143,13 +113,5 @@ final class Stream
             LowLevelStream\Wait::of($this->watch, $this->stream),
             $this->encoding,
         );
-    }
-
-    /**
-     * @return Maybe<Size>
-     */
-    public function size(): Maybe
-    {
-        return $this->stream->size();
     }
 }
