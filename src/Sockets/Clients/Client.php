@@ -54,8 +54,11 @@ final class Client
      */
     public function buffer(): self
     {
-        // todo
-        return $this;
+        return new self(
+            $this->stream,
+            $this->read->buffer(),
+            $this->write,
+        );
     }
 
     /**
