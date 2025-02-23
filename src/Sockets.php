@@ -34,7 +34,7 @@ final class Sockets
 
     public function servers(): Servers
     {
-        return Servers::of($this->io, $this->capabilities);
+        return Servers::of($this->capabilities);
     }
 
     /**

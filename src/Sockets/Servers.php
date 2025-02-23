@@ -7,7 +7,6 @@ use Innmind\IO\{
     Sockets\Servers\Server,
     Sockets\Internet\Transport,
     Sockets\Unix\Address,
-    Previous\IO as Previous,
     Internal\Capabilities,
 };
 use Innmind\IP\IP;
@@ -17,7 +16,6 @@ use Innmind\Immutable\Maybe;
 final class Servers
 {
     private function __construct(
-        private Previous $io,
         private Capabilities $capabilities,
     ) {
     }
@@ -25,9 +23,9 @@ final class Servers
     /**
      * @internal
      */
-    public static function of(Previous $io, Capabilities $capabilities): self
+    public static function of(Capabilities $capabilities): self
     {
-        return new self($io, $capabilities);
+        return new self($capabilities);
     }
 
     /**
@@ -40,7 +38,6 @@ final class Servers
             ->sockets()
             ->servers()
             ->internet($transport, $ip, $port)
-            ->map($this->io->sockets()->servers()->wrap(...))
             ->map(fn($socket) => Server::of(
                 $this->capabilities->watch(),
                 $socket,
@@ -57,7 +54,6 @@ final class Servers
             ->sockets()
             ->servers()
             ->unix($address)
-            ->map($this->io->sockets()->servers()->wrap(...))
             ->map(fn($socket) => Server::of(
                 $this->capabilities->watch(),
                 $socket,
@@ -74,7 +70,6 @@ final class Servers
             ->sockets()
             ->servers()
             ->takeOver($address)
-            ->map($this->io->sockets()->servers()->wrap(...))
             ->map(fn($socket) => Server::of(
                 $this->capabilities->watch(),
                 $socket,

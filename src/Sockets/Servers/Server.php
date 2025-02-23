@@ -6,35 +6,37 @@ namespace Innmind\IO\Sockets\Servers;
 use Innmind\IO\{
     Sockets\Servers\Server\Pool,
     Sockets\Clients\Client,
-    Previous\Sockets\Server as Previous,
+    Previous\Sockets\Client as PreviousClient,
+    Internal\Socket\Server as Socket,
     Internal\Watch,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
     Maybe,
     SideEffect,
+    Predicate\Instance,
 };
 
 final class Server
 {
     private function __construct(
         private Watch $watch,
-        private Previous $socket,
+        private Socket $socket,
     ) {
     }
 
     /**
      * @internal
      */
-    public static function of(Watch $watch, Previous $socket): self
+    public static function of(Watch $watch, Socket $socket): self
     {
-        return new self($watch, $socket);
+        return new self($watch->forRead($socket), $socket);
     }
 
     /**
      * @internal
      */
-    public function internal(): Previous
+    public function unwrap(): Socket
     {
         return $this->socket;
     }
@@ -46,7 +48,7 @@ final class Server
     {
         return new self(
             $this->watch->waitForever(),
-            $this->socket->watch(),
+            $this->socket,
         );
     }
 
@@ -57,7 +59,7 @@ final class Server
     {
         return new self(
             $this->watch->timeoutAfter($period),
-            $this->socket->timeoutAfter($period),
+            $this->socket,
         );
     }
 
@@ -66,17 +68,26 @@ final class Server
      */
     public function accept(): Maybe
     {
-        return $this
-            ->socket
-            ->accept()
+        $socket = $this->socket;
+
+        return ($this->watch)()
+            ->map(static fn($ready) => $ready->toRead())
+            ->flatMap(static fn($toRead) => $toRead->find(
+                static fn($ready) => $ready === $socket,
+            ))
+            ->keep(Instance::of(Socket::class))
+            ->flatMap(static fn($socket) => $socket->accept())
+            ->map(fn($client) => PreviousClient::of(
+                $this->watch->clear(),
+                $client,
+            ))
             ->map(Client::of(...));
     }
 
     public function pool(self $server): Pool
     {
         return Pool::of($this->watch->forRead(
-            $this->socket->unwrap(),
-            $server->socket->unwrap(),
+            $server->socket,
         ));
     }
 
@@ -87,7 +98,6 @@ final class Server
     {
         return $this
             ->socket
-            ->unwrap()
             ->close()
             ->maybe();
     }

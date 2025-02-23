@@ -36,7 +36,7 @@ final class Pool
     public function with(Server $server): self
     {
         // todo automatically determine the shortest timeout to watch for
-        return new self($this->watch->forRead($server->internal()->unwrap()));
+        return new self($this->watch->forRead($server->unwrap()));
     }
 
     /**
