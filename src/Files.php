@@ -6,7 +6,6 @@ namespace Innmind\IO;
 use Innmind\IO\{
     Files\Read,
     Files\Write,
-    Previous\IO as Previous,
     Internal\Capabilities,
 };
 use Innmind\Url\Path;
@@ -19,7 +18,6 @@ use Innmind\Immutable\{
 final class Files
 {
     private function __construct(
-        private Previous $io,
         private Capabilities $capabilities,
     ) {
     }
@@ -27,9 +25,9 @@ final class Files
     /**
      * @internal
      */
-    public static function of(Previous $io, Capabilities $capabilities): self
+    public static function of(Capabilities $capabilities): self
     {
-        return new self($io, $capabilities);
+        return new self($capabilities);
     }
 
     public function read(Path $path): Read

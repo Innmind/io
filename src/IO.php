@@ -28,7 +28,7 @@ final class IO
 
     public function files(): Files
     {
-        return Files::of($this->io, $this->capabilities);
+        return Files::of($this->capabilities);
     }
 
     public function streams(): Streams
