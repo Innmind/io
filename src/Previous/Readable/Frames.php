@@ -70,7 +70,7 @@ final class Frames
          * @psalm-suppress ArgumentTypeCoercion
          * @var callable(?positive-int): Maybe<Str>
          */
-        $read = fn(?int $size): Maybe => ($this->wait)($this->stream)
+        $read = fn(?int $size): Maybe => ($this->wait)()
             ->flatMap(static fn($stream) => $stream->read($size))
             ->otherwise(fn() => Maybe::just(Str::of(''))->filter(
                 fn() => $this->stream->end(),
@@ -79,7 +79,7 @@ final class Frames
                 static fn($encoding) => $chunk->toEncoding($encoding),
                 static fn() => $chunk,
             ));
-        $readLine = fn(): Maybe => ($this->wait)($this->stream)
+        $readLine = fn(): Maybe => ($this->wait)()
             ->flatMap(static fn($stream) => $stream->readLine())
             ->otherwise(fn() => Maybe::just(Str::of(''))->filter(
                 fn() => $this->stream->end(),

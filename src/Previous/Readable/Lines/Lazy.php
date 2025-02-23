@@ -83,7 +83,7 @@ final class Lazy
                 // we yield an empty line when the readLine() call doesn't return
                 // anything otherwise it will fail to load empty streams or
                 // streams ending with the "end of line" character
-                yield ($this->wait)($this->stream)
+                yield ($this->wait)()
                     ->flatMap(static fn($stream) => $stream->readLine())
                     ->map(fn($chunk) => $this->encoding->match(
                         static fn($encoding) => $chunk->toEncoding($encoding),

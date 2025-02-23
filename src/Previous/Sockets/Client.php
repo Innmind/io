@@ -264,13 +264,12 @@ final class Client
      */
     private function readyToRead(): Stream\Wait|Stream\Wait\WithHeartbeat
     {
-        $wait = Stream\Wait::of($this->watch);
+        $wait = Stream\Wait::of($this->watch, $this->socket);
         $send = $this->send(...);
         $abort = $this->abort;
 
         return $this->heartbeat->match(
-            static fn($provide) => Stream\Wait\WithHeartbeat::of(
-                $wait,
+            static fn($provide) => $wait->withHeartbeat(
                 $send,
                 $provide,
                 $abort,

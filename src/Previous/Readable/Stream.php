@@ -109,7 +109,7 @@ final class Stream
     {
         return Chunks::of(
             $this->stream,
-            LowLevelStream\Wait::of($this->watch),
+            LowLevelStream\Wait::of($this->watch, $this->stream),
             $this->encoding,
             $size,
         );
@@ -122,7 +122,7 @@ final class Stream
     {
         return Lines::of(
             $this->stream,
-            LowLevelStream\Wait::of($this->watch),
+            LowLevelStream\Wait::of($this->watch, $this->stream),
             $this->encoding,
         );
     }
@@ -140,7 +140,7 @@ final class Stream
         return Frames::of(
             $frame,
             $this->stream,
-            LowLevelStream\Wait::of($this->watch),
+            LowLevelStream\Wait::of($this->watch, $this->stream),
             $this->encoding,
         );
     }

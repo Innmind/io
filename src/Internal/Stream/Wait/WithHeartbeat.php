@@ -28,6 +28,7 @@ final class WithHeartbeat
      */
     private function __construct(
         private Wait $wait,
+        private Stream $stream,
         private $send,
         private $provide,
         private $abort,
@@ -37,10 +38,10 @@ final class WithHeartbeat
     /**
      * @return Maybe<Stream>
      */
-    public function __invoke(Stream $stream): Maybe
+    public function __invoke(): Maybe
     {
         do {
-            $ready = ($this->wait)($stream);
+            $ready = ($this->wait)();
             $socketReadable = $ready->match(
                 static fn() => true,
                 static fn() => false,
@@ -59,7 +60,7 @@ final class WithHeartbeat
                 /** @var Maybe<Stream> */
                 return Maybe::nothing();
             }
-        } while (!($this->abort)() && !$stream->closed());
+        } while (!($this->abort)() && !$this->stream->closed());
 
         /** @var Maybe<Stream> */
         return Maybe::nothing();
@@ -74,10 +75,11 @@ final class WithHeartbeat
      */
     public static function of(
         Wait $wait,
+        Stream $stream,
         callable $send,
         callable $provide,
         callable $abort,
     ): self {
-        return new self($wait, $send, $provide, $abort);
+        return new self($wait, $stream, $send, $provide, $abort);
     }
 }

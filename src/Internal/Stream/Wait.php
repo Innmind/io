@@ -8,7 +8,10 @@ use Innmind\IO\Internal\{
     Watch,
 };
 use Innmind\Immutable\{
+    Str,
+    Sequence,
     Maybe,
+    SideEffect,
     Predicate\Instance,
 };
 
@@ -22,29 +25,49 @@ final class Wait
      */
     private function __construct(
         private Watch $watch,
+        private Stream $stream,
     ) {
     }
 
     /**
      * @return Maybe<Stream>
      */
-    public function __invoke(Stream $stream): Maybe
+    public function __invoke(): Maybe
     {
-        return $this
-            ->watch
-            ->forRead($stream)()
+        return ($this->watch)()
             ->map(static fn($ready) => $ready->toRead())
-            ->flatMap(static fn($toRead) => $toRead->find(
-                static fn($ready) => $ready === $stream,
+            ->flatMap(fn($toRead) => $toRead->find(
+                fn($ready) => $ready === $this->stream,
             ))
             ->keep(Instance::of(Stream::class));
     }
 
     /**
      * @psalm-mutation-free
+     *
+     * @param callable(Sequence<Str>): Maybe<SideEffect> $send
+     * @param callable(): Sequence<Str> $provide
+     * @param callable(): bool $abort
      */
-    public static function of(Watch $watch): self
+    public function withHeartbeat(
+        callable $send,
+        callable $provide,
+        callable $abort,
+    ): Wait\WithHeartbeat {
+        return Wait\WithHeartbeat::of(
+            $this,
+            $this->stream,
+            $send,
+            $provide,
+            $abort,
+        );
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    public static function of(Watch $watch, Stream $stream): self
     {
-        return new self($watch);
+        return new self($watch->forRead($stream), $stream);
     }
 }
