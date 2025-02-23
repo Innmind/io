@@ -7,14 +7,12 @@ use Innmind\IO\{
     Sockets\Clients,
     Sockets\Clients\Client,
     Sockets\Servers,
-    Previous\IO as Previous,
     Internal\Capabilities,
 };
 
 final class Sockets
 {
     private function __construct(
-        private Previous $io,
         private Capabilities $capabilities,
     ) {
     }
@@ -23,10 +21,9 @@ final class Sockets
      * @internal
      */
     public static function of(
-        Previous $io,
         Capabilities $capabilities,
     ): self {
-        return new self($io, $capabilities);
+        return new self($capabilities);
     }
 
     public function clients(): Clients

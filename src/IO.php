@@ -3,27 +3,18 @@ declare(strict_types = 1);
 
 namespace Innmind\IO;
 
-use Innmind\IO\{
-    Previous\IO as Previous,
-    Internal\Capabilities,
-};
+use Innmind\IO\Internal\Capabilities;
 
 final class IO
 {
     private function __construct(
-        private Previous $io,
         private Capabilities $capabilities,
     ) {
     }
 
     public static function fromAmbientAuthority(): self
     {
-        $capabilities = Capabilities::fromAmbientAuthority();
-
-        return new self(
-            Previous::of($capabilities->watch()),
-            $capabilities,
-        );
+        return new self(Capabilities::fromAmbientAuthority());
     }
 
     public function files(): Files
@@ -38,6 +29,6 @@ final class IO
 
     public function sockets(): Sockets
     {
-        return Sockets::of($this->io, $this->capabilities);
+        return Sockets::of($this->capabilities);
     }
 }
