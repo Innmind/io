@@ -5,8 +5,8 @@ namespace Innmind\IO\Sockets\Clients;
 
 use Innmind\IO\{
     Sockets\Clients\Client\Frames,
+    Streams\Stream,
     Frame,
-    Previous\Sockets\Client as Previous,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
@@ -19,16 +19,22 @@ use Innmind\Immutable\{
 final class Client
 {
     private function __construct(
-        private Previous $socket,
+        private Stream $stream,
+        private Stream\Read $read,
+        private Stream\Write $write,
     ) {
     }
 
     /**
      * @internal
      */
-    public static function of(Previous $socket): self
+    public static function of(Stream $stream): self
     {
-        return new self($socket);
+        return new self(
+            $stream,
+            $stream->read(),
+            $stream->write(),
+        );
     }
 
     /**
@@ -37,7 +43,9 @@ final class Client
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
-            $this->socket->toEncoding($encoding),
+            $this->stream,
+            $this->read->toEncoding($encoding),
+            $this->write,
         );
     }
 
@@ -56,7 +64,9 @@ final class Client
     public function watch(): self
     {
         return new self(
-            $this->socket->watch(),
+            $this->stream,
+            $this->read->watch(),
+            $this->write->watch(),
         );
     }
 
@@ -66,7 +76,9 @@ final class Client
     public function timeoutAfter(Period $period): self
     {
         return new self(
-            $this->socket->timeoutAfter($period),
+            $this->stream,
+            $this->read->timeoutAfter($period),
+            $this->write,
         );
     }
 
@@ -83,6 +95,9 @@ final class Client
      * data provided by the callback and then restart watching for the socket
      * to be readable.
      *
+     * Bear in mind that this is useful only when watching for multiple frames.
+     * Watching for a single frames will not be affected.
+     *
      * @psalm-mutation-free
      *
      * @param callable(): Sequence<Str> $chunks
@@ -90,7 +105,9 @@ final class Client
     public function heartbeatWith(callable $chunks): self
     {
         return new self(
-            $this->socket->heartbeatWith($chunks),
+            $this->stream,
+            $this->read->heartbeatWith($chunks),
+            $this->write,
         );
     }
 
@@ -101,6 +118,9 @@ final class Client
      *
      * Use this method to abort the watch when you receive signals.
      *
+     * Bear in mind that this is useful only when watching for multiple frames.
+     * Watching for a single frames will not be affected.
+     *
      * @psalm-mutation-free
      *
      * @param callable(): bool $abort
@@ -108,7 +128,9 @@ final class Client
     public function abortWhen(callable $abort): self
     {
         return new self(
-            $this->socket->abortWhen($abort),
+            $this->stream,
+            $this->read->abortWhen($abort),
+            $this->write->abortWhen($abort),
         );
     }
 
@@ -119,7 +141,7 @@ final class Client
      */
     public function sink(Sequence $chunks): Maybe
     {
-        return $this->socket->send($chunks);
+        return $this->write->sink($chunks);
     }
 
     /**
@@ -131,7 +153,7 @@ final class Client
      */
     public function frames(Frame $frame): Frames
     {
-        return Frames::of($this->socket, $frame);
+        return Frames::of($this->read->frames($frame));
     }
 
     /**
@@ -139,10 +161,6 @@ final class Client
      */
     public function close(): Maybe
     {
-        return $this
-            ->socket
-            ->unwrap()
-            ->close()
-            ->maybe();
+        return $this->stream->close();
     }
 }

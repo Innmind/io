@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Streams\Stream\Read\Frames;
 
 use Innmind\IO\{
+    Streams\Stream\Write,
     Frame,
     Previous\Exception\FailedToLoadStream,
     Internal\Stream,
@@ -23,12 +24,17 @@ final class Lazy
     /**
      * @param Maybe<Str\Encoding> $encoding
      * @param Frame<T> $frame
+     * @param Maybe<callable(): Sequence<Str>> $heartbeat
+     * @param callable(): bool $abort
      */
     private function __construct(
+        private Write $write,
         private Stream $stream,
         private Watch $watch,
         private Maybe $encoding,
         private Frame $frame,
+        private Maybe $heartbeat,
+        private $abort,
         private bool $blocking,
         private bool $rewindable,
     ) {
@@ -40,17 +46,32 @@ final class Lazy
      *
      * @param Maybe<Str\Encoding> $encoding
      * @param Frame<A> $frame
+     * @param Maybe<callable(): Sequence<Str>> $heartbeat
+     * @param callable(): bool $abort
      *
      * @return self<A>
      */
     public static function of(
+        Write $write,
         Stream $stream,
         Watch $watch,
         Maybe $encoding,
         Frame $frame,
+        Maybe $heartbeat,
+        callable $abort,
         bool $blocking,
     ): self {
-        return new self($stream, $watch, $encoding, $frame, $blocking, false);
+        return new self(
+            $write,
+            $stream,
+            $watch,
+            $encoding,
+            $frame,
+            $heartbeat,
+            $abort,
+            $blocking,
+            false,
+        );
     }
 
     /**
@@ -59,10 +80,13 @@ final class Lazy
     public function rewindable(): self
     {
         return new self(
+            $this->write,
             $this->stream,
             $this->watch,
             $this->encoding,
             $this->frame,
+            $this->heartbeat,
+            $this->abort,
             $this->blocking,
             true,
         );
@@ -73,18 +97,24 @@ final class Lazy
      */
     public function sequence(): Sequence
     {
+        $write = $this->write;
         $stream = $this->stream;
         $watch = $this->watch;
         $encoding = $this->encoding;
         $frame = $this->frame;
+        $heartbeat = $this->heartbeat;
+        $abort = $this->abort;
         $blocking = $this->blocking;
         $rewindable = $this->rewindable;
 
         return Sequence::lazy(static function() use (
+            $write,
             $stream,
             $watch,
             $encoding,
             $frame,
+            $heartbeat,
+            $abort,
             $blocking,
             $rewindable,
         ) {
@@ -93,6 +123,14 @@ final class Lazy
             }
 
             $wait = Stream\Wait::of($watch, $stream);
+            $wait = $heartbeat->match(
+                static fn($provide) => $wait->withHeartbeat(
+                    $write->sink(...),
+                    $provide,
+                    $abort,
+                ),
+                static fn() => $wait,
+            );
             /**
              * @psalm-suppress ArgumentTypeCoercion
              * @var callable(?positive-int): Maybe<Str>

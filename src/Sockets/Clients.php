@@ -7,7 +7,7 @@ use Innmind\IO\{
     Sockets\Clients\Client,
     Sockets\Internet\Transport,
     Sockets\Unix\Address,
-    Previous\IO as Previous,
+    Streams\Stream,
     Internal\Capabilities,
 };
 use Innmind\Url\Authority;
@@ -16,7 +16,6 @@ use Innmind\Immutable\Maybe;
 final class Clients
 {
     private function __construct(
-        private Previous $io,
         private Capabilities $capabilities,
     ) {
     }
@@ -24,9 +23,10 @@ final class Clients
     /**
      * @internal
      */
-    public static function of(Previous $io, Capabilities $capabilities): self
-    {
-        return new self($io, $capabilities);
+    public static function of(
+        Capabilities $capabilities,
+    ): self {
+        return new self($capabilities);
     }
 
     /**
@@ -39,8 +39,12 @@ final class Clients
             ->sockets()
             ->clients()
             ->internet($transport, $authority)
-            ->map($this->io->sockets()->clients()->wrap(...))
-            ->map(Client::of(...));
+            ->map(fn($socket) => Client::of(
+                Stream::of(
+                    $this->capabilities,
+                    $socket,
+                ),
+            ));
     }
 
     /**
@@ -53,7 +57,11 @@ final class Clients
             ->sockets()
             ->clients()
             ->unix($address)
-            ->map($this->io->sockets()->clients()->wrap(...))
-            ->map(Client::of(...));
+            ->map(fn($socket) => Client::of(
+                Stream::of(
+                    $this->capabilities,
+                    $socket,
+                ),
+            ));
     }
 }

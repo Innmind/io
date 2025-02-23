@@ -6,7 +6,8 @@ namespace Innmind\IO\Sockets\Servers;
 use Innmind\IO\{
     Sockets\Servers\Server\Pool,
     Sockets\Clients\Client,
-    Previous\Sockets\Client as PreviousClient,
+    Streams\Stream,
+    Internal\Capabilities,
     Internal\Socket\Server as Socket,
     Internal\Watch,
 };
@@ -20,6 +21,7 @@ use Innmind\Immutable\{
 final class Server
 {
     private function __construct(
+        private Capabilities $capabilities,
         private Watch $watch,
         private Socket $socket,
     ) {
@@ -28,9 +30,12 @@ final class Server
     /**
      * @internal
      */
-    public static function of(Watch $watch, Socket $socket): self
-    {
-        return new self($watch->forRead($socket), $socket);
+    public static function of(
+        Capabilities $capabilities,
+        Watch $watch,
+        Socket $socket,
+    ): self {
+        return new self($capabilities, $watch->forRead($socket), $socket);
     }
 
     /**
@@ -47,6 +52,7 @@ final class Server
     public function watch(): self
     {
         return new self(
+            $this->capabilities,
             $this->watch->waitForever(),
             $this->socket,
         );
@@ -58,6 +64,7 @@ final class Server
     public function timeoutAfter(Period $period): self
     {
         return new self(
+            $this->capabilities,
             $this->watch->timeoutAfter($period),
             $this->socket,
         );
@@ -77,16 +84,17 @@ final class Server
             ))
             ->keep(Instance::of(Socket::class))
             ->flatMap(static fn($socket) => $socket->accept())
-            ->map(fn($client) => PreviousClient::of(
-                $this->watch->clear(),
-                $client,
-            ))
-            ->map(Client::of(...));
+            ->map(fn($socket) => Client::of(
+                Stream::of(
+                    $this->capabilities,
+                    $socket,
+                ),
+            ));
     }
 
     public function pool(self $server): Pool
     {
-        return Pool::of($this->watch->forRead(
+        return Pool::of($this->capabilities, $this->watch->forRead(
             $server->socket,
         ));
     }

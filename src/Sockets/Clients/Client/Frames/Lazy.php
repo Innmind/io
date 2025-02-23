@@ -3,10 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Sockets\Clients\Client\Frames;
 
-use Innmind\IO\{
-    Frame,
-    Previous\Sockets\Client as Previous,
-};
+use Innmind\IO\Streams\Stream\Read\Frames\Lazy as Stream;
 use Innmind\Immutable\Sequence;
 
 /**
@@ -15,11 +12,10 @@ use Innmind\Immutable\Sequence;
 final class Lazy
 {
     /**
-     * @param Frame<T> $frame
+     * @param Stream<T> $frames
      */
     private function __construct(
-        private Previous $socket,
-        private Frame $frame,
+        private Stream $frames,
     ) {
     }
 
@@ -27,13 +23,13 @@ final class Lazy
      * @internal
      * @template A
      *
-     * @param Frame<A> $frame
+     * @param Stream<A> $frames
      *
      * @return self<A>
      */
-    public static function of(Previous $socket, Frame $frame): self
+    public static function of(Stream $frames): self
     {
-        return new self($socket, $frame);
+        return new self($frames);
     }
 
     /**
@@ -41,9 +37,6 @@ final class Lazy
      */
     public function sequence(): Sequence
     {
-        return $this
-            ->socket
-            ->frames($this->frame)
-            ->sequence();
+        return $this->frames->sequence();
     }
 }

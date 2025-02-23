@@ -5,8 +5,7 @@ namespace Innmind\IO\Sockets\Clients\Client;
 
 use Innmind\IO\{
     Sockets\Clients\Client\Frames\Lazy,
-    Frame,
-    Previous\Sockets\Client as Previous,
+    Streams\Stream\Read\Frames as Stream,
 };
 use Innmind\Immutable\Maybe;
 
@@ -15,9 +14,11 @@ use Innmind\Immutable\Maybe;
  */
 final class Frames
 {
+    /**
+     * @param Stream<T> $frames
+     */
     private function __construct(
-        private Previous $socket,
-        private Frame $frame,
+        private Stream $frames,
     ) {
     }
 
@@ -25,13 +26,13 @@ final class Frames
      * @internal
      * @template A
      *
-     * @param Frame<A> $frame
+     * @param Stream<A> $frames
      *
      * @return self<A>
      */
-    public static function of(Previous $socket, Frame $frame): self
+    public static function of(Stream $frames): self
     {
-        return new self($socket, $frame);
+        return new self($frames);
     }
 
     /**
@@ -39,10 +40,7 @@ final class Frames
      */
     public function one(): Maybe
     {
-        return $this
-            ->socket
-            ->frames($this->frame)
-            ->one();
+        return $this->frames->one();
     }
 
     /**
@@ -50,6 +48,6 @@ final class Frames
      */
     public function lazy(): Lazy
     {
-        return Lazy::of($this->socket, $this->frame);
+        return Lazy::of($this->frames->lazy());
     }
 }

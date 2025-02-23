@@ -6,7 +6,8 @@ namespace Innmind\IO\Sockets\Servers\Server;
 use Innmind\IO\{
     Sockets\Servers\Server,
     Sockets\Clients\Client,
-    Previous\Sockets\Client as Previous,
+    Streams\Stream,
+    Internal\Capabilities,
     Internal\Socket\Server as Socket,
     Internal\Watch,
 };
@@ -18,6 +19,7 @@ use Innmind\Immutable\{
 final class Pool
 {
     private function __construct(
+        private Capabilities $capabilities,
         private Watch $watch,
     ) {
     }
@@ -25,9 +27,9 @@ final class Pool
     /**
      * @internal
      */
-    public static function of(Watch $watch): self
+    public static function of(Capabilities $capabilities, Watch $watch): self
     {
-        return new self($watch);
+        return new self($capabilities, $watch);
     }
 
     /**
@@ -36,7 +38,10 @@ final class Pool
     public function with(Server $server): self
     {
         // todo automatically determine the shortest timeout to watch for
-        return new self($this->watch->forRead($server->unwrap()));
+        return new self(
+            $this->capabilities,
+            $this->watch->forRead($server->unwrap()),
+        );
     }
 
     /**
@@ -59,10 +64,11 @@ final class Pool
                     ->accept()
                     ->toSequence(),
             )
-            ->map(fn($client) => Previous::of(
-                $this->watch->clear(),
-                $client,
-            ))
-            ->map(Client::of(...));
+            ->map(fn($socket) => Client::of(
+                Stream::of(
+                    $this->capabilities,
+                    $socket,
+                ),
+            ));
     }
 }

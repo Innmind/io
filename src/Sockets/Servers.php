@@ -39,6 +39,7 @@ final class Servers
             ->servers()
             ->internet($transport, $ip, $port)
             ->map(fn($socket) => Server::of(
+                $this->capabilities,
                 $this->capabilities->watch(),
                 $socket,
             ));
@@ -55,6 +56,7 @@ final class Servers
             ->servers()
             ->unix($address)
             ->map(fn($socket) => Server::of(
+                $this->capabilities,
                 $this->capabilities->watch(),
                 $socket,
             ));
@@ -71,6 +73,7 @@ final class Servers
             ->servers()
             ->takeOver($address)
             ->map(fn($socket) => Server::of(
+                $this->capabilities,
                 $this->capabilities->watch(),
                 $socket,
             ));

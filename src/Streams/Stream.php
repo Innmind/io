@@ -35,6 +35,7 @@ final class Stream
     public function read(): Read
     {
         return Read::of(
+            $this->write(),
             $this->capabilities,
             $this->stream,
         );
@@ -42,7 +43,7 @@ final class Stream
 
     public function write(): Write
     {
-        return Write::of($this->stream);
+        return Write::of($this->capabilities->watch(), $this->stream);
     }
 
     /**

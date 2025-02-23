@@ -22,14 +22,16 @@ final class Sockets
     /**
      * @internal
      */
-    public static function of(Previous $io, Capabilities $capabilities): self
-    {
+    public static function of(
+        Previous $io,
+        Capabilities $capabilities,
+    ): self {
         return new self($io, $capabilities);
     }
 
     public function clients(): Clients
     {
-        return Clients::of($this->io, $this->capabilities);
+        return Clients::of($this->capabilities);
     }
 
     public function servers(): Servers
