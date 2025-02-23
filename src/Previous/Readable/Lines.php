@@ -12,24 +12,22 @@ use Innmind\Immutable\{
 final class Lines
 {
     private Stream $stream;
-    /** @var callable(Stream): Maybe<Stream> */
-    private $ready;
+    private Stream\Wait|Stream\Wait\WithHeartbeat $wait;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
 
     /**
      * @psalm-mutation-free
      *
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
     ) {
         $this->stream = $stream;
-        $this->ready = $ready;
+        $this->wait = $wait;
         $this->encoding = $encoding;
     }
 
@@ -37,15 +35,14 @@ final class Lines
      * @psalm-mutation-free
      * @internal
      *
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     public static function of(
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
     ): self {
-        return new self($stream, $ready, $encoding);
+        return new self($stream, $wait, $encoding);
     }
 
     /**
@@ -55,7 +52,7 @@ final class Lines
     {
         return Lines\Lazy::of(
             $this->stream,
-            $this->ready,
+            $this->wait,
             $this->encoding,
         );
     }

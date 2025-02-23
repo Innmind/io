@@ -261,10 +261,8 @@ final class Client
 
     /**
      * @psalm-mutation-free
-     *
-     * @return callable(Stream): Maybe<Stream>
      */
-    private function readyToRead(): callable
+    private function readyToRead(): Stream\Wait|Stream\Wait\WithHeartbeat
     {
         $wait = Stream\Wait::of($this->watch);
         $send = $this->send(...);

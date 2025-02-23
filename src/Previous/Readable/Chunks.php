@@ -12,8 +12,7 @@ use Innmind\Immutable\{
 final class Chunks
 {
     private Stream $stream;
-    /** @var callable(Stream): Maybe<Stream> */
-    private $ready;
+    private Stream\Wait|Stream\Wait\WithHeartbeat $wait;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
     /** @var positive-int */
@@ -22,18 +21,17 @@ final class Chunks
     /**
      * @psalm-mutation-free
      *
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
      */
     private function __construct(
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
         int $size,
     ) {
         $this->stream = $stream;
-        $this->ready = $ready;
+        $this->wait = $wait;
         $this->encoding = $encoding;
         $this->size = $size;
     }
@@ -42,17 +40,16 @@ final class Chunks
      * @psalm-mutation-free
      * @internal
      *
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
      */
     public static function of(
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
         int $size,
     ): self {
-        return new self($stream, $ready, $encoding, $size);
+        return new self($stream, $wait, $encoding, $size);
     }
 
     /**
@@ -62,7 +59,7 @@ final class Chunks
     {
         return Chunks\Lazy::of(
             $this->stream,
-            $this->ready,
+            $this->wait,
             $this->encoding,
             $this->size,
         );

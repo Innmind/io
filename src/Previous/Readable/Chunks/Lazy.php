@@ -14,8 +14,7 @@ use Innmind\Immutable\{
 final class Lazy
 {
     private Stream $stream;
-    /** @var callable(Stream): Maybe<Stream> */
-    private $ready;
+    private Stream\Wait|Stream\Wait\WithHeartbeat $wait;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
     /** @var positive-int */
@@ -26,20 +25,19 @@ final class Lazy
     /**
      * @psalm-mutation-free
      *
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
      * @param callable(Stream): void $rewind
      */
     private function __construct(
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
         int $size,
         callable $rewind,
     ) {
         $this->stream = $stream;
-        $this->ready = $ready;
+        $this->wait = $wait;
         $this->encoding = $encoding;
         $this->size = $size;
         $this->rewind = $rewind;
@@ -49,17 +47,16 @@ final class Lazy
      * @psalm-mutation-free
      * @internal
      *
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      * @param positive-int $size
      */
     public static function of(
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
         int $size,
     ): self {
-        return new self($stream, $ready, $encoding, $size, static fn() => null);
+        return new self($stream, $wait, $encoding, $size, static fn() => null);
     }
 
     /**
@@ -69,7 +66,7 @@ final class Lazy
     {
         return new self(
             $this->stream,
-            $this->ready,
+            $this->wait,
             $this->encoding,
             $this->size,
             static fn(Stream $stream) => $stream->rewind()->match(
@@ -94,7 +91,7 @@ final class Lazy
                 // we yield an empty line when the read() call doesn't return
                 // anything otherwise it will fail to load empty streams or
                 // streams ending with the "end of line" character
-                yield ($this->ready)($this->stream)
+                yield ($this->wait)($this->stream)
                     ->flatMap(fn($stream) => $stream->read($this->size))
                     ->map(fn($chunk) => $this->encoding->match(
                         static fn($encoding) => $chunk->toEncoding($encoding),

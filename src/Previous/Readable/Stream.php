@@ -21,26 +21,21 @@ final class Stream
 {
     private LowLevelStream $stream;
     private Watch $watch;
-    /** @var callable(LowLevelStream): Maybe<LowLevelStream> */
-    private $ready;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
 
     /**
      * @psalm-mutation-free
      *
-     * @param callable(LowLevelStream): Maybe<LowLevelStream> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
         Watch $watch,
         LowLevelStream $stream,
-        callable $ready,
         Maybe $encoding,
     ) {
         $this->watch = $watch;
         $this->stream = $stream;
-        $this->ready = $ready;
         $this->encoding = $encoding;
     }
 
@@ -58,7 +53,6 @@ final class Stream
         return new self(
             $watch,
             $stream,
-            static fn(LowLevelStream $stream) => Maybe::just($stream),
             $encoding,
         );
     }
@@ -76,7 +70,6 @@ final class Stream
         return new self(
             $this->watch,
             $this->stream,
-            $this->ready,
             Maybe::just($encoding),
         );
     }
@@ -88,21 +81,9 @@ final class Stream
      */
     public function watch(): self
     {
-        $watch = $this->watch->waitForever();
-
         return new self(
-            $watch,
+            $this->watch->waitForever(),
             $this->stream,
-            static fn(LowLevelStream $stream) => $watch
-                ->forRead($stream)()
-                ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(
-                    static fn($toRead) => $toRead
-                        ->find(
-                            static fn($ready) => $ready === $stream,
-                        )
-                        ->map(static fn() => $stream),
-                ),
             $this->encoding,
         );
     }
@@ -112,21 +93,9 @@ final class Stream
      */
     public function timeoutAfter(Period $timeout): self
     {
-        $watch = $this->watch->timeoutAfter($timeout);
-
         return new self(
-            $watch,
+            $this->watch->timeoutAfter($timeout),
             $this->stream,
-            static fn(LowLevelStream $stream) => $watch
-                ->forRead($stream)()
-                ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(
-                    static fn($toRead) => $toRead
-                        ->find(
-                            static fn($ready) => $ready === $stream,
-                        )
-                        ->map(static fn() => $stream),
-                ),
             $this->encoding,
         );
     }
@@ -140,7 +109,7 @@ final class Stream
     {
         return Chunks::of(
             $this->stream,
-            $this->ready,
+            LowLevelStream\Wait::of($this->watch),
             $this->encoding,
             $size,
         );
@@ -153,7 +122,7 @@ final class Stream
     {
         return Lines::of(
             $this->stream,
-            $this->ready,
+            LowLevelStream\Wait::of($this->watch),
             $this->encoding,
         );
     }
@@ -171,7 +140,7 @@ final class Stream
         return Frames::of(
             $frame,
             $this->stream,
-            $this->ready,
+            LowLevelStream\Wait::of($this->watch),
             $this->encoding,
         );
     }

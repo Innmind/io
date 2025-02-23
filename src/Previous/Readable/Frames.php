@@ -20,8 +20,7 @@ final class Frames
     /** @var Frame<F> */
     private Frame $frame;
     private Stream $stream;
-    /** @var callable(Stream): Maybe<Stream> */
-    private $ready;
+    private Stream\Wait|Stream\Wait\WithHeartbeat $wait;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
 
@@ -29,18 +28,17 @@ final class Frames
      * @psalm-mutation-free
      *
      * @param Frame<F> $frame
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      */
     private function __construct(
         Frame $frame,
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
     ) {
         $this->frame = $frame;
         $this->stream = $stream;
-        $this->ready = $ready;
+        $this->wait = $wait;
         $this->encoding = $encoding;
     }
 
@@ -50,7 +48,6 @@ final class Frames
      * @template A
      *
      * @param Frame<A> $frame
-     * @param callable(Stream): Maybe<Stream> $ready
      * @param Maybe<Str\Encoding> $encoding
      *
      * @return self<A>
@@ -58,10 +55,10 @@ final class Frames
     public static function of(
         Frame $frame,
         Stream $stream,
-        callable $ready,
+        Stream\Wait|Stream\Wait\WithHeartbeat $wait,
         Maybe $encoding,
     ): self {
-        return new self($frame, $stream, $ready, $encoding);
+        return new self($frame, $stream, $wait, $encoding);
     }
 
     /**
@@ -73,7 +70,7 @@ final class Frames
          * @psalm-suppress ArgumentTypeCoercion
          * @var callable(?positive-int): Maybe<Str>
          */
-        $read = fn(?int $size): Maybe => ($this->ready)($this->stream)
+        $read = fn(?int $size): Maybe => ($this->wait)($this->stream)
             ->flatMap(static fn($stream) => $stream->read($size))
             ->otherwise(fn() => Maybe::just(Str::of(''))->filter(
                 fn() => $this->stream->end(),
@@ -82,7 +79,7 @@ final class Frames
                 static fn($encoding) => $chunk->toEncoding($encoding),
                 static fn() => $chunk,
             ));
-        $readLine = fn(): Maybe => ($this->ready)($this->stream)
+        $readLine = fn(): Maybe => ($this->wait)($this->stream)
             ->flatMap(static fn($stream) => $stream->readLine())
             ->otherwise(fn() => Maybe::just(Str::of(''))->filter(
                 fn() => $this->stream->end(),
