@@ -54,10 +54,12 @@ return static function() {
     yield proof(
         'Frame::chunk()',
         given(
-            Set\Integers::above(1),
-            Set\Unicode::strings()->map(Str::of(...)),
+            Set\Unicode::strings()
+                ->map(Str::of(...))
+                ->map(static fn($str) => $str->toEncoding(Str\Encoding::ascii)),
         ),
-        static function($assert, $size, $string) {
+        static function($assert, $string) {
+            $size = $string->length();
             $frame = Frame::chunk($size);
 
             $assert->same(

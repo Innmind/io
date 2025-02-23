@@ -30,10 +30,11 @@ final class Chunk implements Implementation
         callable $read,
         callable $readLine,
     ): Maybe {
-        // todo apply a filter on the read chunk to make sure it's of the
-        // expected size. But this needs to make sure the chunk encoding and
-        // the size are compatible
-        return $read($this->size);
+        $size = $this->size;
+
+        return $read($size)->filter(
+            static fn($chunk) => $chunk->length() === $size,
+        );
     }
 
     /**

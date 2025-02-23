@@ -28,14 +28,14 @@ class FunctionalTest extends TestCase
     {
         $this
             ->forAll(Set\Elements::of(
-                [1, ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', '']],
-                [2, ['fo', 'ob', 'ar', 'ba', 'z']],
-                [3, ['foo', 'bar', 'baz', '']],
+                [1, ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', 'o', 'o', 'f']],
+                [2, ['fo', 'ob', 'ar', 'ba', 'zo', 'of']],
+                [3, ['foo', 'bar', 'baz', 'oof']],
             ))
             ->then(function($in) {
                 [$size, $expected] = $in;
                 $tmp = \tmpfile();
-                \fwrite($tmp, 'foobarbaz');
+                \fwrite($tmp, 'foobarbazoof');
 
                 $chunks = IO::fromAmbientAuthority()
                     ->streams()
@@ -46,6 +46,7 @@ class FunctionalTest extends TestCase
                     ->lazy()
                     ->rewindable()
                     ->sequence()
+                    ->take(\count($expected))
                     ->map(static fn($chunk) => $chunk->toString())
                     ->toList();
 
@@ -68,12 +69,12 @@ class FunctionalTest extends TestCase
             ->lazy()
             ->rewindable()
             ->sequence()
+            ->take(4)
             ->map(static fn($chunk) => $chunk->encoding())
             ->toList();
 
         $this->assertSame(
             [
-                Str\Encoding::ascii,
                 Str\Encoding::ascii,
                 Str\Encoding::ascii,
                 Str\Encoding::ascii,
@@ -88,11 +89,10 @@ class FunctionalTest extends TestCase
         $this
             ->forAll(
                 Set\Elements::of(
-                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', '']],
-                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba', 'z']],
-                    [3, 'foobarbaz', ['foo', 'bar', 'baz', '']],
-                    [1, '', ['']],
-                    [1, "\n", ["\n", '']],
+                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z']],
+                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba']],
+                    [3, 'foobarbaz', ['foo', 'bar', 'baz']],
+                    [1, "\n", ["\n"]],
                 ),
                 Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
@@ -111,7 +111,8 @@ class FunctionalTest extends TestCase
                     ->frames(Frame::chunk($size))
                     ->lazy()
                     ->rewindable()
-                    ->sequence();
+                    ->sequence()
+                    ->take(\count($expected));
 
                 $values = $chunks
                     ->map(static fn($chunk) => $chunk->toString())
@@ -131,11 +132,10 @@ class FunctionalTest extends TestCase
         $this
             ->forAll(
                 Set\Elements::of(
-                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', '']],
-                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba', 'z']],
-                    [3, 'foobarbaz', ['foo', 'bar', 'baz', '']],
-                    [1, '', ['']],
-                    [1, "\n", ["\n", '']],
+                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z']],
+                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba']],
+                    [3, 'foobarbaz', ['foo', 'bar', 'baz']],
+                    [1, "\n", ["\n"]],
                 ),
                 Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
@@ -154,7 +154,8 @@ class FunctionalTest extends TestCase
                     ->frames(Frame::chunk($size))
                     ->lazy()
                     ->rewindable()
-                    ->sequence();
+                    ->sequence()
+                    ->take(\count($expected));
 
                 $values = $chunks
                     ->map(static fn($chunk) => $chunk->toString())
@@ -554,10 +555,7 @@ class FunctionalTest extends TestCase
 
                 return Sequence::of();
             })
-            // todo remove the filter if it's implemented in Frame\Chunk
-            ->frames(Frame::chunk(1)->filter(
-                static fn($chunk) => $chunk->length() === 1,
-            ))
+            ->frames(Frame::chunk(1))
             ->one()
             ->match(
                 static fn() => true,
