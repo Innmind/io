@@ -50,7 +50,6 @@ final class Files
     public function temporary(Sequence $chunks): Maybe
     {
         $capabilities = $this->capabilities;
-        $io = $this->io->readable();
 
         return $this
             ->capabilities

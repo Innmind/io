@@ -28,14 +28,6 @@ final class IO
     /**
      * @psalm-mutation-free
      */
-    public function readable(): Readable
-    {
-        return Readable::of($this->watch);
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
     public function sockets(): Sockets
     {
         return Sockets::of($this->watch);
