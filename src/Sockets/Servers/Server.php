@@ -7,6 +7,7 @@ use Innmind\IO\{
     Sockets\Servers\Server\Pool,
     Sockets\Clients\Client,
     Previous\Sockets\Server as Previous,
+    Internal\Watch,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
@@ -17,6 +18,7 @@ use Innmind\Immutable\{
 final class Server
 {
     private function __construct(
+        private Watch $watch,
         private Previous $socket,
     ) {
     }
@@ -24,9 +26,9 @@ final class Server
     /**
      * @internal
      */
-    public static function of(Previous $socket): self
+    public static function of(Watch $watch, Previous $socket): self
     {
-        return new self($socket);
+        return new self($watch, $socket);
     }
 
     /**
@@ -43,6 +45,7 @@ final class Server
     public function watch(): self
     {
         return new self(
+            $this->watch->waitForever(),
             $this->socket->watch(),
         );
     }
@@ -53,6 +56,7 @@ final class Server
     public function timeoutAfter(Period $period): self
     {
         return new self(
+            $this->watch->timeoutAfter($period),
             $this->socket->timeoutAfter($period),
         );
     }
@@ -70,7 +74,10 @@ final class Server
 
     public function pool(self $server): Pool
     {
-        return Pool::of($this->socket->with($server->socket));
+        return Pool::of($this->watch->forRead(
+            $this->socket->unwrap(),
+            $server->socket->unwrap(),
+        ));
     }
 
     /**

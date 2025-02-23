@@ -41,7 +41,10 @@ final class Servers
             ->servers()
             ->internet($transport, $ip, $port)
             ->map($this->io->sockets()->servers()->wrap(...))
-            ->map(Server::of(...));
+            ->map(fn($socket) => Server::of(
+                $this->capabilities->watch(),
+                $socket,
+            ));
     }
 
     /**
@@ -55,7 +58,10 @@ final class Servers
             ->servers()
             ->unix($address)
             ->map($this->io->sockets()->servers()->wrap(...))
-            ->map(Server::of(...));
+            ->map(fn($socket) => Server::of(
+                $this->capabilities->watch(),
+                $socket,
+            ));
     }
 
     /**
@@ -69,6 +75,9 @@ final class Servers
             ->servers()
             ->takeOver($address)
             ->map($this->io->sockets()->servers()->wrap(...))
-            ->map(Server::of(...));
+            ->map(fn($socket) => Server::of(
+                $this->capabilities->watch(),
+                $socket,
+            ));
     }
 }

@@ -6,23 +6,28 @@ namespace Innmind\IO\Sockets\Servers\Server;
 use Innmind\IO\{
     Sockets\Servers\Server,
     Sockets\Clients\Client,
-    Previous\Sockets\Server\Pool as Previous,
+    Previous\Sockets\Client as Previous,
+    Internal\Socket\Server as Socket,
+    Internal\Watch,
 };
-use Innmind\Immutable\Sequence;
+use Innmind\Immutable\{
+    Sequence,
+    Predicate\Instance,
+};
 
 final class Pool
 {
     private function __construct(
-        private Previous $pool,
+        private Watch $watch,
     ) {
     }
 
     /**
      * @internal
      */
-    public static function of(Previous $pool): self
+    public static function of(Watch $watch): self
     {
-        return new self($pool);
+        return new self($watch);
     }
 
     /**
@@ -31,7 +36,7 @@ final class Pool
     public function with(Server $server): self
     {
         // todo automatically determine the shortest timeout to watch for
-        return new self($this->pool->with($server->internal()));
+        return new self($this->watch->forRead($server->internal()->unwrap()));
     }
 
     /**
@@ -39,10 +44,25 @@ final class Pool
      */
     public function accept(): Sequence
     {
-        return $this
-            ->pool
-            ->watch() // todo remove when shortest timeout is automatically determined
-            ->accept()
+        // todo remove when shortest timeout is automatically determined
+        $watch = $this->watch->waitForever();
+
+        return $watch()
+            ->toSequence()
+            ->flatMap(
+                static fn($ready) => $ready
+                    ->toRead()
+                    ->keep(Instance::of(Socket::class)),
+            )
+            ->flatMap(
+                static fn($socket) => $socket
+                    ->accept()
+                    ->toSequence(),
+            )
+            ->map(fn($client) => Previous::of(
+                $this->watch->clear(),
+                $client,
+            ))
             ->map(Client::of(...));
     }
 }
