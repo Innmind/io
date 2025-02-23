@@ -125,7 +125,7 @@ final class Lazy
             $wait = Stream\Wait::of($watch, $stream);
             $wait = $heartbeat->match(
                 static fn($provide) => $wait->withHeartbeat(
-                    $write->sink(...),
+                    $write,
                     $provide,
                     $abort,
                 ),

@@ -81,7 +81,7 @@ final class Frames
         $wait = Stream\Wait::of($this->watch, $stream);
         $wait = $this->heartbeat->match(
             fn($provide) => $wait->withHeartbeat(
-                $this->write->sink(...),
+                $this->write,
                 $provide,
                 $this->abort,
             ),

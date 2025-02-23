@@ -3,15 +3,15 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream\Wait;
 
-use Innmind\IO\Internal\{
-    Stream,
-    Stream\Wait,
+use Innmind\IO\{
+    Internal\Stream,
+    Internal\Stream\Wait,
+    Streams\Stream\Write,
 };
 use Innmind\Immutable\{
     Str,
     Sequence,
     Maybe,
-    SideEffect,
 };
 
 /**
@@ -22,14 +22,13 @@ final class WithHeartbeat
     /**
      * @psalm-mutation-free
      *
-     * @param callable(Sequence<Str>): Maybe<SideEffect> $send
      * @param callable(): Sequence<Str> $provide
      * @param callable(): bool $abort
      */
     private function __construct(
         private Wait $wait,
         private Stream $stream,
-        private $send,
+        private Write $write,
         private $provide,
         private $abort,
     ) {
@@ -51,7 +50,7 @@ final class WithHeartbeat
                 return $ready;
             }
 
-            $sent = ($this->send)(($this->provide)())->match(
+            $sent = $this->write->sink(($this->provide)())->match(
                 static fn() => true,
                 static fn() => false,
             );
@@ -69,17 +68,16 @@ final class WithHeartbeat
     /**
      * @psalm-mutation-free
      *
-     * @param callable(Sequence<Str>): Maybe<SideEffect> $send
      * @param callable(): Sequence<Str> $provide
      * @param callable(): bool $abort
      */
     public static function of(
         Wait $wait,
         Stream $stream,
-        callable $send,
+        Write $write,
         callable $provide,
         callable $abort,
     ): self {
-        return new self($wait, $stream, $send, $provide, $abort);
+        return new self($wait, $stream, $write, $provide, $abort);
     }
 }

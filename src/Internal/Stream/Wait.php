@@ -3,15 +3,15 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Stream;
 
-use Innmind\IO\Internal\{
-    Stream,
-    Watch,
+use Innmind\IO\{
+    Internal\Stream,
+    Internal\Watch,
+    Streams\Stream\Write,
 };
 use Innmind\Immutable\{
     Str,
     Sequence,
     Maybe,
-    SideEffect,
     Predicate\Instance,
 };
 
@@ -45,19 +45,18 @@ final class Wait
     /**
      * @psalm-mutation-free
      *
-     * @param callable(Sequence<Str>): Maybe<SideEffect> $send
      * @param callable(): Sequence<Str> $provide
      * @param callable(): bool $abort
      */
     public function withHeartbeat(
-        callable $send,
+        Write $write,
         callable $provide,
         callable $abort,
     ): Wait\WithHeartbeat {
         return Wait\WithHeartbeat::of(
             $this,
             $this->stream,
-            $send,
+            $write,
             $provide,
             $abort,
         );
