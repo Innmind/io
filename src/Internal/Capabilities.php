@@ -29,8 +29,8 @@ final class Capabilities
         return Capabilities\Sockets::of();
     }
 
-    public function watch(): Capabilities\Watch
+    public function watch(): Watch
     {
-        return Capabilities\Watch::of();
+        return Watch\Select::new();
     }
 }

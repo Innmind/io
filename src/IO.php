@@ -21,7 +21,7 @@ final class IO
         $capabilities = Capabilities::fromAmbientAuthority();
 
         return new self(
-            Previous::of($capabilities->watch()->new()),
+            Previous::of($capabilities->watch()),
             $capabilities,
         );
     }
