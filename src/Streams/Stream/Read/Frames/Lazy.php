@@ -74,20 +74,14 @@ final class Lazy
                 return;
             }
 
-            // todo improve the handling of non blobking
-            $resource = $stream->unwrap()->resource();
-
-            if ($blocking) {
-                $return = \stream_set_blocking($resource, true);
-            } else {
-                $return = \stream_set_blocking($resource, false);
-                $_ = \stream_set_write_buffer($resource, 0);
-                $_ = \stream_set_read_buffer($resource, 0);
-            }
-
-            if (!$return) {
-                throw new \RuntimeException('Failed to set blocking mode');
-            }
+            $result = match ($blocking) {
+                true => $stream->unwrap()->blocking(),
+                false => $stream->unwrap()->nonBlocking(),
+            };
+            $result->match(
+                static fn() => null,
+                static fn() => throw new \RuntimeException('Failed to set blocking mode'),
+            );
 
             if ($rewindable) {
                 $stream->unwrap()->rewind()->match(
