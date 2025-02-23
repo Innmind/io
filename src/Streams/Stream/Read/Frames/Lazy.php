@@ -6,7 +6,7 @@ namespace Innmind\IO\Streams\Stream\Read\Frames;
 use Innmind\IO\{
     Streams\Stream\Write,
     Frame,
-    Previous\Exception\FailedToLoadStream,
+    Exception\FailedToLoadStream,
     Internal\Stream,
     Internal\Watch,
 };

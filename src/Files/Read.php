@@ -6,9 +6,9 @@ namespace Innmind\IO\Files;
 use Innmind\IO\{
     Stream\Size,
     Internal,
+    Exception\FailedToLoadStream,
     Internal\Capabilities,
     Internal\Watch,
-    Previous\Exception\FailedToLoadStream,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
