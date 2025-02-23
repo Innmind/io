@@ -91,7 +91,6 @@ final class Write
                 Sequence::of($stream),
             )),
         };
-        $watch = $this->watch;
         $abort = $this->abort;
 
         return $chunks
