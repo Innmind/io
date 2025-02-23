@@ -8,7 +8,6 @@ use Innmind\IO\{
     Streams\Stream\Write,
     Internal,
     Internal\Capabilities,
-    Previous\IO as Previous,
 };
 use Innmind\Immutable\{
     Maybe,
@@ -18,7 +17,6 @@ use Innmind\Immutable\{
 final class Stream
 {
     private function __construct(
-        private Previous $io,
         private Capabilities $capabilities,
         private Internal\Stream $stream,
     ) {
@@ -28,18 +26,17 @@ final class Stream
      * @internal
      */
     public static function of(
-        Previous $io,
         Capabilities $capabilities,
         Internal\Stream $stream,
     ): self {
-        return new self($io, $capabilities, $stream);
+        return new self($capabilities, $stream);
     }
 
     public function read(): Read
     {
         return Read::of(
             $this->capabilities,
-            $this->io->readable()->wrap($this->stream),
+            $this->stream,
         );
     }
 

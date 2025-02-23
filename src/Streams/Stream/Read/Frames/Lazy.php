@@ -5,9 +5,15 @@ namespace Innmind\IO\Streams\Stream\Read\Frames;
 
 use Innmind\IO\{
     Frame,
-    Previous\Readable,
+    Previous\Exception\FailedToLoadStream,
+    Internal\Stream,
+    Internal\Watch,
 };
-use Innmind\Immutable\Sequence;
+use Innmind\Immutable\{
+    Str,
+    Sequence,
+    Maybe,
+};
 
 /**
  * @template T
@@ -15,10 +21,13 @@ use Innmind\Immutable\Sequence;
 final class Lazy
 {
     /**
+     * @param Maybe<Str\Encoding> $encoding
      * @param Frame<T> $frame
      */
     private function __construct(
-        private Readable\Stream $stream,
+        private Stream $stream,
+        private Watch $watch,
+        private Maybe $encoding,
         private Frame $frame,
         private bool $blocking,
         private bool $rewindable,
@@ -29,16 +38,19 @@ final class Lazy
      * @internal
      * @template A
      *
+     * @param Maybe<Str\Encoding> $encoding
      * @param Frame<A> $frame
      *
      * @return self<A>
      */
     public static function of(
-        Readable\Stream $stream,
+        Stream $stream,
+        Watch $watch,
+        Maybe $encoding,
         Frame $frame,
         bool $blocking,
     ): self {
-        return new self($stream, $frame, $blocking, false);
+        return new self($stream, $watch, $encoding, $frame, $blocking, false);
     }
 
     /**
@@ -48,6 +60,8 @@ final class Lazy
     {
         return new self(
             $this->stream,
+            $this->watch,
+            $this->encoding,
             $this->frame,
             $this->blocking,
             true,
@@ -60,23 +74,51 @@ final class Lazy
     public function sequence(): Sequence
     {
         $stream = $this->stream;
+        $watch = $this->watch;
+        $encoding = $this->encoding;
         $frame = $this->frame;
         $blocking = $this->blocking;
         $rewindable = $this->rewindable;
 
         return Sequence::lazy(static function() use (
             $stream,
+            $watch,
+            $encoding,
             $frame,
             $blocking,
             $rewindable,
         ) {
-            if ($stream->unwrap()->closed()) {
+            if ($stream->closed()) {
                 return;
             }
 
+            $wait = Stream\Wait::of($watch, $stream);
+            /**
+             * @psalm-suppress ArgumentTypeCoercion
+             * @var callable(?positive-int): Maybe<Str>
+             */
+            $read = static fn(?int $size): Maybe => $wait()
+                ->flatMap(static fn($stream) => $stream->read($size))
+                ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
+                    static fn() => $stream->end(),
+                ))
+                ->map(static fn($chunk) => $encoding->match(
+                    static fn($encoding) => $chunk->toEncoding($encoding),
+                    static fn() => $chunk,
+                ));
+            $readLine = static fn(): Maybe => $wait()
+                ->flatMap(static fn($stream) => $stream->readLine())
+                ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
+                    static fn() => $stream->end(),
+                ))
+                ->map(static fn($chunk) => $encoding->match(
+                    static fn($encoding) => $chunk->toEncoding($encoding),
+                    static fn() => $chunk,
+                ));
+
             $result = match ($blocking) {
-                true => $stream->unwrap()->blocking(),
-                false => $stream->unwrap()->nonBlocking(),
+                true => $stream->blocking(),
+                false => $stream->nonBlocking(),
             };
             $result->match(
                 static fn() => null,
@@ -84,15 +126,18 @@ final class Lazy
             );
 
             if ($rewindable) {
-                $stream->unwrap()->rewind()->match(
+                $stream->rewind()->match(
                     static fn() => null,
-                    static fn() => throw new \RuntimeException('Failed to read stream'),
+                    static fn() => throw new FailedToLoadStream,
                 );
             }
 
-            yield $stream
-                ->frames($frame)
-                ->sequence();
-        })->flatMap(static fn($frames) => $frames);
+            while (!$stream->end()) {
+                yield $frame($read, $readLine)->match(
+                    static fn($frame): mixed => $frame,
+                    static fn() => throw new FailedToLoadStream,
+                );
+            }
+        });
     }
 }

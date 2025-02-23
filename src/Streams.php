@@ -5,14 +5,12 @@ namespace Innmind\IO;
 
 use Innmind\IO\{
     Streams\Stream,
-    Previous\IO as Previous,
     Internal\Capabilities,
 };
 
 final class Streams
 {
     private function __construct(
-        private Previous $io,
         private Capabilities $capabilities,
     ) {
     }
@@ -20,9 +18,9 @@ final class Streams
     /**
      * @internal
      */
-    public static function of(Previous $io, Capabilities $capabilities): self
+    public static function of(Capabilities $capabilities): self
     {
-        return new self($io, $capabilities);
+        return new self($capabilities);
     }
 
     /**
@@ -31,7 +29,6 @@ final class Streams
     public function acquire($resource): Stream
     {
         return Stream::of(
-            $this->io,
             $this->capabilities,
             $this
                 ->capabilities

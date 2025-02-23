@@ -7,18 +7,26 @@ use Innmind\IO\{
     Streams\Stream\Read\Frames,
     Streams\Stream\Read\Pool,
     Frame,
-    Previous\Readable,
-    Internal,
     Internal\Capabilities,
+    Internal\Stream,
+    Internal\Watch,
 };
 use Innmind\TimeContinuum\Period;
-use Innmind\Immutable\Str;
+use Innmind\Immutable\{
+    Str,
+    Maybe,
+};
 
 final class Read
 {
+    /**
+     * @param Maybe<Str\Encoding> $encoding
+     */
     private function __construct(
         private Capabilities $capabilities,
-        private Readable\Stream $stream,
+        private Stream $stream,
+        private Watch $watch,
+        private Maybe $encoding,
         private bool $blocking,
     ) {
     }
@@ -28,17 +36,26 @@ final class Read
      */
     public static function of(
         Capabilities $capabilities,
-        Readable\Stream $stream,
+        Stream $stream,
     ): self {
-        return new self($capabilities, $stream, true);
+        /** @var Maybe<Str\Encoding> */
+        $encoding = Maybe::nothing();
+
+        return new self(
+            $capabilities,
+            $stream,
+            $capabilities->watch(),
+            $encoding,
+            true,
+        );
     }
 
     /**
      * @internal
      */
-    public function internal(): Internal\Stream
+    public function internal(): Stream
     {
-        return $this->stream->unwrap();
+        return $this->stream;
     }
 
     /**
@@ -49,6 +66,8 @@ final class Read
         return new self(
             $this->capabilities,
             $this->stream,
+            $this->watch,
+            $this->encoding,
             false,
         );
     }
@@ -60,7 +79,9 @@ final class Read
     {
         return new self(
             $this->capabilities,
-            $this->stream->toEncoding($encoding),
+            $this->stream,
+            $this->watch,
+            Maybe::just($encoding),
             $this->blocking,
         );
     }
@@ -72,7 +93,9 @@ final class Read
     {
         return new self(
             $this->capabilities,
-            $this->stream->watch(),
+            $this->stream,
+            $this->watch->waitForever(),
+            $this->encoding,
             $this->blocking,
         );
     }
@@ -84,7 +107,9 @@ final class Read
     {
         return new self(
             $this->capabilities,
-            $this->stream->timeoutAfter($period),
+            $this->stream,
+            $this->watch->timeoutAfter($period),
+            $this->encoding,
             $this->blocking,
         );
     }
@@ -133,6 +158,8 @@ final class Read
     {
         return Frames::of(
             $this->stream,
+            $this->watch,
+            $this->encoding,
             $frame,
             $this->blocking,
         );

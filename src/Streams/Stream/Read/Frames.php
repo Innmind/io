@@ -6,9 +6,13 @@ namespace Innmind\IO\Streams\Stream\Read;
 use Innmind\IO\{
     Streams\Stream\Read\Frames\Lazy,
     Frame,
-    Previous\Readable,
+    Internal\Stream,
+    Internal\Watch,
 };
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\{
+    Str,
+    Maybe,
+};
 
 /**
  * @template T
@@ -16,10 +20,13 @@ use Innmind\Immutable\Maybe;
 final class Frames
 {
     /**
+     * @param Maybe<Str\Encoding> $encoding
      * @param Frame<T> $frame
      */
     private function __construct(
-        private Readable\Stream $stream,
+        private Stream $stream,
+        private Watch $watch,
+        private Maybe $encoding,
         private Frame $frame,
         private bool $blocking,
     ) {
@@ -29,16 +36,19 @@ final class Frames
      * @internal
      * @template A
      *
+     * @param Maybe<Str\Encoding> $encoding
      * @param Frame<A> $frame
      *
      * @return self<A>
      */
     public static function of(
-        Readable\Stream $stream,
+        Stream $stream,
+        Watch $watch,
+        Maybe $encoding,
         Frame $frame,
         bool $blocking,
     ): self {
-        return new self($stream, $frame, $blocking);
+        return new self($stream, $watch, $encoding, $frame, $blocking);
     }
 
     /**
@@ -46,11 +56,48 @@ final class Frames
      */
     public function one(): Maybe
     {
-        // todo handle non blocking
-        return $this
-            ->stream
-            ->frames($this->frame)
-            ->one();
+        $stream = $this->stream;
+        $wait = Stream\Wait::of($this->watch, $stream);
+        $encoding = $this->encoding;
+
+        $result = match ($this->blocking) {
+            true => $stream->blocking(),
+            false => $stream->nonBlocking(),
+        };
+        $switched = $result->match(
+            static fn() => true,
+            static fn() => false,
+        );
+
+        if (!$switched) {
+            /** @var Maybe<T> */
+            return Maybe::nothing();
+        }
+
+        /**
+         * @psalm-suppress ArgumentTypeCoercion
+         * @var callable(?positive-int): Maybe<Str>
+         */
+        $read = static fn(?int $size): Maybe => $wait()
+            ->flatMap(static fn($stream) => $stream->read($size))
+            ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
+                static fn() => $stream->end(),
+            ))
+            ->map(static fn($chunk) => $encoding->match(
+                static fn($encoding) => $chunk->toEncoding($encoding),
+                static fn() => $chunk,
+            ));
+        $readLine = static fn(): Maybe => $wait()
+            ->flatMap(static fn($stream) => $stream->readLine())
+            ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
+                static fn() => $stream->end(),
+            ))
+            ->map(static fn($chunk) => $encoding->match(
+                static fn($encoding) => $chunk->toEncoding($encoding),
+                static fn() => $chunk,
+            ));
+
+        return ($this->frame)($read, $readLine);
     }
 
     /**
@@ -60,6 +107,8 @@ final class Frames
     {
         return Lazy::of(
             $this->stream,
+            $this->watch,
+            $this->encoding,
             $this->frame,
             $this->blocking,
         );
