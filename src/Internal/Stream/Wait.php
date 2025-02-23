@@ -28,14 +28,14 @@ final class Wait
     /**
      * @return Maybe<Stream>
      */
-    public function __invoke(Stream $socket): Maybe
+    public function __invoke(Stream $stream): Maybe
     {
         return $this
             ->watch
-            ->forRead($socket)()
+            ->forRead($stream)()
             ->map(static fn($ready) => $ready->toRead())
             ->flatMap(static fn($toRead) => $toRead->find(
-                static fn($ready) => $ready === $socket,
+                static fn($ready) => $ready === $stream,
             ))
             ->keep(Instance::of(Stream::class));
     }

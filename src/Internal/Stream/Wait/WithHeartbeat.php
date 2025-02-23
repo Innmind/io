@@ -37,10 +37,10 @@ final class WithHeartbeat
     /**
      * @return Maybe<Stream>
      */
-    public function __invoke(Stream $socket): Maybe
+    public function __invoke(Stream $stream): Maybe
     {
         do {
-            $ready = ($this->wait)($socket);
+            $ready = ($this->wait)($stream);
             $socketReadable = $ready->match(
                 static fn() => true,
                 static fn() => false,
@@ -59,7 +59,7 @@ final class WithHeartbeat
                 /** @var Maybe<Stream> */
                 return Maybe::nothing();
             }
-        } while (!($this->abort)() && !$socket->closed());
+        } while (!($this->abort)() && !$stream->closed());
 
         /** @var Maybe<Stream> */
         return Maybe::nothing();
