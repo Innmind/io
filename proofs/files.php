@@ -240,6 +240,39 @@ return static function() {
     );
 
     yield proof(
+        'IO::files()->write()->watch()->sink()',
+        given(
+            $strings,
+            Set\Elements::of(...Str\Encoding::cases()),
+        ),
+        static function($assert, $chunks, $encoding) {
+            $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
+
+            $sideEffect = IO::fromAmbientAuthority()
+                ->files()
+                ->write(Path::of($tmp))
+                ->watch()
+                ->sink(
+                    Sequence::of(...$chunks)
+                        ->map(Str::of(...))
+                        ->map(static fn($chunk) => $chunk->toEncoding($encoding)),
+                )
+                ->match(
+                    static fn($sideEffect) => $sideEffect,
+                    static fn() => null,
+                );
+
+            $assert
+                ->object($sideEffect)
+                ->instance(SideEffect::class);
+            $assert->same(
+                \implode('', $chunks),
+                \file_get_contents($tmp),
+            );
+        },
+    );
+
+    yield proof(
         'IO::files()->temporary()',
         given($strings),
         static function($assert, $chunks) {

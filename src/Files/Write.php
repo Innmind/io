@@ -6,6 +6,8 @@ namespace Innmind\IO\Files;
 use Innmind\IO\{
     Internal,
     Internal\Capabilities,
+    Internal\Watch,
+    Internal\Watch\Ready,
 };
 use Innmind\Url\Path;
 use Innmind\Validation\Is;
@@ -22,8 +24,10 @@ final class Write
      * @param \Closure(): Internal\Stream $load
      */
     private function __construct(
+        private Watch $watch,
         private \Closure $load,
         private bool $autoClose,
+        private bool $doWatch,
     ) {
     }
 
@@ -33,6 +37,7 @@ final class Write
     public static function of(Capabilities $capabilities, Path $path): self
     {
         return new self(
+            $capabilities->watch(),
             static fn() => $capabilities
                 ->files()
                 ->write($path)
@@ -41,15 +46,23 @@ final class Write
                     static fn() => throw new \RuntimeException('Failed to open file'),
                 ),
             true,
+            false,
         );
     }
 
     /**
      * @internal
      */
-    public static function temporary(Internal\Stream $stream): self
-    {
-        return new self(static fn() => $stream, false);
+    public static function temporary(
+        Capabilities $capabilities,
+        Internal\Stream $stream,
+    ): self {
+        return new self(
+            $capabilities->watch(),
+            static fn() => $stream,
+            false,
+            false,
+        );
     }
 
     /**
@@ -62,8 +75,12 @@ final class Write
      */
     public function watch(): self
     {
-        // todo
-        return $this;
+        return new self(
+            $this->watch,
+            $this->load,
+            $this->autoClose,
+            true,
+        );
     }
 
     /**
@@ -75,14 +92,28 @@ final class Write
     {
         $stream = ($this->load)();
         $autoClose = $this->autoClose;
+        $watch = match ($this->doWatch) {
+            true => $this->watch->forWrite($stream),
+            false => static fn() => Maybe::just(new Ready(
+                Sequence::of(),
+                Sequence::of($stream),
+            )),
+        };
 
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
             ->sink(new SideEffect)
             ->maybe(
-                static fn($_, $chunk) => $stream
-                    ->write($chunk)
-                    ->maybe(),
+                static fn($_, $chunk) => $watch()
+                    ->map(static fn($ready) => $ready->toWrite())
+                    ->flatMap(static fn($toWrite) => $toWrite->find(
+                        static fn($ready) => $ready === $stream,
+                    ))
+                    ->flatMap(
+                        static fn($stream) => $stream
+                            ->write($chunk)
+                            ->maybe(),
+                    ),
             )
             ->flatMap(static fn($sideEffect) => match ($autoClose) {
                 true => $stream->close()->maybe(),

@@ -54,7 +54,7 @@ final class Files
             ->files()
             ->temporary()
             ->flatMap(
-                static fn($tmp) => Write::temporary($tmp)
+                static fn($tmp) => Write::temporary($capabilities, $tmp)
                     ->sink($chunks)
                     ->map(static fn() => Read::temporary($capabilities, $tmp)),
             );
