@@ -34,7 +34,7 @@ final class Files
 
     public function read(Path $path): Read
     {
-        return Read::of($this->io, $this->capabilities, $path);
+        return Read::of($this->capabilities, $path);
     }
 
     public function write(Path $path): Write
@@ -49,6 +49,7 @@ final class Files
      */
     public function temporary(Sequence $chunks): Maybe
     {
+        $capabilities = $this->capabilities;
         $io = $this->io->readable();
 
         return $this
@@ -58,7 +59,7 @@ final class Files
             ->flatMap(
                 static fn($tmp) => Write::temporary($tmp)
                     ->sink($chunks)
-                    ->map(static fn() => Read::temporary($io, $tmp)),
+                    ->map(static fn() => Read::temporary($capabilities, $tmp)),
             );
     }
 }
