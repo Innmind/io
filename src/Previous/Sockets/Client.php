@@ -28,10 +28,6 @@ final class Client
 {
     private Stream $socket;
     private Watch $watch;
-    /** @var callable(Stream): Maybe<Stream> */
-    private $readyToRead;
-    /** @var callable(Stream): Maybe<Stream> */
-    private $readyToWrite;
     /** @var Maybe<Str\Encoding> */
     private Maybe $encoding;
     /** @var Maybe<callable(): Sequence<Str>> */
@@ -42,8 +38,6 @@ final class Client
     /**
      * @psalm-mutation-free
      *
-     * @param callable(Stream): Maybe<Stream> $readyToRead
-     * @param callable(Stream): Maybe<Stream> $readyToWrite
      * @param Maybe<Str\Encoding> $encoding
      * @param Maybe<callable(): Sequence<Str>> $heartbeat
      * @param callable(): bool $abort
@@ -51,16 +45,12 @@ final class Client
     private function __construct(
         Watch $watch,
         Stream $socket,
-        callable $readyToRead,
-        callable $readyToWrite,
         Maybe $encoding,
         Maybe $heartbeat,
         callable $abort,
     ) {
         $this->watch = $watch;
         $this->socket = $socket;
-        $this->readyToRead = $readyToRead;
-        $this->readyToWrite = $readyToWrite;
         $this->encoding = $encoding;
         $this->heartbeat = $heartbeat;
         $this->abort = $abort;
@@ -82,8 +72,6 @@ final class Client
         return new self(
             $watch,
             $socket,
-            static fn(Stream $socket) => Maybe::just($socket),
-            static fn(Stream $socket) => Maybe::just($socket),
             $encoding,
             $heartbeat,
             static fn() => false,
@@ -103,8 +91,6 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            $this->readyToRead,
-            $this->readyToWrite,
             Maybe::just($encoding),
             $this->heartbeat,
             $this->abort,
@@ -118,25 +104,9 @@ final class Client
      */
     public function watch(): self
     {
-        $watch = $this->watch->waitForever();
-
         return new self(
-            $watch,
+            $this->watch->waitForever(),
             $this->socket,
-            static fn(Stream $socket) => $watch
-                ->forRead($socket)()
-                ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(static fn($toRead) => $toRead->find(
-                    static fn($ready) => $ready === $socket,
-                ))
-                ->keep(Instance::of(Stream::class)),
-            static fn(Stream $socket) => $watch
-                ->forWrite($socket)()
-                ->map(static fn($ready) => $ready->toWrite())
-                ->flatMap(static fn($toWrite) => $toWrite->find(
-                    static fn($ready) => $ready === $socket,
-                ))
-                ->keep(Instance::of(Stream::class)),
             $this->encoding,
             $this->heartbeat,
             $this->abort,
@@ -148,25 +118,9 @@ final class Client
      */
     public function timeoutAfter(Period $timeout): self
     {
-        $watch = $this->watch->timeoutAfter($timeout);
-
         return new self(
-            $watch,
+            $this->watch->timeoutAfter($timeout),
             $this->socket,
-            static fn(Stream $socket) => $watch
-                ->forRead($socket)()
-                ->map(static fn($ready) => $ready->toRead())
-                ->flatMap(static fn($toRead) => $toRead->find(
-                    static fn($ready) => $ready === $socket,
-                ))
-                ->keep(Instance::of(Stream::class)),
-            static fn(Stream $socket) => $watch
-                ->forWrite($socket)()
-                ->map(static fn($ready) => $ready->toWrite())
-                ->flatMap(static fn($toWrite) => $toWrite->find(
-                    static fn($ready) => $ready === $socket,
-                ))
-                ->keep(Instance::of(Stream::class)),
             $this->encoding,
             $this->heartbeat,
             $this->abort,
@@ -187,8 +141,6 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            $this->readyToRead,
-            $this->readyToWrite,
             $this->encoding,
             Maybe::just($provide),
             $this->abort,
@@ -211,8 +163,6 @@ final class Client
         return new self(
             $this->watch,
             $this->socket,
-            $this->readyToRead,
-            $this->readyToWrite,
             $this->encoding,
             $this->heartbeat,
             $abort,
@@ -226,6 +176,7 @@ final class Client
      */
     public function send(Sequence $data): Maybe
     {
+        $socket = $this->socket;
         // Using Sequence::matches() allows to stop on the first failure meaning
         // the whole sequence doesn't have to be unwrapped
         $allSent = $data
@@ -233,8 +184,19 @@ final class Client
                 static fn($encoding) => $data->toEncoding($encoding),
                 static fn() => $data,
             ))
-            ->matches(
-                fn($data) => (!($this->abort)()) && ($this->readyToWrite)($this->socket)
+            ->matches(function($data) use ($socket) {
+                if (($this->abort)()) {
+                    return false;
+                }
+
+                return $this
+                    ->watch
+                    ->forWrite($socket)()
+                    ->map(static fn($ready) => $ready->toWrite())
+                    ->flatMap(static fn($toWrite) => $toWrite->find(
+                        static fn($ready) => $ready === $socket,
+                    ))
+                    ->keep(Instance::of(Stream::class))
                     ->flatMap(
                         static fn($socket) => $socket
                             ->write($data)
@@ -243,8 +205,8 @@ final class Client
                     ->match(
                         static fn() => true,
                         static fn() => false,
-                    ),
-            );
+                    );
+            });
 
         /** @var Maybe<SideEffect> */
         return match ($allSent) {
@@ -313,36 +275,18 @@ final class Client
      */
     private function readyToRead(): callable
     {
+        $wait = Stream\Wait::of($this->watch);
+        $send = $this->send(...);
+        $abort = $this->abort;
+
         return $this->heartbeat->match(
-            fn($provide) => function(Stream $socket) use ($provide) {
-                do {
-                    $ready = ($this->readyToRead)($socket);
-                    $socketReadable = $ready->match(
-                        static fn() => true,
-                        static fn() => false,
-                    );
-
-                    if ($socketReadable) {
-                        return $ready;
-                    }
-
-                    $sent = $this
-                        ->send($provide())
-                        ->match(
-                            static fn() => true,
-                            static fn() => false,
-                        );
-
-                    if (!$sent) {
-                        /** @var Maybe<Stream> */
-                        return Maybe::nothing();
-                    }
-                } while (!($this->abort)() && !$socket->closed());
-
-                /** @var Maybe<Stream> */
-                return Maybe::nothing();
-            },
-            fn() => $this->readyToRead,
+            static fn($provide) => Stream\Wait\WithHeartbeat::of(
+                $wait,
+                $send,
+                $provide,
+                $abort,
+            ),
+            static fn() => $wait,
         );
     }
 }
