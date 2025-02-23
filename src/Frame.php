@@ -93,6 +93,9 @@ final class Frame
     }
 
     /**
+     * Beware, this produces a lazy Sequence so when you compose many of them
+     * the order of operations may not be the one you expect.
+     *
      * @psalm-pure
      * @template U
      *
