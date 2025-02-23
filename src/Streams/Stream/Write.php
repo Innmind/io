@@ -13,7 +13,6 @@ use Innmind\Immutable\{
     Maybe,
     Sequence,
     SideEffect,
-    Predicate\Instance,
 };
 
 final class Write
@@ -104,7 +103,6 @@ final class Write
                     ->flatMap(static fn($toWrite) => $toWrite->find(
                         static fn($ready) => $ready === $stream,
                     ))
-                    ->keep(Instance::of(Stream::class))
                     ->flatMap(
                         static fn($stream) => $stream
                             ->write($chunk)
