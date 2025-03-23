@@ -9,6 +9,7 @@ use Innmind\IO\{
     Sockets\Servers,
     Internal\Capabilities,
 };
+use Innmind\Immutable\Maybe;
 
 final class Sockets
 {
@@ -37,12 +38,21 @@ final class Sockets
     }
 
     /**
-     * @return array{Client, Client}
+     * @return Maybe<array{Client, Client}>
      */
-    public function pair(): array
+    public function pair(): Maybe
     {
-        // todo
-        /** @var array{Client, Client} */
-        return [];
+        return $this->capabilities->sockets()->pair()->map(
+            fn($pair) => [
+                Client::of(Streams\Stream::of(
+                    $this->capabilities,
+                    $pair[0],
+                )),
+                Client::of(Streams\Stream::of(
+                    $this->capabilities,
+                    $pair[1],
+                )),
+            ],
+        );
     }
 }
