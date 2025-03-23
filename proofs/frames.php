@@ -216,4 +216,25 @@ return static function() {
             );
         },
     );
+
+    yield proof(
+        'Frame::buffer() fails when not used with a fixed size frame',
+        given(
+            Set::strings()
+                ->unicode()
+                ->atLeast(1)
+                ->map(Str::of(...))
+                ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
+        ),
+        static function($assert, $a) use ($reader) {
+            $frame = Frame::buffer(
+                $a->length(),
+                Frame::line(),
+            );
+
+            $assert->throws(
+                static fn() => $frame($reader($a)),
+            );
+        },
+    );
 };
