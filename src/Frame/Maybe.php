@@ -6,8 +6,12 @@ namespace Innmind\IO\Frame;
 use Innmind\IO\{
     Frame,
     Internal\Reader,
+    Exception\RuntimeException,
 };
-use Innmind\Immutable\Maybe as Monad;
+use Innmind\Immutable\{
+    Maybe as Monad,
+    Attempt,
+};
 
 /**
  * Use this frame to hardcode a value inside a frame composition
@@ -29,9 +33,12 @@ final class Maybe implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Monad
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
-        return $this->value;
+        return $this->value->match(
+            static fn($value) => Attempt::result($value),
+            static fn() => Attempt::error(new RuntimeException('No value provided')),
+        );
     }
 
     /**

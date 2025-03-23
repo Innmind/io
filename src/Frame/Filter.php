@@ -3,8 +3,11 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
-use Innmind\IO\Internal\Reader;
-use Innmind\Immutable\Maybe;
+use Innmind\IO\{
+    Internal\Reader,
+    Exception\RuntimeException,
+};
+use Innmind\Immutable\Attempt;
 
 /**
  * @internal
@@ -31,10 +34,16 @@ final class Filter implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
-        return ($this->frame)($reader)->filter(
-            $this->predicate,
+        $predicate = $this->predicate;
+
+        /** @psalm-suppress MixedArgument */
+        return ($this->frame)($reader)->flatMap(
+            static fn($value) => match ($predicate($value)) {
+                true => Attempt::result($value),
+                false => Attempt::error(new RuntimeException('Value does not match predicate')),
+            },
         );
     }
 

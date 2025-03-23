@@ -5,7 +5,7 @@ namespace Innmind\IO\Frame;
 
 use Innmind\IO\Internal\Reader;
 use Innmind\Immutable\{
-    Maybe,
+    Attempt,
     Str,
 };
 
@@ -23,9 +23,9 @@ final class Line implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
-        return $reader->readLine()->maybe();
+        return $reader->readLine();
     }
 
     /**

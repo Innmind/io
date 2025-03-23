@@ -7,7 +7,7 @@ use Innmind\IO\{
     Frame,
     Internal\Reader,
 };
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 /**
  * @internal
@@ -30,7 +30,7 @@ final class FlatMap implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
         $map = $this->map;
 

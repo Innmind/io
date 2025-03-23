@@ -14,6 +14,7 @@ use Innmind\IO\{
 use Innmind\Immutable\{
     Str,
     Maybe,
+    Attempt,
     Sequence as Seq,
 };
 
@@ -33,9 +34,9 @@ final class Frame
     }
 
     /**
-     * @return Maybe<T>
+     * @return Attempt<T>
      */
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
         return ($this->implementation)($reader);
     }
@@ -98,7 +99,7 @@ final class Frame
      *
      * @param self<U> $frame
      *
-     * @return self<Seq<Maybe<U>>>
+     * @return self<Seq<Attempt<U>>>
      */
     public static function sequence(self $frame): self
     {

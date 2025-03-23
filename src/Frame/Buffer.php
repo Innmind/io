@@ -7,7 +7,7 @@ use Innmind\IO\{
     Frame,
     Internal\Reader,
 };
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 /**
  * Use this frame to hardcode a value inside a frame composition
@@ -31,13 +31,12 @@ final class Buffer implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
         $frame = $this->frame;
 
         return $reader
             ->read($this->size)
-            ->maybe()
             ->flatMap(static fn($buffer) => $frame(Reader\Buffer::of($buffer)));
     }
 

@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Frame;
 
 use Innmind\IO\Internal\Reader;
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 /**
  * @internal
@@ -27,7 +27,7 @@ final class Map implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
         return ($this->frame)($reader)->map(
             $this->map,

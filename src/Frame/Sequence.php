@@ -9,12 +9,12 @@ use Innmind\IO\{
 };
 use Innmind\Immutable\{
     Sequence as Seq,
-    Maybe,
+    Attempt,
 };
 
 /**
  * @template T
- * @implements Implementation<Seq<Maybe<T>>>
+ * @implements Implementation<Seq<Attempt<T>>>
  */
 final class Sequence implements Implementation
 {
@@ -29,7 +29,7 @@ final class Sequence implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
         $frame = $this->frame;
         $frames = Seq::lazy(static function() use ($reader, $frame) {
@@ -38,7 +38,7 @@ final class Sequence implements Implementation
             }
         });
 
-        return Maybe::just($frames);
+        return Attempt::result($frames);
     }
 
     /**

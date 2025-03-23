@@ -51,19 +51,39 @@ return static function() {
     yield proof(
         'Frame::maybe()',
         given(
-            Set::type()
-                ->nullable()
-                ->map(Maybe::of(...)),
+            Set::type(),
             Set::strings()
                 ->unicode()
                 ->map(Str::of(...)),
         ),
         static function($assert, $value, $read) use ($reader) {
-            $frame = Frame::maybe($value);
+            $frame = Frame::maybe(Maybe::just($value));
 
             $assert->same(
                 $value,
-                $frame($reader($read)),
+                $frame($reader($read))->match(
+                    static fn($value) => $value,
+                    static fn() => null,
+                ),
+            );
+        },
+    );
+
+    yield proof(
+        'Frame::maybe() nothing',
+        given(
+            Set::strings()
+                ->unicode()
+                ->map(Str::of(...)),
+        ),
+        static function($assert, $read) use ($reader) {
+            $frame = Frame::maybe(Maybe::nothing());
+
+            $assert->null(
+                $frame($reader($read))->match(
+                    static fn($value) => $value,
+                    static fn() => null,
+                ),
             );
         },
     );
@@ -131,7 +151,7 @@ return static function() {
                             static fn() => false,
                         ))
                         ->sink(Sequence::of())
-                        ->maybe(static fn($lines, $line) => $line->map($lines)),
+                        ->maybe(static fn($lines, $line) => $line->maybe()->map($lines)),
                 )
                 ->flatMap(Frame::maybe(...));
             $values = $frame($reader(Str::of($data)))->match(
@@ -164,16 +184,16 @@ return static function() {
 
             $assert->same(
                 $string->toString(),
-                $frame($reader($string))
-                    ->filter(static fn() => true)
+                $frame
+                    ->filter(static fn() => true)($reader($string))
                     ->match(
                         static fn($value) => $value->toString(),
                         static fn() => null,
                     ),
             );
             $assert->null(
-                $frame($reader($string))
-                    ->filter(static fn() => false)
+                $frame
+                    ->filter(static fn() => false)($reader($string))
                     ->match(
                         static fn($value) => $value,
                         static fn() => null,

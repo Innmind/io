@@ -613,7 +613,8 @@ class FunctionalTest extends TestCase
                             ->flatMap(
                                 static fn($client) => $client
                                     ->sink(Sequence::of(Str::of('bar')))
-                                    ->map(static fn() => $client),
+                                    ->map(static fn() => $client)
+                                    ->maybe(),
                             )
                             ->flatMap(
                                 static fn($client) => $client

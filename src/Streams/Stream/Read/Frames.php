@@ -105,7 +105,7 @@ final class Frames
 
         $reader = Reader::of($wait, $this->encoding);
 
-        return ($this->frame)($reader);
+        return ($this->frame)($reader)->maybe();
     }
 
     /**

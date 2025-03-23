@@ -5,7 +5,7 @@ namespace Innmind\IO\Frame;
 
 use Innmind\IO\Internal\Reader;
 use Innmind\Immutable\{
-    Maybe,
+    Attempt,
     Str,
 };
 
@@ -26,9 +26,9 @@ final class Chunk implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
-        return $reader->read($this->size)->maybe();
+        return $reader->read($this->size);
     }
 
     /**

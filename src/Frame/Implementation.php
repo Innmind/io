@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Frame;
 
 use Innmind\IO\Internal\Reader;
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 /**
  * @internal
@@ -13,7 +13,7 @@ use Innmind\Immutable\Maybe;
 interface Implementation
 {
     /**
-     * @return Maybe<T>
+     * @return Attempt<T>
      */
-    public function __invoke(Reader|Reader\Buffer $reader): Maybe;
+    public function __invoke(Reader|Reader\Buffer $reader): Attempt;
 }
