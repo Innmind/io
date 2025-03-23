@@ -13,8 +13,11 @@ return static function() {
     yield proof(
         'Frame::just()',
         given(
-            Set\Type::any(),
-            Set\Nullable::of(Set\Unicode::strings()->map(Str::of(...))),
+            Set::type(),
+            Set::strings()
+                ->unicode()
+                ->map(Str::of(...))
+                ->nullable(),
         ),
         static function($assert, $value, $read) {
             $frame = Frame::just($value);
@@ -35,8 +38,13 @@ return static function() {
     yield proof(
         'Frame::maybe()',
         given(
-            Set\Nullable::of(Set\Type::any())->map(Maybe::of(...)),
-            Set\Nullable::of(Set\Unicode::strings()->map(Str::of(...))),
+            Set::type()
+                ->nullable()
+                ->map(Maybe::of(...)),
+            Set::strings()
+                ->unicode()
+                ->map(Str::of(...))
+                ->nullable(),
         ),
         static function($assert, $value, $read) {
             $frame = Frame::maybe($value);
@@ -54,7 +62,8 @@ return static function() {
     yield proof(
         'Frame::chunk()',
         given(
-            Set\Unicode::strings()
+            Set::strings()
+                ->unicode()
                 ->map(Str::of(...))
                 ->map(static fn($str) => $str->toEncoding(Str\Encoding::ascii)),
         ),
@@ -95,7 +104,9 @@ return static function() {
     yield proof(
         'Frame::line()',
         given(
-            Set\Unicode::strings()->map(Str::of(...)),
+            Set::strings()
+                ->unicode()
+                ->map(Str::of(...)),
         ),
         static function($assert, $string) {
             $frame = Frame::line();
@@ -124,8 +135,8 @@ return static function() {
 
     yield proof(
         'Frame::sequence()',
-        given(Set\Sequence::of(
-            Set\Unicode::strings()->atLeast(1),
+        given(Set::sequence(
+            Set::strings()->unicode()->atLeast(1),
         )),
         static function($assert, $lines) {
             $frame = Frame::sequence(Frame::line());
@@ -186,7 +197,9 @@ return static function() {
     yield proof(
         'Frame::filter()',
         given(
-            Set\Unicode::strings()->map(Str::of(...)),
+            Set::strings()
+                ->unicode()
+                ->map(Str::of(...)),
         ),
         static function($assert, $string) {
             $frame = Frame::line();

@@ -16,17 +16,19 @@ use Innmind\BlackBox\Set;
 return static function() {
     // Here we make sure to only use characters that are "reversible". Writing
     // and then reading should return the exact same character.
-    $string = Set\Strings::madeOf(
-        Set\Unicode::any()
+    $string = Set::strings()->madeOf(
+        Set::strings()
+            ->unicode()
+            ->char()
             ->map(IntlChar::ord(...))
             ->filter(\is_int(...))
             ->map(IntlChar::chr(...))
             ->filter(\is_string(...)),
     );
     // We reduce the length of strings to avoid exhausting the allowed memory.
-    $strings = Set\Either::any(
-        Set\Sequence::of($string->between(0, 20)),
-        Set\Sequence::of($string)->between(0, 20),
+    $strings = Set::either(
+        Set::sequence($string->between(0, 20)),
+        Set::sequence($string)->between(0, 20),
     );
 
     yield test(
@@ -119,11 +121,11 @@ return static function() {
     yield proof(
         'IO::streams()->acquire()->read()->frames()->sequence()',
         given(
-            Set\Either::any(
-                Set\Sequence::of($string->between(0, 20)->filter(
+            Set::either(
+                Set::sequence($string->between(0, 20)->filter(
                     static fn($line) => !\str_contains($line, "\n"),
                 )),
-                Set\Sequence::of($string->filter(
+                Set::sequence($string->filter(
                     static fn($line) => !\str_contains($line, "\n"),
                 ))->between(0, 20),
             ),
@@ -166,11 +168,11 @@ return static function() {
     yield proof(
         'IO::streams()->acquire()->read()->frames()->rewindable()->sequence()',
         given(
-            Set\Either::any(
-                Set\Sequence::of($string->between(0, 20)->filter(
+            Set::either(
+                Set::sequence($string->between(0, 20)->filter(
                     static fn($line) => !\str_contains($line, "\n"),
                 )),
-                Set\Sequence::of($string->filter(
+                Set::sequence($string->filter(
                     static fn($line) => !\str_contains($line, "\n"),
                 ))->between(0, 20),
             ),
@@ -209,7 +211,7 @@ return static function() {
         given(
             $string,
             $string,
-            Set\Elements::of(...Str\Encoding::cases()),
+            Set::of(...Str\Encoding::cases()),
         ),
         static function($assert, $a, $b, $encoding) {
             $tmpA = \tmpfile();
@@ -296,7 +298,7 @@ return static function() {
         'IO::streams()->acquire()->write()->sink()',
         given(
             $strings,
-            Set\Elements::of(...Str\Encoding::cases()),
+            Set::of(...Str\Encoding::cases()),
         ),
         static function($assert, $chunks, $encoding) {
             $tmp = \tmpfile();

@@ -27,7 +27,7 @@ class FunctionalTest extends TestCase
     public function testReadChunks()
     {
         $this
-            ->forAll(Set\Elements::of(
+            ->forAll(Set::of(
                 [1, ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', 'o', 'o', 'f']],
                 [2, ['fo', 'ob', 'ar', 'ba', 'zo', 'of']],
                 [3, ['foo', 'bar', 'baz', 'oof']],
@@ -88,13 +88,13 @@ class FunctionalTest extends TestCase
     {
         $this
             ->forAll(
-                Set\Elements::of(
+                Set::of(
                     [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z']],
                     [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba']],
                     [3, 'foobarbaz', ['foo', 'bar', 'baz']],
                     [1, "\n", ["\n"]],
                 ),
-                Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
+                Set::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
             ->then(function($in, $encoding) {
                 [$size, $content, $expected] = $in;
@@ -131,13 +131,13 @@ class FunctionalTest extends TestCase
     {
         $this
             ->forAll(
-                Set\Elements::of(
+                Set::of(
                     [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z']],
                     [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba']],
                     [3, 'foobarbaz', ['foo', 'bar', 'baz']],
                     [1, "\n", ["\n"]],
                 ),
-                Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
+                Set::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
             ->then(function($in, $encoding) {
                 [$size, $content, $expected] = $in;
@@ -174,14 +174,14 @@ class FunctionalTest extends TestCase
     {
         $this
             ->forAll(
-                Set\Elements::of(
+                Set::of(
                     ['foobarbaz', ['foobarbaz']],
                     ["fo\nob\nar\nba\nz", ["fo\n", "ob\n", "ar\n", "ba\n", 'z']],
                     ["foo\nbar\nbaz\n", ["foo\n", "bar\n", "baz\n", '']],
                     ['', ['']],
                     ["\n", ["\n", '']],
                 ),
-                Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
+                Set::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
             ->then(function($in, $encoding) {
                 [$content, $expected] = $in;
@@ -217,14 +217,14 @@ class FunctionalTest extends TestCase
     {
         $this
             ->forAll(
-                Set\Elements::of(
+                Set::of(
                     ['foobarbaz', ['foobarbaz']],
                     ["fo\nob\nar\nba\nz", ["fo\n", "ob\n", "ar\n", "ba\n", 'z']],
                     ["foo\nbar\nbaz\n", ["foo\n", "bar\n", "baz\n", '']],
                     ['', ['']],
                     ["\n", ["\n", '']],
                 ),
-                Set\Elements::of(Str\Encoding::ascii, Str\Encoding::utf8),
+                Set::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
             ->then(function($in, $encoding) {
                 [$content, $expected] = $in;
@@ -274,7 +274,7 @@ class FunctionalTest extends TestCase
     public function testSize()
     {
         $this
-            ->forAll(Set\Strings::any())
+            ->forAll(Set::strings())
             ->then(function($content) {
                 $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
                 \file_put_contents($tmp, $content);

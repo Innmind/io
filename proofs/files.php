@@ -17,24 +17,26 @@ use Innmind\BlackBox\Set;
 return static function() {
     // Here we make sure to only use characters that are "reversible". Writing
     // and then reading should return the exact same character.
-    $string = Set\Strings::madeOf(
-        Set\Unicode::any()
+    $string = Set::strings()->madeOf(
+        Set::strings()
+            ->unicode()
+            ->char()
             ->map(IntlChar::ord(...))
             ->filter(\is_int(...))
             ->map(IntlChar::chr(...))
             ->filter(\is_string(...)),
     );
     // We reduce the length of strings to avoid exhausting the allowed memory.
-    $strings = Set\Either::any(
-        Set\Sequence::of($string->between(0, 20)),
-        Set\Sequence::of($string)->between(0, 20),
+    $strings = Set::either(
+        Set::sequence($string->between(0, 20)),
+        Set::sequence($string)->between(0, 20),
     );
 
     yield proof(
         'IO::files()->read()->chunks()',
         given(
             $strings,
-            Set\Integers::between(1, 100),
+            Set::integers()->between(1, 100),
         ),
         static function($assert, $chunks, $size) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
@@ -78,8 +80,8 @@ return static function() {
         'IO::files()->read()->toEncoding()->chunks()',
         given(
             $strings,
-            Set\Integers::between(1, 100),
-            Set\Elements::of(...Str\Encoding::cases()),
+            Set::integers()->between(1, 100),
+            Set::of(...Str\Encoding::cases()),
         ),
         static function($assert, $chunks, $size, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
@@ -101,11 +103,11 @@ return static function() {
     yield proof(
         'IO::files()->read()->lines()',
         given(
-            Set\Either::any(
-                Set\Sequence::of($string->between(0, 20)->filter(
+            Set::either(
+                Set::sequence($string->between(0, 20)->filter(
                     static fn($line) => !\str_contains($line, "\n"),
                 )),
-                Set\Sequence::of($string->filter(
+                Set::sequence($string->filter(
                     static fn($line) => !\str_contains($line, "\n"),
                 ))->between(0, 20),
             ),
@@ -164,7 +166,7 @@ return static function() {
         'IO::files()->read()->toEncoding()->lines()',
         given(
             $strings,
-            Set\Elements::of(...Str\Encoding::cases()),
+            Set::of(...Str\Encoding::cases()),
         ),
         static function($assert, $lines, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
@@ -211,7 +213,7 @@ return static function() {
         'IO::files()->write()->sink()',
         given(
             $strings,
-            Set\Elements::of(...Str\Encoding::cases()),
+            Set::of(...Str\Encoding::cases()),
         ),
         static function($assert, $chunks, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
@@ -243,7 +245,7 @@ return static function() {
         'IO::files()->write()->watch()->sink()',
         given(
             $strings,
-            Set\Elements::of(...Str\Encoding::cases()),
+            Set::of(...Str\Encoding::cases()),
         ),
         static function($assert, $chunks, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
