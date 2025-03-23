@@ -3,15 +3,17 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
-use Innmind\IO\Internal\{
-    Watch\Ready,
-    Socket\Server,
+use Innmind\IO\{
+    Internal\Watch\Ready,
+    Internal\Socket\Server,
+    Exception\RuntimeException,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
     Map,
     Sequence,
     Maybe,
+    Attempt
 };
 
 /**
@@ -34,9 +36,9 @@ final class Watch
     }
 
     /**
-     * @return Maybe<Ready> Returns nothing when it fails to lookup the streams
+     * @return Attempt<Ready>
      */
-    public function __invoke(): Maybe
+    public function __invoke(): Attempt
     {
         if (
             $this->read->empty() &&
@@ -47,7 +49,7 @@ final class Watch
             /** @var Sequence<Stream> */
             $write = Sequence::of();
 
-            return Maybe::just(new Ready($read, $write));
+            return Attempt::result(new Ready($read, $write));
         }
 
         $read = $this->read->keys()->toList();
@@ -69,8 +71,8 @@ final class Watch
         );
 
         if ($return === false) {
-            /** @var Maybe<Ready> */
-            return Maybe::nothing();
+            /** @var Attempt<Ready> */
+            return Attempt::error(new RuntimeException);
         }
 
         $readable = $this
@@ -82,7 +84,7 @@ final class Watch
             ->filter(static fn($resource) => \in_array($resource, $write, true))
             ->values();
 
-        return Maybe::just(new Ready($readable, $writable));
+        return Attempt::result(new Ready($readable, $writable));
     }
 
     /**

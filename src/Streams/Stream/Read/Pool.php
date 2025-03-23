@@ -131,6 +131,7 @@ final class Pool
         $streams = $this->streams;
 
         $chunks = $watch()
+            ->maybe()
             ->toSequence()
             ->flatMap(static fn($ready) => $ready->toRead())
             ->keep(Instance::of(Internal\Stream::class))

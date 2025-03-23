@@ -11,6 +11,7 @@ use Innmind\IO\{
 use Innmind\Immutable\{
     Str,
     Maybe,
+    Attempt,
     Sequence,
     SideEffect,
 };
@@ -85,7 +86,7 @@ final class Write
         $stream = $this->stream;
         $watch = match ($this->doWatch) {
             true => $this->watch,
-            false => static fn() => Maybe::just(new Ready(
+            false => static fn() => Attempt::result(new Ready(
                 Sequence::of(),
                 Sequence::of($stream),
             )),
@@ -98,7 +99,7 @@ final class Write
             ->maybe(
                 static fn($_, $chunk) => Maybe::just($_)
                     ->exclude(static fn() => $abort())
-                    ->flatMap(static fn() => $watch())
+                    ->flatMap(static fn() => $watch()->maybe())
                     ->map(static fn($ready) => $ready->toWrite())
                     ->flatMap(static fn($toWrite) => $toWrite->find(
                         static fn($ready) => $ready === $stream,

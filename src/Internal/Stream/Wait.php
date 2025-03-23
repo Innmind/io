@@ -35,6 +35,7 @@ final class Wait
     public function __invoke(): Maybe
     {
         return ($this->watch)()
+            ->maybe()
             ->map(static fn($ready) => $ready->toRead())
             ->flatMap(fn($toRead) => $toRead->find(
                 fn($ready) => $ready === $this->stream,

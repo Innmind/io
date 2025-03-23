@@ -78,6 +78,7 @@ final class Server
         $socket = $this->socket;
 
         return ($this->watch)()
+            ->maybe()
             ->map(static fn($ready) => $ready->toRead())
             ->flatMap(static fn($toRead) => $toRead->find(
                 static fn($ready) => $ready === $socket,

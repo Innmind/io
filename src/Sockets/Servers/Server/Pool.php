@@ -49,6 +49,7 @@ final class Pool
     public function accept(): Sequence
     {
         return ($this->watch)()
+            ->maybe()
             ->toSequence()
             ->flatMap(
                 static fn($ready) => $ready

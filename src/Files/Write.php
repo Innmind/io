@@ -14,6 +14,7 @@ use Innmind\Validation\Is;
 use Innmind\Immutable\{
     Str,
     Maybe,
+    Attempt,
     Sequence,
     SideEffect,
 };
@@ -94,7 +95,7 @@ final class Write
         $autoClose = $this->autoClose;
         $watch = match ($this->doWatch) {
             true => $this->watch->forWrite($stream),
-            false => static fn() => Maybe::just(new Ready(
+            false => static fn() => Attempt::result(new Ready(
                 Sequence::of(),
                 Sequence::of($stream),
             )),
@@ -105,6 +106,7 @@ final class Write
             ->sink(new SideEffect)
             ->maybe(
                 static fn($_, $chunk) => $watch()
+                    ->maybe()
                     ->map(static fn($ready) => $ready->toWrite())
                     ->flatMap(static fn($toWrite) => $toWrite->find(
                         static fn($ready) => $ready === $stream,
