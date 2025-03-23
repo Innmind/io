@@ -5,7 +5,7 @@ namespace Innmind\IO\Internal\Reader;
 
 use Innmind\Immutable\{
     Str,
-    Maybe,
+    Attempt,
 };
 
 /**
@@ -29,9 +29,9 @@ final class Buffer
     /**
      * @param ?int<1, max> $size
      *
-     * @return Maybe<Str>
+     * @return Attempt<Str>
      */
-    public function read(?int $size = null): Maybe
+    public function read(?int $size = null): Attempt
     {
         if (\is_null($size)) {
             throw new \LogicException('Only fixed size frames are bufferable');
@@ -40,13 +40,13 @@ final class Buffer
         $chunk = $this->buffer->take($size);
         $this->buffer = $this->buffer->drop($size);
 
-        return Maybe::just($chunk);
+        return Attempt::result($chunk);
     }
 
     /**
-     * @return Maybe<Str>
+     * @return Attempt<Str>
      */
-    public function readLine(): Maybe
+    public function readLine(): Attempt
     {
         throw new \LogicException('Only fixed size frames are bufferable');
     }

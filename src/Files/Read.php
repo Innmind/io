@@ -139,13 +139,12 @@ final class Read
                 // anything otherwise it will fail to load empty streams or
                 // streams ending with the "end of line" character
                 yield $wait()
-                    ->maybe()
-                    ->flatMap(static fn($stream) => $stream->read($size)->maybe())
+                    ->flatMap(static fn($stream) => $stream->read($size))
                     ->match(
                         static fn($chunk) => $chunk,
-                        static fn() => match ($stream->end()) {
+                        static fn($e) => match ($stream->end()) {
                             true => Str::of(''),
-                            false => throw new FailedToLoadStream,
+                            false => throw $e,
                         },
                     );
             } while (!$stream->end());
@@ -193,13 +192,12 @@ final class Read
                 // anything otherwise it will fail to load empty streams or
                 // streams ending with the "end of line" character
                 yield $wait()
-                    ->maybe()
-                    ->flatMap(static fn($stream) => $stream->readLine()->maybe())
+                    ->flatMap(static fn($stream) => $stream->readLine())
                     ->match(
                         static fn($chunk) => $chunk,
-                        static fn() => match ($stream->end()) {
+                        static fn($e) => match ($stream->end()) {
                             true => Str::of(''),
-                            false => throw new FailedToLoadStream,
+                            false => throw $e,
                         },
                     );
             } while (!$stream->end());

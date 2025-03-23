@@ -37,6 +37,7 @@ final class Buffer implements Implementation
 
         return $reader
             ->read($this->size)
+            ->maybe()
             ->flatMap(static fn($buffer) => $frame(Reader\Buffer::of($buffer)));
     }
 

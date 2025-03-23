@@ -28,7 +28,7 @@ final class Chunk implements Implementation
     #[\Override]
     public function __invoke(Reader|Reader\Buffer $reader): Maybe
     {
-        return $reader->read($this->size);
+        return $reader->read($this->size)->maybe();
     }
 
     /**

@@ -6,6 +6,7 @@ namespace Innmind\IO\Internal;
 use Innmind\Immutable\{
     Str,
     Maybe,
+    Attempt,
 };
 
 /**
@@ -37,21 +38,20 @@ final class Reader
     /**
      * @param ?int<1, max> $size
      *
-     * @return Maybe<Str>
+     * @return Attempt<Str>
      */
-    public function read(?int $size = null): Maybe
+    public function read(?int $size = null): Attempt
     {
         $encoding = $this->encoding;
 
         return ($this->wait)()
-            ->maybe()
             ->flatMap(
                 static fn($stream) => $stream
                     ->read($size)
-                    ->maybe()
-                    ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
-                        static fn() => $stream->end(),
-                    )),
+                    ->recover(static fn($e) => match ($stream->end()) {
+                        true => Attempt::result(Str::of('')),
+                        false => Attempt::error($e),
+                    }),
             )
             ->map(static fn($chunk) => $encoding->match(
                 static fn($encoding) => $chunk->toEncoding($encoding),
@@ -60,21 +60,20 @@ final class Reader
     }
 
     /**
-     * @return Maybe<Str>
+     * @return Attempt<Str>
      */
-    public function readLine(): Maybe
+    public function readLine(): Attempt
     {
         $encoding = $this->encoding;
 
         return ($this->wait)()
-            ->maybe()
             ->flatMap(
                 static fn($stream) => $stream
                     ->readLine()
-                    ->maybe()
-                    ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
-                        static fn() => $stream->end(),
-                    )),
+                    ->recover(static fn($e) => match ($stream->end()) {
+                        true => Attempt::result(Str::of('')),
+                        false => Attempt::error($e),
+                    }),
             )
             ->map(static fn($chunk) => $encoding->match(
                 static fn($encoding) => $chunk->toEncoding($encoding),
