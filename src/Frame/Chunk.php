@@ -30,11 +30,7 @@ final class Chunk implements Implementation
         callable $read,
         callable $readLine,
     ): Maybe {
-        $size = $this->size;
-
-        return $read($size)->filter(
-            static fn($chunk) => $chunk->length() === $size,
-        );
+        return $read($this->size);
     }
 
     /**

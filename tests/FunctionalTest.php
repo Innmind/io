@@ -42,7 +42,7 @@ class FunctionalTest extends TestCase
                     ->acquire($tmp)
                     ->read()
                     ->watch()
-                    ->frames(Frame::chunk($size))
+                    ->frames(Frame::chunk($size)->strict())
                     ->lazy()
                     ->rewindable()
                     ->sequence()
@@ -65,7 +65,7 @@ class FunctionalTest extends TestCase
             ->read()
             ->watch()
             ->toEncoding(Str\Encoding::ascii)
-            ->frames(Frame::chunk(1))
+            ->frames(Frame::chunk(1)->strict())
             ->lazy()
             ->rewindable()
             ->sequence()
@@ -108,7 +108,7 @@ class FunctionalTest extends TestCase
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Frame::chunk($size))
+                    ->frames(Frame::chunk($size)->strict())
                     ->lazy()
                     ->rewindable()
                     ->sequence()
@@ -151,7 +151,7 @@ class FunctionalTest extends TestCase
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Frame::chunk($size))
+                    ->frames(Frame::chunk($size)->strict())
                     ->lazy()
                     ->rewindable()
                     ->sequence()
@@ -484,7 +484,7 @@ class FunctionalTest extends TestCase
                 ->flatMap(
                     static fn($client) => $client
                         ->watch()
-                        ->frames(Frame::chunk(34))
+                        ->frames(Frame::chunk(34)->strict())
                         ->one(),
                 )
                 ->match(
@@ -542,7 +542,7 @@ class FunctionalTest extends TestCase
                             ->accept()
                             ->flatMap(
                                 static fn($client) => $client
-                                    ->frames(Frame::chunk(3))
+                                    ->frames(Frame::chunk(3)->strict())
                                     ->one(),
                             )
                             ->match(
@@ -555,7 +555,7 @@ class FunctionalTest extends TestCase
 
                 return Sequence::of();
             })
-            ->frames(Frame::chunk(1))
+            ->frames(Frame::chunk(1)->strict())
             ->one()
             ->match(
                 static fn() => true,
@@ -617,7 +617,7 @@ class FunctionalTest extends TestCase
                             )
                             ->flatMap(
                                 static fn($client) => $client
-                                    ->frames(Frame::chunk(3))
+                                    ->frames(Frame::chunk(3)->strict())
                                     ->one(),
                             )
                             ->match(
@@ -629,7 +629,7 @@ class FunctionalTest extends TestCase
 
                 return Sequence::of();
             })
-            ->frames(Frame::chunk(3))
+            ->frames(Frame::chunk(3)->strict())
             ->one()
             ->match(
                 static fn($response) => $response->toString(),
@@ -685,7 +685,7 @@ class FunctionalTest extends TestCase
                     $this->assertSame(
                         'foo',
                         $clientFromServerSide
-                            ->frames(Frame::chunk(3))
+                            ->frames(Frame::chunk(3)->strict())
                             ->one()
                             ->match(
                                 static fn($data) => $data->toString(),
@@ -701,7 +701,7 @@ class FunctionalTest extends TestCase
             ->abortWhen(static function() use (&$heartbeats) {
                 return $heartbeats > 2;
             })
-            ->frames(Frame::chunk(3))
+            ->frames(Frame::chunk(3)->strict())
             ->one()
             ->match(
                 static fn($response) => $response->toString(),
@@ -752,7 +752,7 @@ class FunctionalTest extends TestCase
             ->accept()
             ->flatMap(
                 static fn($client) => $client
-                    ->frames(Frame::chunk(3))
+                    ->frames(Frame::chunk(3)->strict())
                     ->one(),
             )
             ->match(
@@ -860,7 +860,7 @@ class FunctionalTest extends TestCase
             ->accept()
             ->flatMap(
                 static fn($client) => $client
-                    ->frames(Frame::chunk(3))
+                    ->frames(Frame::chunk(3)->strict())
                     ->one()
                     ->toSequence(),
             )

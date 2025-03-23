@@ -69,6 +69,7 @@ return static function() {
                             ->takeEnd(2)
                             ->toString(),
                     )
+                        ->strict()
                         ->map(static fn($body) => [
                             $headers
                                 ->filter(static fn($header) => !$header->empty())
@@ -282,7 +283,7 @@ return static function() {
                 [],
                 $stream
                     ->read()
-                    ->frames(Frame::chunk(1))
+                    ->frames(Frame::chunk(1)->strict())
                     ->lazy()
                     ->rewindable()
                     ->sequence()

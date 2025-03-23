@@ -6,7 +6,6 @@ namespace Innmind\IO;
 use Innmind\IO\Frame\{
     Implementation,
     Maybe as M,
-    Chunk,
     Line,
     Sequence,
 };
@@ -74,12 +73,13 @@ final class Frame
      * @psalm-pure
      *
      * @param int<1, max> $size
-     *
-     * @return self<Str>
      */
-    public static function chunk(int $size): self
+    public static function chunk(int $size): Frame\Provider\Chunk
     {
-        return new self(Chunk::of($size));
+        return Frame\Provider\Chunk::of(
+            static fn(Implementation $implementation) => new self($implementation),
+            $size,
+        );
     }
 
     /**

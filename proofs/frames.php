@@ -60,7 +60,7 @@ return static function() {
         ),
         static function($assert, $string) {
             $size = $string->length();
-            $frame = Frame::chunk($size);
+            $frame = Frame::chunk($size)->loose();
 
             $assert->same(
                 $string,
