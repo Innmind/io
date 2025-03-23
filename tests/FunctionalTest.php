@@ -485,7 +485,8 @@ class FunctionalTest extends TestCase
                     static fn($client) => $client
                         ->watch()
                         ->frames(Frame::chunk(34)->strict())
-                        ->one(),
+                        ->one()
+                        ->maybe(),
                 )
                 ->match(
                     static fn($chunk) => $chunk->toString(),
@@ -543,7 +544,8 @@ class FunctionalTest extends TestCase
                             ->flatMap(
                                 static fn($client) => $client
                                     ->frames(Frame::chunk(3)->strict())
-                                    ->one(),
+                                    ->one()
+                                    ->maybe(),
                             )
                             ->match(
                                 static fn($data) => $data->toString(),
@@ -619,7 +621,8 @@ class FunctionalTest extends TestCase
                             ->flatMap(
                                 static fn($client) => $client
                                     ->frames(Frame::chunk(3)->strict())
-                                    ->one(),
+                                    ->one()
+                                    ->maybe(),
                             )
                             ->match(
                                 static fn($data) => $data->toString(),
@@ -754,7 +757,8 @@ class FunctionalTest extends TestCase
             ->flatMap(
                 static fn($client) => $client
                     ->frames(Frame::chunk(3)->strict())
-                    ->one(),
+                    ->one()
+                    ->maybe(),
             )
             ->match(
                 static fn($data) => $data->toString(),
@@ -863,6 +867,7 @@ class FunctionalTest extends TestCase
                 static fn($client) => $client
                     ->frames(Frame::chunk(3)->strict())
                     ->one()
+                    ->maybe()
                     ->toSequence(),
             )
             ->map(static fn($data) => $data->toString());
