@@ -44,6 +44,7 @@ final class Reader
         $encoding = $this->encoding;
 
         return ($this->wait)()
+            ->maybe()
             ->flatMap(
                 static fn($stream) => $stream
                     ->read($size)
@@ -65,6 +66,7 @@ final class Reader
         $encoding = $this->encoding;
 
         return ($this->wait)()
+            ->maybe()
             ->flatMap(
                 static fn($stream) => $stream
                     ->readLine()

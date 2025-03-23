@@ -6,12 +6,13 @@ namespace Innmind\IO\Internal\Stream;
 use Innmind\IO\{
     Internal\Stream,
     Internal\Watch,
+    Exception\RuntimeException,
     Streams\Stream\Write,
 };
 use Innmind\Immutable\{
     Str,
     Sequence,
-    Maybe,
+    Attempt,
     Predicate\Instance,
 };
 
@@ -30,17 +31,21 @@ final class Wait
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function __invoke(): Maybe
+    public function __invoke(): Attempt
     {
         return ($this->watch)()
-            ->maybe()
             ->map(static fn($ready) => $ready->toRead())
-            ->flatMap(fn($toRead) => $toRead->find(
-                fn($ready) => $ready === $this->stream,
-            ))
-            ->keep(Instance::of(Stream::class));
+            ->flatMap(
+                fn($toRead) => $toRead
+                    ->find(fn($ready) => $ready === $this->stream)
+                    ->keep(Instance::of(Stream::class))
+                    ->match(
+                        static fn($stream) => Attempt::result($stream),
+                        static fn() => Attempt::error(new RuntimeException('Stream not ready')),
+                    ),
+            );
     }
 
     /**

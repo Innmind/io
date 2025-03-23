@@ -6,12 +6,13 @@ namespace Innmind\IO\Internal\Stream\Wait;
 use Innmind\IO\{
     Internal\Stream,
     Internal\Stream\Wait,
+    Exception\RuntimeException,
     Streams\Stream\Write,
 };
 use Innmind\Immutable\{
     Str,
     Sequence,
-    Maybe,
+    Attempt,
 };
 
 /**
@@ -35,9 +36,9 @@ final class WithHeartbeat
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function __invoke(): Maybe
+    public function __invoke(): Attempt
     {
         do {
             $ready = ($this->wait)();
@@ -50,19 +51,19 @@ final class WithHeartbeat
                 return $ready;
             }
 
-            $sent = $this->write->sink(($this->provide)())->match(
-                static fn() => true,
-                static fn() => false,
+            $error = $this->write->sink(($this->provide)())->match(
+                static fn() => null,
+                static fn($e) => $e,
             );
 
-            if (!$sent) {
-                /** @var Maybe<Stream> */
-                return Maybe::nothing();
+            if ($error instanceof \Throwable) {
+                /** @var Attempt<Stream> */
+                return Attempt::error($error);
             }
         } while (!($this->abort)() && !$this->stream->closed());
 
-        /** @var Maybe<Stream> */
-        return Maybe::nothing();
+        /** @var Attempt<Stream> */
+        return Attempt::error(new RuntimeException('Watch aborted or stream closed'));
     }
 
     /**

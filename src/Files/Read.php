@@ -139,6 +139,7 @@ final class Read
                 // anything otherwise it will fail to load empty streams or
                 // streams ending with the "end of line" character
                 yield $wait()
+                    ->maybe()
                     ->flatMap(static fn($stream) => $stream->read($size))
                     ->match(
                         static fn($chunk) => $chunk,
@@ -192,6 +193,7 @@ final class Read
                 // anything otherwise it will fail to load empty streams or
                 // streams ending with the "end of line" character
                 yield $wait()
+                    ->maybe()
                     ->flatMap(static fn($stream) => $stream->readLine())
                     ->match(
                         static fn($chunk) => $chunk,
