@@ -10,10 +10,12 @@ use Innmind\IO\{
     Internal\Stream,
     Internal\Watch,
     Internal\Reader,
+    Exception\RuntimeException,
 };
 use Innmind\Immutable\{
     Str,
     Maybe,
+    Attempt,
     Sequence,
 };
 
@@ -74,9 +76,9 @@ final class Frames
     }
 
     /**
-     * @return Maybe<T>
+     * @return Attempt<T>
      */
-    public function one(): Maybe
+    public function one(): Attempt
     {
         $stream = $this->stream;
         $wait = Stream\Wait::of($this->watch, $stream);
@@ -99,13 +101,13 @@ final class Frames
         );
 
         if (!$switched) {
-            /** @var Maybe<T> */
-            return Maybe::nothing();
+            /** @var Attempt<T> */
+            return Attempt::error(new RuntimeException('Failed to switch blocking mode'));
         }
 
         $reader = Reader::of($wait, $this->encoding);
 
-        return ($this->frame)($reader)->maybe();
+        return ($this->frame)($reader);
     }
 
     /**

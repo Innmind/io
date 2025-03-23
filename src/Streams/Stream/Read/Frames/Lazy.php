@@ -153,7 +153,7 @@ final class Lazy
             while (!$stream->end()) {
                 yield $frame($reader)->match(
                     static fn($frame): mixed => $frame,
-                    static fn() => throw new FailedToLoadStream,
+                    static fn($e) => throw $e,
                 );
             }
         });

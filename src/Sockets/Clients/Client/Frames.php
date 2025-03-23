@@ -7,7 +7,7 @@ use Innmind\IO\{
     Sockets\Clients\Client\Frames\Lazy,
     Streams\Stream\Read\Frames as Stream,
 };
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 /**
  * @template T
@@ -36,9 +36,9 @@ final class Frames
     }
 
     /**
-     * @return Maybe<T>
+     * @return Attempt<T>
      */
-    public function one(): Maybe
+    public function one(): Attempt
     {
         return $this->frames->one();
     }
