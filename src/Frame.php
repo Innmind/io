@@ -117,7 +117,10 @@ final class Frame
      */
     public function filter(callable $predicate): self
     {
-        return new self($this->implementation->filter($predicate));
+        return new self(Frame\Filter::of(
+            $this->implementation,
+            $predicate,
+        ));
     }
 
     /**
@@ -131,7 +134,10 @@ final class Frame
      */
     public function map(callable $map): self
     {
-        return new self($this->implementation->map($map));
+        return new self(Frame\Map::of(
+            $this->implementation,
+            $map,
+        ));
     }
 
     /**
@@ -145,6 +151,9 @@ final class Frame
      */
     public function flatMap(callable $map): self
     {
-        return new self($this->implementation->flatMap($map));
+        return new self(Frame\FlatMap::of(
+            $this->implementation,
+            $map,
+        ));
     }
 }

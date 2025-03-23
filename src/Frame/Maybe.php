@@ -58,47 +58,4 @@ final class Maybe implements Implementation
     {
         return new self($value);
     }
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @param callable(T): bool $predicate
-     *
-     * @return Implementation<T>
-     */
-    #[\Override]
-    public function filter(callable $predicate): Implementation
-    {
-        return Filter::of($this, $predicate);
-    }
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @template U
-     *
-     * @param callable(T): U $map
-     *
-     * @return Implementation<U>
-     */
-    #[\Override]
-    public function map(callable $map): Implementation
-    {
-        return Map::of($this, $map);
-    }
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @template U
-     *
-     * @param callable(T): Frame<U> $map
-     *
-     * @return Implementation<U>
-     */
-    #[\Override]
-    public function flatMap(callable $map): Implementation
-    {
-        return FlatMap::of($this, $map);
-    }
 }

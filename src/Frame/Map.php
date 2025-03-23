@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
-use Innmind\IO\Frame;
 use Innmind\Immutable\Maybe;
 
 /**
@@ -49,48 +48,5 @@ final class Map implements Implementation
     public static function of(Implementation $frame, callable $map): self
     {
         return new self($frame, \Closure::fromCallable($map));
-    }
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @param callable(U): bool $predicate
-     *
-     * @return Implementation<U>
-     */
-    #[\Override]
-    public function filter(callable $predicate): Implementation
-    {
-        return Filter::of($this, $predicate);
-    }
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @template V
-     *
-     * @param callable(U): V $map
-     *
-     * @return Implementation<V>
-     */
-    #[\Override]
-    public function map(callable $map): Implementation
-    {
-        return self::of($this, $map);
-    }
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @template V
-     *
-     * @param callable(U): Frame<V> $map
-     *
-     * @return Implementation<V>
-     */
-    #[\Override]
-    public function flatMap(callable $map): Implementation
-    {
-        return FlatMap::of($this, $map);
     }
 }
