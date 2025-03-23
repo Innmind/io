@@ -31,6 +31,6 @@ final class Capabilities
 
     public function watch(): Watch
     {
-        return Watch\Select::new();
+        return Watch::new();
     }
 }
