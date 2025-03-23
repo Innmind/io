@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
-use Innmind\IO\Frame;
+use Innmind\IO\{
+    Frame,
+    Internal\Reader,
+};
 use Innmind\Immutable\{
     Sequence as Seq,
     Maybe,
@@ -26,14 +29,12 @@ final class Sequence implements Implementation
     }
 
     #[\Override]
-    public function __invoke(
-        callable $read,
-        callable $readLine,
-    ): Maybe {
+    public function __invoke(Reader $reader): Maybe
+    {
         $frame = $this->frame;
-        $frames = Seq::lazy(static function() use ($read, $readLine, $frame) {
+        $frames = Seq::lazy(static function() use ($reader, $frame) {
             while (true) {
-                yield $frame($read, $readLine);
+                yield $frame($reader);
             }
         });
 

@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
+use Innmind\IO\Internal\Reader;
 use Innmind\Immutable\{
     Maybe,
     Str,
@@ -22,11 +23,9 @@ final class Line implements Implementation
     }
 
     #[\Override]
-    public function __invoke(
-        callable $read,
-        callable $readLine,
-    ): Maybe {
-        return $readLine();
+    public function __invoke(Reader $reader): Maybe
+    {
+        return $reader->readLine();
     }
 
     /**

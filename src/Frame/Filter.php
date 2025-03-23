@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
+use Innmind\IO\Internal\Reader;
 use Innmind\Immutable\Maybe;
 
 /**
@@ -30,11 +31,9 @@ final class Filter implements Implementation
     }
 
     #[\Override]
-    public function __invoke(
-        callable $read,
-        callable $readLine,
-    ): Maybe {
-        return ($this->frame)($read, $readLine)->filter(
+    public function __invoke(Reader $reader): Maybe
+    {
+        return ($this->frame)($reader)->filter(
             $this->predicate,
         );
     }

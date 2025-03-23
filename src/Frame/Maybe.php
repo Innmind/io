@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
-use Innmind\IO\Frame;
+use Innmind\IO\{
+    Frame,
+    Internal\Reader,
+};
 use Innmind\Immutable\Maybe as Monad;
 
 /**
@@ -26,10 +29,8 @@ final class Maybe implements Implementation
     }
 
     #[\Override]
-    public function __invoke(
-        callable $read,
-        callable $readLine,
-    ): Monad {
+    public function __invoke(Reader $reader): Monad
+    {
         return $this->value;
     }
 

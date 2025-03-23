@@ -105,7 +105,7 @@ final class Frames
 
         $reader = Reader::of($wait, $this->encoding);
 
-        return ($this->frame)($reader->read(...), $reader->readLine(...));
+        return ($this->frame)($reader);
     }
 
     /**

@@ -151,7 +151,7 @@ final class Lazy
             }
 
             while (!$stream->end()) {
-                yield $frame($reader->read(...), $reader->readLine(...))->match(
+                yield $frame($reader)->match(
                     static fn($frame): mixed => $frame,
                     static fn() => throw new FailedToLoadStream,
                 );

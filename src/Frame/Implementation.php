@@ -3,10 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
-use Innmind\Immutable\{
-    Str,
-    Maybe,
-};
+use Innmind\IO\Internal\Reader;
+use Innmind\Immutable\Maybe;
 
 /**
  * @internal
@@ -15,13 +13,7 @@ use Innmind\Immutable\{
 interface Implementation
 {
     /**
-     * @param callable(?int<1, max>): Maybe<Str> $read
-     * @param callable(): Maybe<Str> $readLine
-     *
      * @return Maybe<T>
      */
-    public function __invoke(
-        callable $read,
-        callable $readLine,
-    ): Maybe;
+    public function __invoke(Reader $reader): Maybe;
 }

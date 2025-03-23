@@ -3,7 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Frame;
 
-use Innmind\IO\Frame;
+use Innmind\IO\{
+    Frame,
+    Internal\Reader,
+};
 use Innmind\Immutable\Maybe;
 
 /**
@@ -27,15 +30,13 @@ final class FlatMap implements Implementation
     }
 
     #[\Override]
-    public function __invoke(
-        callable $read,
-        callable $readLine,
-    ): Maybe {
+    public function __invoke(Reader $reader): Maybe
+    {
         $map = $this->map;
 
         /** @psalm-suppress MixedArgument */
-        return ($this->frame)($read, $readLine)->flatMap(
-            static fn($value) => $map($value)($read, $readLine),
+        return ($this->frame)($reader)->flatMap(
+            static fn($value) => $map($value)($reader),
         );
     }
 

@@ -3,11 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\IO;
 
-use Innmind\IO\Frame\{
-    Implementation,
-    Maybe as M,
-    Line,
-    Sequence,
+use Innmind\IO\{
+    Frame\Implementation,
+    Frame\Maybe as M,
+    Frame\Line,
+    Frame\Sequence,
+    Internal\Reader,
 };
 use Innmind\Immutable\{
     Str,
@@ -31,16 +32,11 @@ final class Frame
     }
 
     /**
-     * @param callable(?int<1, max>): Maybe<Str> $read
-     * @param callable(): Maybe<Str> $readLine
-     *
      * @return Maybe<T>
      */
-    public function __invoke(
-        callable $read,
-        callable $readLine,
-    ): Maybe {
-        return ($this->implementation)($read, $readLine);
+    public function __invoke(Reader $reader): Maybe
+    {
+        return ($this->implementation)($reader);
     }
 
     /**
