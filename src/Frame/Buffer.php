@@ -10,48 +10,47 @@ use Innmind\IO\{
 use Innmind\Immutable\Maybe;
 
 /**
+ * Use this frame to hardcode a value inside a frame composition
+ *
  * @internal
  * @template T
- * @template U
- * @implements Implementation<U>
+ * @implements Implementation<T>
  */
-final class FlatMap implements Implementation
+final class Buffer implements Implementation
 {
     /**
      * @psalm-mutation-free
      *
+     * @param int<1, max> $size
      * @param Implementation<T> $frame
-     * @param \Closure(T): Frame<U> $map
      */
     private function __construct(
+        private int $size,
         private Implementation $frame,
-        private \Closure $map,
     ) {
     }
 
     #[\Override]
     public function __invoke(Reader|Reader\Buffer $reader): Maybe
     {
-        $map = $this->map;
+        $frame = $this->frame;
 
-        /** @psalm-suppress MixedArgument */
-        return ($this->frame)($reader)->flatMap(
-            static fn($value) => $map($value)($reader),
-        );
+        return $reader
+            ->read($this->size)
+            ->flatMap(static fn($buffer) => $frame(Reader\Buffer::of($buffer)));
     }
 
     /**
      * @psalm-pure
      * @template A
-     * @template B
      *
+     * @param int<1, max> $size
      * @param Implementation<A> $frame
-     * @param callable(A): Frame<B> $map
      *
-     * @return self<A, B>
+     * @return self<A>
      */
-    public static function of(Implementation $frame, callable $map): self
+    public static function of(int $size, Implementation $frame): self
     {
-        return new self($frame, \Closure::fromCallable($map));
+        return new self($size, $frame);
     }
 }

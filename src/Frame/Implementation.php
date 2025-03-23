@@ -15,5 +15,5 @@ interface Implementation
     /**
      * @return Maybe<T>
      */
-    public function __invoke(Reader $reader): Maybe;
+    public function __invoke(Reader|Reader\Buffer $reader): Maybe;
 }

@@ -23,7 +23,7 @@ final class Line implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Maybe
     {
         return $reader->readLine();
     }

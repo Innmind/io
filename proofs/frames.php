@@ -181,4 +181,39 @@ return static function() {
             );
         },
     );
+
+    yield proof(
+        'Frame::buffer()',
+        given(
+            Set::strings()
+                ->unicode()
+                ->atLeast(1)
+                ->map(Str::of(...))
+                ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
+            Set::strings()
+                ->unicode()
+                ->map(Str::of(...))
+                ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
+            Set::integers()->between(1, 100),
+        ),
+        static function($assert, $a, $b, $size) use ($reader) {
+            $frame = Frame::buffer(
+                $a->length(),
+                Frame::chunk($size)->loose(),
+            )->flatMap(
+                static fn($value) => Frame::chunk($b->length())
+                    ->strict()
+                    ->map(static fn($rest) => $value->append($rest)),
+            );
+
+            $assert->same(
+                $a->take($size)->append($b)->toString(),
+                $frame($reader($a->append($b)))
+                    ->match(
+                        static fn($value) => $value->toString(),
+                        static fn() => null,
+                    ),
+            );
+        },
+    );
 };

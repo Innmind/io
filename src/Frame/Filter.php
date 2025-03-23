@@ -31,7 +31,7 @@ final class Filter implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Maybe
     {
         return ($this->frame)($reader)->filter(
             $this->predicate,

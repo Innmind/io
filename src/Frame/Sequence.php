@@ -29,7 +29,7 @@ final class Sequence implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Maybe
     {
         $frame = $this->frame;
         $frames = Seq::lazy(static function() use ($reader, $frame) {

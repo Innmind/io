@@ -8,6 +8,7 @@ use Innmind\IO\{
     Frame\Maybe as M,
     Frame\Line,
     Frame\Sequence,
+    Frame\Buffer,
     Internal\Reader,
 };
 use Innmind\Immutable\{
@@ -34,7 +35,7 @@ final class Frame
     /**
      * @return Maybe<T>
      */
-    public function __invoke(Reader $reader): Maybe
+    public function __invoke(Reader|Reader\Buffer $reader): Maybe
     {
         return ($this->implementation)($reader);
     }
@@ -102,6 +103,29 @@ final class Frame
     public static function sequence(self $frame): self
     {
         return new self(Sequence::of($frame));
+    }
+
+    /**
+     * Use this method to put the stream data in a buffer.
+     *
+     * This is useful to avoid accessing the stream, and potentially watching if
+     * it's readable, at each frame composition. This can reduce latency.
+     *
+     * Be careful when using this frame as the buffer is only accessible to the
+     * provided frame.
+     *
+     * @psalm-pure
+     * @template U
+     *
+     * @param int<1, max> $size
+     * @param self<U> $frame
+     *
+     * @return self<U>
+     */
+    public static function buffer(int $size, self $frame): self
+    {
+        /** @psalm-suppress ImpurePropertyFetch It's safe to access the implementation */
+        return new self(Buffer::of($size, $frame->implementation));
     }
 
     /**

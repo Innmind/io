@@ -29,7 +29,7 @@ final class Maybe implements Implementation
     }
 
     #[\Override]
-    public function __invoke(Reader $reader): Monad
+    public function __invoke(Reader|Reader\Buffer $reader): Monad
     {
         return $this->value;
     }
