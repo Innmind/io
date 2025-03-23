@@ -147,15 +147,6 @@ final class Read
     }
 
     /**
-     * @psalm-mutation-free
-     */
-    public function buffer(): self
-    {
-        // todo
-        return $this;
-    }
-
-    /**
      * When reading from the stream, if a timeout occurs then it will send the
      * data provided by the callback and then restart watching for the stream
      * to be readable.

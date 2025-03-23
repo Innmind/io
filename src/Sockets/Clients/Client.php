@@ -52,18 +52,6 @@ final class Client
     /**
      * @psalm-mutation-free
      */
-    public function buffer(): self
-    {
-        return new self(
-            $this->stream,
-            $this->read->buffer(),
-            $this->write,
-        );
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
     public function watch(): self
     {
         return new self(
