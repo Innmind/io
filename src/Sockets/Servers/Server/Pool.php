@@ -37,10 +37,9 @@ final class Pool
      */
     public function with(Server $server): self
     {
-        // todo automatically determine the shortest timeout to watch for
         return new self(
             $this->capabilities,
-            $this->watch->forRead($server->unwrap()),
+            $this->watch->merge($server->unwrap()),
         );
     }
 
@@ -49,10 +48,7 @@ final class Pool
      */
     public function accept(): Sequence
     {
-        // todo remove when shortest timeout is automatically determined
-        $watch = $this->watch->waitForever();
-
-        return $watch()
+        return ($this->watch)()
             ->toSequence()
             ->flatMap(
                 static fn($ready) => $ready

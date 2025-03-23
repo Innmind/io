@@ -188,6 +188,29 @@ final class Watch
     }
 
     /**
+     * The new Watch uses the shortest timeout of the both.
+     *
+     * @psalm-mutation-free
+     */
+    public function merge(self $other): self
+    {
+        $ownTimeout = $this->timeout;
+        $otherTimeout = $other->timeout;
+
+        return new self(
+            Maybe::all($ownTimeout, $otherTimeout)
+                ->map(static fn(Period $own, Period $other) => match (true) {
+                    $own->asElapsedPeriod()->longerThan($other->asElapsedPeriod()) => $other,
+                    default => $own,
+                })
+                ->otherwise(static fn() => $ownTimeout)
+                ->otherwise(static fn() => $otherTimeout),
+            $this->read->merge($other->read),
+            $this->write->merge($other->write),
+        );
+    }
+
+    /**
      * @psalm-mutation-free
      */
     public function unwatch(Stream|Server $stream): self

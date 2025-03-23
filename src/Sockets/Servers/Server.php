@@ -41,9 +41,9 @@ final class Server
     /**
      * @internal
      */
-    public function unwrap(): Socket
+    public function unwrap(): Watch
     {
-        return $this->socket;
+        return $this->watch;
     }
 
     /**
