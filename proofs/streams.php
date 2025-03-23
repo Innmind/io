@@ -166,6 +166,54 @@ return static function() {
     );
 
     yield proof(
+        'IO::streams()->acquire()->read()->nonBlocking()->frames()->sequence()',
+        given(
+            Set::either(
+                Set::sequence($string->between(0, 20)->filter(
+                    static fn($line) => !\str_contains($line, "\n"),
+                )),
+                Set::sequence($string->filter(
+                    static fn($line) => !\str_contains($line, "\n"),
+                ))->between(0, 20),
+            ),
+        ),
+        static function($assert, $lines) {
+            $tmp = \tmpfile();
+            \fwrite($tmp, \implode("\n", $lines));
+
+            $load = static fn() => IO::fromAmbientAuthority()
+                ->streams()
+                ->acquire($tmp)
+                ->read()
+                ->nonBlocking()
+                ->toEncoding(Str\Encoding::ascii)
+                ->watch()
+                ->frames(Frame::line())
+                ->lazy()
+                ->sequence();
+
+            $sequence = $load();
+            $assert->same(
+                \count($lines) ?: 1, // by default it always read an empty string
+                $sequence->size(),
+            );
+            $assert->same(
+                [],
+                $sequence->toList(),
+                'Stream should not be rewinde',
+            );
+
+            \fseek($tmp, 0); // rewind
+            $assert->same(
+                \implode("\n", $lines),
+                $load()
+                    ->fold(new Concat)
+                    ->toString(),
+            );
+        },
+    );
+
+    yield proof(
         'IO::streams()->acquire()->read()->frames()->rewindable()->sequence()',
         given(
             Set::either(
