@@ -12,6 +12,7 @@ use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
     Str,
     Maybe,
+    Attempt,
     Sequence,
     SideEffect,
 };
@@ -128,9 +129,9 @@ final class Client
     /**
      * @param Sequence<Str> $chunks
      *
-     * @return Maybe<SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function sink(Sequence $chunks): Maybe
+    public function sink(Sequence $chunks): Attempt
     {
         return $this->write->sink($chunks);
     }

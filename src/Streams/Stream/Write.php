@@ -7,10 +7,10 @@ use Innmind\IO\{
     Internal\Stream,
     Internal\Watch,
     Internal\Watch\Ready,
+    Exception\RuntimeException,
 };
 use Innmind\Immutable\{
     Str,
-    Maybe,
     Attempt,
     Sequence,
     SideEffect,
@@ -79,9 +79,9 @@ final class Write
     /**
      * @param Sequence<Str> $chunks
      *
-     * @return Maybe<SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function sink(Sequence $chunks): Maybe
+    public function sink(Sequence $chunks): Attempt
     {
         $stream = $this->stream;
         $watch = match ($this->doWatch) {
@@ -96,19 +96,23 @@ final class Write
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
             ->sink(new SideEffect)
-            ->maybe(
-                static fn($_, $chunk) => Maybe::just($_)
-                    ->exclude(static fn() => $abort())
-                    ->flatMap(static fn() => $watch()->maybe())
+            ->attempt(
+                static fn($_, $chunk) => Attempt::result($_)
+                    ->flatMap(static fn($_) => match ($abort()) {
+                        true => Attempt::error(new RuntimeException('Aborted')),
+                        false => Attempt::result($_),
+                    })
+                    ->flatMap(static fn() => $watch())
                     ->map(static fn($ready) => $ready->toWrite())
-                    ->flatMap(static fn($toWrite) => $toWrite->find(
-                        static fn($ready) => $ready === $stream,
-                    ))
                     ->flatMap(
-                        static fn($stream) => $stream
-                            ->write($chunk)
-                            ->maybe(),
-                    ),
+                        static fn($toWrite) => $toWrite
+                            ->find(static fn($ready) => $ready === $stream)
+                            ->match(
+                                static fn($stream) => Attempt::result($stream),
+                                static fn() => Attempt::error(new RuntimeException('Stream not ready to write to')),
+                            ),
+                    )
+                    ->flatMap(static fn($stream) => $stream->write($chunk)),
             );
     }
 }

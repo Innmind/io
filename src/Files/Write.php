@@ -8,12 +8,12 @@ use Innmind\IO\{
     Internal\Capabilities,
     Internal\Watch,
     Internal\Watch\Ready,
+    Exception\RuntimeException,
 };
 use Innmind\Url\Path;
 use Innmind\Validation\Is;
 use Innmind\Immutable\{
     Str,
-    Maybe,
     Attempt,
     Sequence,
     SideEffect,
@@ -87,9 +87,9 @@ final class Write
     /**
      * @param Sequence<Str> $chunks
      *
-     * @return Maybe<SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function sink(Sequence $chunks): Maybe
+    public function sink(Sequence $chunks): Attempt
     {
         $stream = ($this->load)();
         $autoClose = $this->autoClose;
@@ -104,22 +104,22 @@ final class Write
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
             ->sink(new SideEffect)
-            ->maybe(
+            ->attempt(
                 static fn($_, $chunk) => $watch()
-                    ->maybe()
                     ->map(static fn($ready) => $ready->toWrite())
-                    ->flatMap(static fn($toWrite) => $toWrite->find(
-                        static fn($ready) => $ready === $stream,
-                    ))
                     ->flatMap(
-                        static fn($stream) => $stream
-                            ->write($chunk)
-                            ->maybe(),
-                    ),
+                        static fn($toWrite) => $toWrite
+                            ->find(static fn($ready) => $ready === $stream)
+                            ->match(
+                                static fn($stream) => Attempt::result($stream),
+                                static fn() => Attempt::error(new RuntimeException('Stream not ready to write to')),
+                            ),
+                    )
+                    ->flatMap(static fn($stream) => $stream->write($chunk)),
             )
             ->flatMap(static fn($sideEffect) => match ($autoClose) {
-                true => $stream->close()->maybe(),
-                false => Maybe::just($sideEffect),
+                true => $stream->close(),
+                false => Attempt::result($sideEffect),
             });
     }
 }

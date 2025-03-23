@@ -56,6 +56,7 @@ final class Files
             ->flatMap(
                 static fn($tmp) => Write::temporary($capabilities, $tmp)
                     ->sink($chunks)
+                    ->maybe()
                     ->map(static fn() => Read::temporary($capabilities, $tmp)),
             );
     }
