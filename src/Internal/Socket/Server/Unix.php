@@ -10,7 +10,7 @@ use Innmind\IO\{
 use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Maybe,
-    Either,
+    Attempt,
     SideEffect,
 };
 
@@ -54,7 +54,7 @@ final class Unix implements Server
     }
 
     #[\Override]
-    public function close(): Either
+    public function close(): Attempt
     {
         if (!$this->closed()) {
             return $this
@@ -67,7 +67,7 @@ final class Unix implements Server
                 });
         }
 
-        return Either::right(new SideEffect);
+        return Attempt::result(new SideEffect);
     }
 
     /**

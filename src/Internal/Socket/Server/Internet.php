@@ -7,7 +7,7 @@ use Innmind\IO\Internal\Socket\Server;
 use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Maybe,
-    Either,
+    Attempt,
 };
 
 final class Internet implements Server
@@ -46,7 +46,7 @@ final class Internet implements Server
     }
 
     #[\Override]
-    public function close(): Either
+    public function close(): Attempt
     {
         return $this->stream->close();
     }

@@ -20,7 +20,7 @@ use Innmind\Validation\{
 use Innmind\Immutable\{
     Str,
     Maybe,
-    Either,
+    Attempt,
     SideEffect,
     Validation,
     Predicate\Instance,
@@ -108,26 +108,26 @@ final class Stream
     }
 
     /**
-     * @return Either<PositionNotSeekable, SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function rewind(): Either
+    public function rewind(): Attempt
     {
         if (!$this->seekable) {
-            /** @var Either<PositionNotSeekable, SideEffect> */
-            return Either::left(new PositionNotSeekable);
+            /** @var Attempt<SideEffect> */
+            return Attempt::error(new PositionNotSeekable);
         }
 
         if ($this->closed()) {
-            /** @var Either<PositionNotSeekable, SideEffect> */
-            return Either::right(new SideEffect);
+            /** @var Attempt<SideEffect> */
+            return Attempt::result(new SideEffect);
         }
 
         $status = \fseek($this->resource, 0);
 
-        /** @var Either<PositionNotSeekable, SideEffect> */
+        /** @var Attempt<SideEffect> */
         return match ($status) {
-            -1 => Either::left(new PositionNotSeekable),
-            default => Either::right(new SideEffect),
+            -1 => Attempt::error(new PositionNotSeekable),
+            default => Attempt::result(new SideEffect),
         };
     }
 
@@ -183,24 +183,24 @@ final class Stream
     }
 
     /**
-     * @return Either<FailedToCloseStream, SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function close(): Either
+    public function close(): Attempt
     {
         if ($this->closed()) {
-            return Either::right(new SideEffect);
+            return Attempt::result(new SideEffect);
         }
 
         /** @psalm-suppress InvalidPropertyAssignmentValue */
         $return = \fclose($this->resource);
 
         if ($return === false) {
-            return Either::left(new FailedToCloseStream);
+            return Attempt::error(new FailedToCloseStream);
         }
 
         $this->closed = true;
 
-        return Either::right(new SideEffect);
+        return Attempt::result(new SideEffect);
     }
 
     /**
@@ -248,28 +248,28 @@ final class Stream
     }
 
     /**
-     * @return Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function write(Str $data): Either
+    public function write(Str $data): Attempt
     {
         if ($this->closed()) {
-            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
-            return Either::left(new FailedToWriteToStream);
+            /** @var Attempt<SideEffect> */
+            return Attempt::error(new FailedToWriteToStream);
         }
 
         $written = @\fwrite($this->resource, $data->toString());
 
         if ($written === false) {
-            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
-            return Either::left(new FailedToWriteToStream);
+            /** @var Attempt<SideEffect> */
+            return Attempt::error(new FailedToWriteToStream);
         }
 
         if ($written !== $data->length()) {
-            /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
-            return Either::left(DataPartiallyWritten::of($data, $written));
+            /** @var Attempt<SideEffect> */
+            return Attempt::error(DataPartiallyWritten::of($data, $written));
         }
 
-        /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
-        return Either::right(new SideEffect);
+        /** @var Attempt<SideEffect> */
+        return Attempt::result(new SideEffect);
     }
 }

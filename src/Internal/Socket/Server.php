@@ -3,13 +3,10 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Socket;
 
-use Innmind\IO\{
-    Internal\Stream,
-    Exception\FailedToCloseStream,
-};
+use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
     Maybe,
-    Either,
+    Attempt,
     SideEffect,
 };
 
@@ -28,12 +25,12 @@ interface Server
     public function accept(): Maybe;
 
     /**
-     * It returns a SideEffect instead of the stream on the right hand size
-     * because you should no longer use the stream once it's closed
+     * It returns a SideEffect instead of the stream on the result side because
+     * you should no longer use the stream once it's closed.
      *
-     * @return Either<FailedToCloseStream, SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function close(): Either;
+    public function close(): Attempt;
 
     /**
      * @psalm-mutation-free
