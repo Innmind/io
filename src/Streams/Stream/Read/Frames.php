@@ -9,6 +9,7 @@ use Innmind\IO\{
     Frame,
     Internal\Stream,
     Internal\Watch,
+    Internal\Reader,
 };
 use Innmind\Immutable\{
     Str,
@@ -88,8 +89,6 @@ final class Frames
             static fn() => $wait,
         );
 
-        $encoding = $this->encoding;
-
         $result = match ($this->blocking) {
             true => $stream->blocking(),
             false => $stream->nonBlocking(),
@@ -104,30 +103,9 @@ final class Frames
             return Maybe::nothing();
         }
 
-        /**
-         * @psalm-suppress ArgumentTypeCoercion
-         * @var callable(?positive-int): Maybe<Str>
-         */
-        $read = static fn(?int $size): Maybe => $wait()
-            ->flatMap(static fn($stream) => $stream->read($size))
-            ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
-                static fn() => $stream->end(),
-            ))
-            ->map(static fn($chunk) => $encoding->match(
-                static fn($encoding) => $chunk->toEncoding($encoding),
-                static fn() => $chunk,
-            ));
-        $readLine = static fn(): Maybe => $wait()
-            ->flatMap(static fn($stream) => $stream->readLine())
-            ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
-                static fn() => $stream->end(),
-            ))
-            ->map(static fn($chunk) => $encoding->match(
-                static fn($encoding) => $chunk->toEncoding($encoding),
-                static fn() => $chunk,
-            ));
+        $reader = Reader::of($wait, $this->encoding);
 
-        return ($this->frame)($read, $readLine);
+        return ($this->frame)($reader->read(...), $reader->readLine(...));
     }
 
     /**

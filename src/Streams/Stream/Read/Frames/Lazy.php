@@ -9,6 +9,7 @@ use Innmind\IO\{
     Exception\FailedToLoadStream,
     Internal\Stream,
     Internal\Watch,
+    Internal\Reader,
 };
 use Innmind\Immutable\{
     Str,
@@ -131,28 +132,7 @@ final class Lazy
                 ),
                 static fn() => $wait,
             );
-            /**
-             * @psalm-suppress ArgumentTypeCoercion
-             * @var callable(?positive-int): Maybe<Str>
-             */
-            $read = static fn(?int $size): Maybe => $wait()
-                ->flatMap(static fn($stream) => $stream->read($size))
-                ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
-                    static fn() => $stream->end(),
-                ))
-                ->map(static fn($chunk) => $encoding->match(
-                    static fn($encoding) => $chunk->toEncoding($encoding),
-                    static fn() => $chunk,
-                ));
-            $readLine = static fn(): Maybe => $wait()
-                ->flatMap(static fn($stream) => $stream->readLine())
-                ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
-                    static fn() => $stream->end(),
-                ))
-                ->map(static fn($chunk) => $encoding->match(
-                    static fn($encoding) => $chunk->toEncoding($encoding),
-                    static fn() => $chunk,
-                ));
+            $reader = Reader::of($wait, $encoding);
 
             $result = match ($blocking) {
                 true => $stream->blocking(),
@@ -171,7 +151,7 @@ final class Lazy
             }
 
             while (!$stream->end()) {
-                yield $frame($read, $readLine)->match(
+                yield $frame($reader->read(...), $reader->readLine(...))->match(
                     static fn($frame): mixed => $frame,
                     static fn() => throw new FailedToLoadStream,
                 );
