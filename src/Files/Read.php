@@ -140,7 +140,7 @@ final class Read
                 // streams ending with the "end of line" character
                 yield $wait()
                     ->maybe()
-                    ->flatMap(static fn($stream) => $stream->read($size))
+                    ->flatMap(static fn($stream) => $stream->read($size)->maybe())
                     ->match(
                         static fn($chunk) => $chunk,
                         static fn() => match ($stream->end()) {
@@ -194,7 +194,7 @@ final class Read
                 // streams ending with the "end of line" character
                 yield $wait()
                     ->maybe()
-                    ->flatMap(static fn($stream) => $stream->readLine())
+                    ->flatMap(static fn($stream) => $stream->readLine()->maybe())
                     ->match(
                         static fn($chunk) => $chunk,
                         static fn() => match ($stream->end()) {

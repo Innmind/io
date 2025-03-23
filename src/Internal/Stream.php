@@ -10,6 +10,7 @@ use Innmind\IO\{
     Exception\FailedToCloseStream,
     Exception\FailedToWriteToStream,
     Exception\PositionNotSeekable,
+    Exception\RuntimeException,
 };
 use Innmind\Validation\{
     Is,
@@ -215,13 +216,13 @@ final class Stream
     /**
      * @param int<1, max>|null $length When omitted will read the remaining of the stream
      *
-     * @return Maybe<Str>
+     * @return Attempt<Str>
      */
-    public function read(?int $length = null): Maybe
+    public function read(?int $length = null): Attempt
     {
         if ($this->closed()) {
-            /** @var Maybe<Str> */
-            return Maybe::nothing();
+            /** @var Attempt<Str> */
+            return Attempt::error(new RuntimeException('Stream closed'));
         }
 
         $data = \stream_get_contents(
@@ -229,22 +230,28 @@ final class Stream
             $length ?? -1,
         );
 
-        return Maybe::of(\is_string($data) ? Str::of($data) : null);
+        return match ($data) {
+            false => Attempt::error(new RuntimeException('Failed to read the stream')),
+            default => Attempt::result(Str::of($data)),
+        };
     }
 
     /**
-     * @return Maybe<Str>
+     * @return Attempt<Str>
      */
-    public function readLine(): Maybe
+    public function readLine(): Attempt
     {
         if ($this->closed()) {
-            /** @var Maybe<Str> */
-            return Maybe::nothing();
+            /** @var Attempt<Str> */
+            return Attempt::error(new RuntimeException('Stream closed'));
         }
 
         $line = \fgets($this->resource);
 
-        return Maybe::of(\is_string($line) ? Str::of($line) : null);
+        return match ($line) {
+            false => Attempt::error(new RuntimeException('Failed to read the stream')),
+            default => Attempt::result(Str::of($line)),
+        };
     }
 
     /**

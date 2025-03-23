@@ -48,6 +48,7 @@ final class Reader
             ->flatMap(
                 static fn($stream) => $stream
                     ->read($size)
+                    ->maybe()
                     ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
                         static fn() => $stream->end(),
                     )),
@@ -70,6 +71,7 @@ final class Reader
             ->flatMap(
                 static fn($stream) => $stream
                     ->readLine()
+                    ->maybe()
                     ->otherwise(static fn() => Maybe::just(Str::of(''))->filter(
                         static fn() => $stream->end(),
                     )),
