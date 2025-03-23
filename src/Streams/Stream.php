@@ -10,7 +10,7 @@ use Innmind\IO\{
     Internal\Capabilities,
 };
 use Innmind\Immutable\{
-    Maybe,
+    Attempt,
     SideEffect,
 };
 
@@ -47,10 +47,10 @@ final class Stream
     }
 
     /**
-     * @return Maybe<SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function close(): Maybe
+    public function close(): Attempt
     {
-        return $this->stream->close()->maybe();
+        return $this->stream->close();
     }
 }

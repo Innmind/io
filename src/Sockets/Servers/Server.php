@@ -14,6 +14,7 @@ use Innmind\IO\{
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
     Maybe,
+    Attempt,
     SideEffect,
     Predicate\Instance,
 };
@@ -101,13 +102,10 @@ final class Server
     }
 
     /**
-     * @return Maybe<SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function close(): Maybe
+    public function close(): Attempt
     {
-        return $this
-            ->socket
-            ->close()
-            ->maybe();
+        return $this->socket->close();
     }
 }

@@ -11,7 +11,6 @@ use Innmind\IO\{
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
     Str,
-    Maybe,
     Attempt,
     Sequence,
     SideEffect,
@@ -149,9 +148,9 @@ final class Client
     }
 
     /**
-     * @return Maybe<SideEffect>
+     * @return Attempt<SideEffect>
      */
-    public function close(): Maybe
+    public function close(): Attempt
     {
         return $this->stream->close();
     }
