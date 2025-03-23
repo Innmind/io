@@ -6,6 +6,10 @@ namespace Innmind\IO\Internal;
 use Innmind\IO\{
     Stream\Size,
     Exception\InvalidArgumentException,
+    Exception\DataPartiallyWritten,
+    Exception\FailedToCloseStream,
+    Exception\FailedToWriteToStream,
+    Exception\PositionNotSeekable,
 };
 use Innmind\Validation\{
     Is,
@@ -262,7 +266,7 @@ final class Stream
 
         if ($written !== $data->length()) {
             /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
-            return Either::left(new DataPartiallyWritten($data, $written));
+            return Either::left(DataPartiallyWritten::of($data, $written));
         }
 
         /** @var Either<FailedToWriteToStream|DataPartiallyWritten, SideEffect> */
