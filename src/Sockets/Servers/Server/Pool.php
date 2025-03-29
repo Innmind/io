@@ -59,6 +59,7 @@ final class Pool
             ->flatMap(
                 static fn($socket) => $socket
                     ->accept()
+                    ->maybe()
                     ->toSequence(),
             )
             ->map(fn($socket) => Client::of(

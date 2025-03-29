@@ -10,10 +10,10 @@ use Innmind\IO\{
     Internal\Capabilities,
     Internal\Socket\Server as Socket,
     Internal\Watch,
+    Exception\RuntimeException,
 };
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
-    Maybe,
     Attempt,
     SideEffect,
     Predicate\Instance,
@@ -72,20 +72,23 @@ final class Server
     }
 
     /**
-     * @return Maybe<Client>
+     * @return Attempt<Client>
      */
-    public function accept(): Maybe
+    public function accept(): Attempt
     {
         $socket = $this->socket;
 
         return ($this->watch)()
-            ->maybe()
             ->map(static fn($ready) => $ready->toRead())
-            ->flatMap(static fn($toRead) => $toRead->find(
-                static fn($ready) => $ready === $socket,
-            ))
-            ->keep(Instance::of(Socket::class))
-            ->flatMap(static fn($socket) => $socket->accept())
+            ->flatMap(
+                static fn($toRead) => $toRead
+                    ->find(static fn($ready) => $ready === $socket)
+                    ->keep(Instance::of(Socket::class))
+                    ->match(
+                        static fn($socket) => $socket->accept(),
+                        static fn() => Attempt::error(new RuntimeException('Stream not ready')),
+                    ),
+            )
             ->map(fn($socket) => Client::of(
                 Stream::of(
                     $this->capabilities,

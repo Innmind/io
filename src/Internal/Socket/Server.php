@@ -5,7 +5,6 @@ namespace Innmind\IO\Internal\Socket;
 
 use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
-    Maybe,
     Attempt,
     SideEffect,
 };
@@ -20,9 +19,9 @@ interface Server
     public function resource();
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function accept(): Maybe;
+    public function accept(): Attempt;
 
     /**
      * It returns a SideEffect instead of the stream on the result side because

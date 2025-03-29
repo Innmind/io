@@ -485,8 +485,7 @@ class FunctionalTest extends TestCase
                     static fn($client) => $client
                         ->watch()
                         ->frames(Frame::chunk(34)->strict())
-                        ->one()
-                        ->maybe(),
+                        ->one(),
                 )
                 ->match(
                     static fn($chunk) => $chunk->toString(),
@@ -544,8 +543,7 @@ class FunctionalTest extends TestCase
                             ->flatMap(
                                 static fn($client) => $client
                                     ->frames(Frame::chunk(3)->strict())
-                                    ->one()
-                                    ->maybe(),
+                                    ->one(),
                             )
                             ->match(
                                 static fn($data) => $data->toString(),
@@ -615,14 +613,12 @@ class FunctionalTest extends TestCase
                             ->flatMap(
                                 static fn($client) => $client
                                     ->sink(Sequence::of(Str::of('bar')))
-                                    ->map(static fn() => $client)
-                                    ->maybe(),
+                                    ->map(static fn() => $client),
                             )
                             ->flatMap(
                                 static fn($client) => $client
                                     ->frames(Frame::chunk(3)->strict())
-                                    ->one()
-                                    ->maybe(),
+                                    ->one(),
                             )
                             ->match(
                                 static fn($data) => $data->toString(),
@@ -757,8 +753,7 @@ class FunctionalTest extends TestCase
             ->flatMap(
                 static fn($client) => $client
                     ->frames(Frame::chunk(3)->strict())
-                    ->one()
-                    ->maybe(),
+                    ->one(),
             )
             ->match(
                 static fn($data) => $data->toString(),

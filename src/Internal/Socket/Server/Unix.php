@@ -6,10 +6,10 @@ namespace Innmind\IO\Internal\Socket\Server;
 use Innmind\IO\{
     Sockets\Unix\Address,
     Internal\Socket\Server,
+    Internal\Stream,
+    Exception\RuntimeException,
 };
-use Innmind\IO\Internal\Stream;
 use Innmind\Immutable\{
-    Maybe,
     Attempt,
     SideEffect,
 };
@@ -31,17 +31,17 @@ final class Unix implements Server
     }
 
     #[\Override]
-    public function accept(): Maybe
+    public function accept(): Attempt
     {
         $socket = @\stream_socket_accept($this->resource());
 
         if ($socket === false) {
-            /** @var Maybe<Stream> */
-            return Maybe::nothing();
+            /** @var Attempt<Stream> */
+            return Attempt::error(new RuntimeException('Failed to accept new connection'));
         }
 
-        /** @var Maybe<Stream> */
-        return Maybe::just(Stream::of($socket));
+        /** @var Attempt<Stream> */
+        return Attempt::result(Stream::of($socket));
     }
 
     /**
