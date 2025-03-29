@@ -11,7 +11,7 @@ use Innmind\IO\{
 };
 use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 final class Servers
 {
@@ -29,9 +29,9 @@ final class Servers
     }
 
     /**
-     * @return Maybe<Server>
+     * @return Attempt<Server>
      */
-    public function internet(Transport $transport, IP $ip, Port $port): Maybe
+    public function internet(Transport $transport, IP $ip, Port $port): Attempt
     {
         return $this
             ->capabilities
@@ -46,9 +46,9 @@ final class Servers
     }
 
     /**
-     * @return Maybe<Server>
+     * @return Attempt<Server>
      */
-    public function unix(Address $address): Maybe
+    public function unix(Address $address): Attempt
     {
         return $this
             ->capabilities
@@ -63,9 +63,9 @@ final class Servers
     }
 
     /**
-     * @return Maybe<Server>
+     * @return Attempt<Server>
      */
-    public function takeOver(Address $address): Maybe
+    public function takeOver(Address $address): Attempt
     {
         return $this
             ->capabilities

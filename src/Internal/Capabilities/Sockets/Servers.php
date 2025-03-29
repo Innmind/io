@@ -10,10 +10,11 @@ use Innmind\IO\{
     Internal\Socket\Server,
     Internal\Socket\Server\Internet,
     Internal\Socket\Server\Unix,
+    Exception\RuntimeException,
 };
 use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 final class Servers
 {
@@ -30,26 +31,27 @@ final class Servers
     }
 
     /**
-     * @return Maybe<Server>
+     * @return Attempt<Server>
      */
     public function internet(
         Transport $transport,
         IP $ip,
         Port $port,
-    ): Maybe {
-        $socket = @\stream_socket_server(\sprintf(
+    ): Attempt {
+        $address = \sprintf(
             '%s://%s:%s',
             $transport->toString(),
             $ip->toString(),
             $port->toString(),
-        ));
+        );
+        $socket = @\stream_socket_server($address);
 
         if ($socket === false) {
-            /** @var Maybe<Server> */
-            return Maybe::nothing();
+            /** @var Attempt<Server> */
+            return Attempt::error(new RuntimeException("Failed to open server '$address'"));
         }
 
-        return Maybe::just(
+        return Attempt::result(
             Internet::of(
                 Stream::of(
                     $socket,
@@ -59,18 +61,18 @@ final class Servers
     }
 
     /**
-     * @return Maybe<Server>
+     * @return Attempt<Server>
      */
-    public function unix(Address $path): Maybe
+    public function unix(Address $path): Attempt
     {
         $socket = @\stream_socket_server('unix://'.$path->toString());
 
         if ($socket === false) {
-            /** @var Maybe<Server> */
-            return Maybe::nothing();
+            /** @var Attempt<Server> */
+            return Attempt::error(new RuntimeException("Failed to open server '{$path->toString()}'"));
         }
 
-        return Maybe::just(
+        return Attempt::result(
             Unix::of(
                 $path,
                 Stream::of($socket),
@@ -82,13 +84,13 @@ final class Servers
      * On open failure it will try to delete existing socket file the ntry to
      * reopen the socket connection
      *
-     * @return Maybe<Server>
+     * @return Attempt<Server>
      */
-    public function takeOver(Address $path): Maybe
+    public function takeOver(Address $path): Attempt
     {
         return $this
             ->unix($path)
-            ->otherwise(function() use ($path) {
+            ->recover(function() use ($path) {
                 @\unlink($path->toString());
 
                 return $this->unix($path);
