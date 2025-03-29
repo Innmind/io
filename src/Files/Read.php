@@ -131,7 +131,16 @@ final class Read
                 static fn() => throw new FailedToLoadStream,
             );
 
-            $register(static fn() => $rewind());
+            $register(static function() use ($rewind, $stream, $autoClose) {
+                $rewind();
+
+                if ($autoClose) {
+                    $stream->close()->match(
+                        static fn() => null,
+                        static fn() => throw new FailedToLoadStream,
+                    );
+                }
+            });
             $rewind();
 
             do {
@@ -184,7 +193,16 @@ final class Read
                 static fn() => throw new FailedToLoadStream,
             );
 
-            $register(static fn() => $rewind());
+            $register(static function() use ($rewind, $stream, $autoClose) {
+                $rewind();
+
+                if ($autoClose) {
+                    $stream->close()->match(
+                        static fn() => null,
+                        static fn() => throw new FailedToLoadStream,
+                    );
+                }
+            });
             $rewind();
 
             do {
