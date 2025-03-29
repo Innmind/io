@@ -11,7 +11,7 @@ use Innmind\IO\{
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Str,
-    Maybe,
+    Attempt,
     Sequence,
 };
 
@@ -43,9 +43,9 @@ final class Files
     /**
      * @param Sequence<Str> $chunks
      *
-     * @return Maybe<Read>
+     * @return Attempt<Read>
      */
-    public function temporary(Sequence $chunks): Maybe
+    public function temporary(Sequence $chunks): Attempt
     {
         $capabilities = $this->capabilities;
 
@@ -56,7 +56,6 @@ final class Files
             ->flatMap(
                 static fn($tmp) => Write::temporary($capabilities, $tmp)
                     ->sink($chunks)
-                    ->maybe()
                     ->map(static fn() => Read::temporary($capabilities, $tmp)),
             );
     }

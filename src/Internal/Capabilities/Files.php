@@ -3,9 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Capabilities;
 
-use Innmind\IO\Internal\Stream;
+use Innmind\IO\{
+    Internal\Stream,
+    Exception\RuntimeException,
+};
 use Innmind\Url\Path;
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 final class Files
 {
@@ -22,25 +25,25 @@ final class Files
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function read(Path $path): Maybe
+    public function read(Path $path): Attempt
     {
         return $this->open($path->toString(), 'r');
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function write(Path $path): Maybe
+    public function write(Path $path): Attempt
     {
         return $this->open($path->toString(), 'w');
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function temporary(): Maybe
+    public function temporary(): Attempt
     {
         return $this->open('php://temp', 'r+');
     }
@@ -54,17 +57,17 @@ final class Files
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    private function open(string $path, string $mode): Maybe
+    private function open(string $path, string $mode): Attempt
     {
         $stream = \fopen($path, $mode);
 
         if ($stream === false) {
-            /** @var Maybe<Stream> */
-            return Maybe::nothing();
+            /** @var Attempt<Stream> */
+            return Attempt::error(new RuntimeException("Failed to open file '$path'"));
         }
 
-        return Maybe::just(Stream::of($stream));
+        return Attempt::result(Stream::of($stream));
     }
 }
