@@ -13,6 +13,7 @@ use Innmind\Immutable\{
 };
 
 /**
+ * @internal
  * @template T
  * @implements Implementation<Seq<Attempt<T>>>
  */
@@ -42,6 +43,7 @@ final class Sequence implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      * @template A
      *

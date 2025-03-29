@@ -69,6 +69,7 @@ final class Wait
     }
 
     /**
+     * @internal
      * @psalm-mutation-free
      */
     public static function of(Watch $watch, Stream $stream): self

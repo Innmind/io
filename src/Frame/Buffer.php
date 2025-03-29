@@ -41,6 +41,7 @@ final class Buffer implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      * @template A
      *

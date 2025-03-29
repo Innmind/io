@@ -10,6 +10,9 @@ use Innmind\IO\{
 };
 use Innmind\Immutable\Attempt;
 
+/**
+ * @internal
+ */
 final class Internet implements Server
 {
     private function __construct(
@@ -17,6 +20,9 @@ final class Internet implements Server
     ) {
     }
 
+    /**
+     * @internal
+     */
     public static function of(Stream $stream): self
     {
         return new self($stream);

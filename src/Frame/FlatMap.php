@@ -41,6 +41,7 @@ final class FlatMap implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      * @template A
      * @template B

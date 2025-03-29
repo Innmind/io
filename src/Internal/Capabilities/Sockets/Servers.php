@@ -16,6 +16,9 @@ use Innmind\IP\IP;
 use Innmind\Url\Authority\Port;
 use Innmind\Immutable\Attempt;
 
+/**
+ * @internal
+ */
 final class Servers
 {
     private function __construct()

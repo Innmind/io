@@ -9,6 +9,9 @@ use Innmind\IO\{
 };
 use Innmind\Immutable\Attempt;
 
+/**
+ * @internal
+ */
 final class Sockets
 {
     private function __construct()

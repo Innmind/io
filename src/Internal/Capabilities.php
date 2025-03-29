@@ -3,12 +3,18 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
+/**
+ * @internal
+ */
 final class Capabilities
 {
     private function __construct()
     {
     }
 
+    /**
+     * @internal
+     */
     public static function fromAmbientAuthority(): self
     {
         return new self;

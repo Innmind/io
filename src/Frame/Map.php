@@ -35,6 +35,7 @@ final class Map implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      * @template A
      * @template B

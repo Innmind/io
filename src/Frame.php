@@ -34,6 +34,8 @@ final class Frame
     }
 
     /**
+     * @internal
+     *
      * @return Attempt<T>
      */
     public function __invoke(Reader|Reader\Buffer $reader): Attempt

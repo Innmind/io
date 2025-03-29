@@ -29,6 +29,7 @@ final class Line implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      */
     public static function new(): self

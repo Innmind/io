@@ -27,6 +27,9 @@ use Innmind\Immutable\{
     Predicate\Instance,
 };
 
+/**
+ * @internal
+ */
 final class Stream
 {
     /** @var resource */
@@ -63,6 +66,8 @@ final class Stream
     }
 
     /**
+     * @internal
+     *
      * @param resource $resource
      */
     public static function of($resource): self

@@ -10,6 +10,9 @@ use Innmind\IO\{
 use Innmind\Url\Path;
 use Innmind\Immutable\Attempt;
 
+/**
+ * @internal
+ */
 final class Files
 {
     private function __construct()

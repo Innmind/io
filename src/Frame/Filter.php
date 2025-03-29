@@ -48,6 +48,7 @@ final class Filter implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      * @template A
      *

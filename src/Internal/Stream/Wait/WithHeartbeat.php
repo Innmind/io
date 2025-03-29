@@ -67,6 +67,7 @@ final class WithHeartbeat
     }
 
     /**
+     * @internal
      * @psalm-mutation-free
      *
      * @param callable(): Sequence<Str> $provide

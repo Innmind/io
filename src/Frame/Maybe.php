@@ -42,6 +42,7 @@ final class Maybe implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      * @template A
      *
@@ -55,6 +56,7 @@ final class Maybe implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      * @template A
      *

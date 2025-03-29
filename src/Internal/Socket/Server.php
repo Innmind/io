@@ -9,6 +9,9 @@ use Innmind\Immutable\{
     SideEffect,
 };
 
+/**
+ * @internal
+ */
 interface Server
 {
     /**

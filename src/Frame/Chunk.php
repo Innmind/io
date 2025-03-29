@@ -32,6 +32,7 @@ final class Chunk implements Implementation
     }
 
     /**
+     * @internal
      * @psalm-pure
      *
      * @param int<1, max> $size

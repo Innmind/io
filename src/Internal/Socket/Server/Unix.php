@@ -14,6 +14,9 @@ use Innmind\Immutable\{
     SideEffect,
 };
 
+/**
+ * @internal
+ */
 final class Unix implements Server
 {
     private string $path;
@@ -25,6 +28,9 @@ final class Unix implements Server
         $this->stream = $stream;
     }
 
+    /**
+     * @internal
+     */
     public static function of(Address $path, Stream $stream): self
     {
         return new self($path, $stream);

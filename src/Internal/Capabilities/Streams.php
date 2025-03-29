@@ -5,6 +5,9 @@ namespace Innmind\IO\Internal\Capabilities;
 
 use Innmind\IO\Internal\Stream;
 
+/**
+ * @internal
+ */
 final class Streams
 {
     private function __construct()

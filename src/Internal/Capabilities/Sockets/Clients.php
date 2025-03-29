@@ -12,6 +12,9 @@ use Innmind\IO\{
 use Innmind\Url\Authority;
 use Innmind\Immutable\Attempt;
 
+/**
+ * @internal
+ */
 final class Clients
 {
     private function __construct()

@@ -17,6 +17,7 @@ use Innmind\Immutable\{
 };
 
 /**
+ * @internal
  * By default it waits forever for changes
  */
 final class Watch
@@ -88,6 +89,7 @@ final class Watch
     }
 
     /**
+     * @internal
      * @psalm-pure
      */
     public static function new(): self

@@ -10,6 +10,7 @@ use Innmind\IO\Internal\{
 use Innmind\Immutable\Sequence;
 
 /**
+ * @internal
  * @psalm-immutable
  */
 final class Ready
