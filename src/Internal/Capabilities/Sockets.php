@@ -3,8 +3,11 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal\Capabilities;
 
-use Innmind\IO\Internal\Stream;
-use Innmind\Immutable\Maybe;
+use Innmind\IO\{
+    Internal\Stream,
+    Exception\RuntimeException,
+};
+use Innmind\Immutable\Attempt;
 
 final class Sockets
 {
@@ -31,9 +34,9 @@ final class Sockets
     }
 
     /**
-     * @return Maybe<array{Stream, Stream}>
+     * @return Attempt<array{Stream, Stream}>
      */
-    public function pair(): Maybe
+    public function pair(): Attempt
     {
         $pairs = @\stream_socket_pair(
             \STREAM_PF_UNIX,
@@ -42,11 +45,11 @@ final class Sockets
         );
 
         if ($pairs === false) {
-            /** @var Maybe<array{Stream, Stream}> */
-            return Maybe::nothing();
+            /** @var Attempt<array{Stream, Stream}> */
+            return Attempt::error(new RuntimeException('Failed to create a socket pair'));
         }
 
-        return Maybe::just([
+        return Attempt::result([
             Stream::of($pairs[0]),
             Stream::of($pairs[1]),
         ]);

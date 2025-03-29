@@ -9,7 +9,7 @@ use Innmind\IO\{
     Sockets\Servers,
     Internal\Capabilities,
 };
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 final class Sockets
 {
@@ -38,9 +38,9 @@ final class Sockets
     }
 
     /**
-     * @return Maybe<array{Client, Client}>
+     * @return Attempt<array{Client, Client}>
      */
-    public function pair(): Maybe
+    public function pair(): Attempt
     {
         return $this->capabilities->sockets()->pair()->map(
             fn($pair) => [
