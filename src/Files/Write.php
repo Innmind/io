@@ -117,6 +117,7 @@ final class Write
                     )
                     ->flatMap(static fn($stream) => $stream->write($chunk)),
             )
+            ->flatMap(static fn() => $stream->sync())
             ->recover(static function($e) use ($stream, $autoClose) {
                 if ($autoClose) {
                     $_ = $stream->close()->memoize();

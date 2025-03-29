@@ -33,6 +33,7 @@ final class Stream
     private $resource;
     private bool $closed = false;
     private bool $seekable = false;
+    private bool $syncable = false;
 
     /**
      * @param resource $resource
@@ -54,6 +55,10 @@ final class Stream
             //stdin, stdout and stderr are not seekable
             $this->seekable = true;
             $this->rewind();
+        }
+
+        if (\substr($meta['uri'] ?? '', 0, 10) !== 'php://temp') {
+            $this->syncable = true;
         }
     }
 
@@ -274,6 +279,31 @@ final class Stream
         if ($written !== $data->length()) {
             /** @var Attempt<SideEffect> */
             return Attempt::error(DataPartiallyWritten::of($data, $written));
+        }
+
+        /** @var Attempt<SideEffect> */
+        return Attempt::result(new SideEffect);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function sync(): Attempt
+    {
+        if ($this->closed()) {
+            /** @var Attempt<SideEffect> */
+            return Attempt::error(new FailedToWriteToStream);
+        }
+
+        if (!$this->syncable) {
+            return Attempt::result(new SideEffect);
+        }
+
+        $written = @\fsync($this->resource);
+
+        if ($written === false) {
+            /** @var Attempt<SideEffect> */
+            return Attempt::error(new FailedToWriteToStream);
         }
 
         /** @var Attempt<SideEffect> */
