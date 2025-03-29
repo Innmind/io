@@ -11,7 +11,7 @@ use Innmind\IO\{
     Internal\Capabilities,
 };
 use Innmind\Url\Authority;
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 final class Clients
 {
@@ -30,9 +30,9 @@ final class Clients
     }
 
     /**
-     * @return Maybe<Client>
+     * @return Attempt<Client>
      */
-    public function internet(Transport $transport, Authority $authority): Maybe
+    public function internet(Transport $transport, Authority $authority): Attempt
     {
         return $this
             ->capabilities
@@ -48,9 +48,9 @@ final class Clients
     }
 
     /**
-     * @return Maybe<Client>
+     * @return Attempt<Client>
      */
-    public function unix(Address $address): Maybe
+    public function unix(Address $address): Attempt
     {
         return $this
             ->capabilities

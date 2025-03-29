@@ -7,9 +7,10 @@ use Innmind\IO\{
     Sockets\Internet\Transport,
     Sockets\Unix\Address,
     Internal\Stream,
+    Exception\RuntimeException,
 };
 use Innmind\Url\Authority;
-use Innmind\Immutable\Maybe;
+use Innmind\Immutable\Attempt;
 
 final class Clients
 {
@@ -26,19 +27,20 @@ final class Clients
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function internet(Transport $transport, Authority $authority): Maybe
+    public function internet(Transport $transport, Authority $authority): Attempt
     {
-        $socket = @\stream_socket_client(\sprintf(
+        $address = \sprintf(
             '%s://%s',
             $transport->toString(),
             $authority->toString(),
-        ));
+        );
+        $socket = @\stream_socket_client($address);
 
         if ($socket === false) {
-            /** @var Maybe<Stream> */
-            return Maybe::nothing();
+            /** @var Attempt<Stream> */
+            return Attempt::error(new RuntimeException("Failed to open socket at '$address'"));
         }
 
         /**
@@ -56,21 +58,21 @@ final class Clients
                 },
             );
 
-        return Maybe::just(Stream::of($socket));
+        return Attempt::result(Stream::of($socket));
     }
 
     /**
-     * @return Maybe<Stream>
+     * @return Attempt<Stream>
      */
-    public function unix(Address $path): Maybe
+    public function unix(Address $path): Attempt
     {
         $socket = @\stream_socket_client('unix://'.$path->toString());
 
         if ($socket === false) {
-            /** @var Maybe<Stream> */
-            return Maybe::nothing();
+            /** @var Attempt<Stream> */
+            return Attempt::error(new RuntimeException("Failed to open socket at '{$path->toString()}'"));
         }
 
-        return Maybe::just(Stream::of($socket));
+        return Attempt::result(Stream::of($socket));
     }
 }
