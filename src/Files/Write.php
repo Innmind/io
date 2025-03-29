@@ -117,6 +117,13 @@ final class Write
                     )
                     ->flatMap(static fn($stream) => $stream->write($chunk)),
             )
+            ->recover(static function($e) use ($stream, $autoClose) {
+                if ($autoClose) {
+                    $_ = $stream->close()->memoize();
+                }
+
+                return Attempt::error($e);
+            })
             ->flatMap(static fn($sideEffect) => match ($autoClose) {
                 true => $stream->close(),
                 false => Attempt::result($sideEffect),
