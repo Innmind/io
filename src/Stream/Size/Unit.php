@@ -82,7 +82,7 @@ enum Unit
     /**
      * @param int<0, max> $value
      */
-    public function size(int $value): Size
+    public function of(int $value): Size
     {
         return Size::of($this->times($value));
     }

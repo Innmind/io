@@ -25,7 +25,7 @@ return static function() {
             Set::of(...Unit::cases()),
         ),
         static function($assert, $size, $unit) {
-            $model = $unit->size($size);
+            $model = $unit->of($size);
             $extension = match ($unit) {
                 Unit::bytes => 'B',
                 Unit::kilobytes => 'KB',
