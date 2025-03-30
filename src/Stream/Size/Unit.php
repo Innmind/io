@@ -17,6 +17,8 @@ enum Unit
 
     /**
      * @psalm-pure
+     *
+     * @param int<0, max> $size
      */
     public static function for(int $size): self
     {
@@ -45,6 +47,8 @@ enum Unit
 
     /**
      * @psalm-pure
+     *
+     * @param int<0, max> $size
      */
     public static function format(int $size): string
     {
@@ -60,6 +64,11 @@ enum Unit
         };
     }
 
+    /**
+     * @param int<0, max> $value
+     *
+     * @return int<0, max>
+     */
     public function times(int $value): int
     {
         return match ($this) {
@@ -68,6 +77,9 @@ enum Unit
         };
     }
 
+    /**
+     * @return int<0, max>
+     */
     private function lowerBound(): int
     {
         return match ($this) {
