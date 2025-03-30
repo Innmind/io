@@ -51,6 +51,7 @@ return static function() {
 
             $assert->false($model->lessThan($model));
             $assert->true($model->lessThan(Size::of($size + $additionnal)));
+            $assert->false(Size::of($size + $additionnal)->lessThan($model));
         },
     );
 };
