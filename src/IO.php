@@ -3,47 +3,32 @@ declare(strict_types = 1);
 
 namespace Innmind\IO;
 
-use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\Stream\Watch;
+use Innmind\IO\Internal\Capabilities;
 
 final class IO
 {
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
-     */
-    private function __construct(callable $watch)
-    {
-        $this->watch = $watch;
+    private function __construct(
+        private Capabilities $capabilities,
+    ) {
     }
 
-    /**
-     * @psalm-pure
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
-     */
-    public static function of(callable $watch): self
+    public static function fromAmbientAuthority(): self
     {
-        return new self($watch);
+        return new self(Capabilities::fromAmbientAuthority());
     }
 
-    /**
-     * @psalm-mutation-free
-     */
-    public function readable(): Readable
+    public function files(): Files
     {
-        return Readable::of($this->watch);
+        return Files::of($this->capabilities);
     }
 
-    /**
-     * @psalm-mutation-free
-     */
+    public function streams(): Streams
+    {
+        return Streams::of($this->capabilities);
+    }
+
     public function sockets(): Sockets
     {
-        return Sockets::of($this->watch);
+        return Sockets::of($this->capabilities);
     }
 }

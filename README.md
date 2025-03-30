@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/innmind/io/branch/develop/graph/badge.svg)](https://codecov.io/gh/innmind/io)
 [![Type Coverage](https://shepherd.dev/github/innmind/io/coverage.svg)](https://shepherd.dev/github/innmind/io)
 
-High level abstraction on top of [`innmind/stream`](https://github.com/Innmind/Stream) to work with streams in a more functional way.
+High level abstraction to work with files and sockets in a declarative way.
 
 ## Installation
 
@@ -14,175 +14,105 @@ composer require innmind/io
 
 ## Usage
 
-> [!NOTE]
-> examples below use [`innmind/operating-system`](https://github.com/Innmind/OperatingSystem)
-
-### Reading from a stream by chunks
+### Reading from a file by chunks
 
 ```php
 use Innmind\IO\IO;
-use Innmind\OperatingSystem\Factory;
-use Innmind\TimeContinuum\Earth\ElapsedPeriod;
-use Innmind\Stream\Streams;
+use Innmind\Url\Path;
 use Innmind\Immutable\Str;
 
-$os = Factory::build();
-$streams = Streams::fromAmbienAuthority();
-$io = IO::of($os->sockets()->watch(...));
-$chunks = $io
-    ->readable()
-    ->wrap(
-        $streams
-            ->readable()
-            ->acquire(\fopen('/some/file.ext', 'r')),
-    )
+$chunks = IO::fromAmbienAuthority()
+    ->files()
+    ->read(Path::of('/some/file.ext'))
     ->toEncoding(Str\Encoding::ascii)
-    // or call ->watch() to wait forever for the stream to be ready before
-    // reading from it
-    ->timeoutAfter(ElapsedPeriod::of(1_000))
-    ->chunks(8192) // max length of each chunk
-    ->lazy()
-    ->sequence();
+    ->chunks(8192); // max length of each chunk
 ```
 
-The `$chunks` variable is a `Innmind\Innmutable\Sequence` containing `Innmind\Immutable\Str` values, where each value is of a maximum length of `8192` bytes. Before a value is yielded it will make sure data is available before reading from the stream. If no data is available within `1` second the `Sequence` will throw an exception saying it can't read from the stream, if you don't want it to throw replace `timeoutAfter()` by `watch()` so it will wait as long as it needs to.
+The `$chunks` variable is a `Innmind\Innmutable\Sequence` containing `Innmind\Immutable\Str` values, where each value is of a maximum length of `8192` bytes.
 
-### Reading from a stream by lines
+### Reading from a file by lines
 
 ```php
 use Innmind\IO\IO;
-use Innmind\OperatingSystem\Factory;
-use Innmind\TimeContinuum\Earth\ElapsedPeriod;
-use Innmind\Stream\Streams;
+use Innmind\Url\Path;
 use Innmind\Immutable\Str;
 
-$os = Factory::build();
-$streams = Streams::fromAmbienAuthority();
-$io = IO::of($os->sockets()->watch(...));
-$lines = $io
-    ->readable()
-    ->wrap(
-        $streams
-            ->readable()
-            ->acquire(\fopen('/some/file.ext', 'r')),
-    )
+$lines = IO::fromAmbienAuthority()
+    ->files()
+    ->read(Path::of('/some/file.ext'))
     ->toEncoding(Str\Encoding::ascii)
-    // or call ->watch() to wait forever for the stream to be ready before
-    // reading from it
-    ->timeoutAfter(ElapsedPeriod::of(1_000))
-    ->lines()
-    ->lazy()
-    ->sequence();
+    ->lines();
 ```
 
 This is the same as reading by chunks (described above) except that the delimiter is the end of line character `\n`.
+
+### Reading from a socket
+
+```php
+use Innmind\IO\{
+    IO,
+    Frame,
+    Sockets\Internet\Transport,
+};
+use Innmind\TimeContinuum\Period;
+use Innmind\Url\Url;
+
+$status = IO::fromAmbienAuthority()
+    ->sockets()
+    ->clients()
+    ->internet(
+        Transport::tcp(),
+        Url::of('https://github.com')->authority(),
+    )
+    ->map(
+        static fn($socket) => $socket
+            ->timeoutAfter(Period::second(1))
+            ->frames(Frame::line()),
+    )
+    ->flatMap(static fn($frames) => $frames->one())
+    ->unwrap()
+    ->toString();
+```
+
+This example opens a `tcp` connection to `github.com` and will wait `1` second for the server to respond. If the server responds it will read the first line sent and assign it in `$status` (it should be `HTTP/2 200`).
+
+If the server doesn't respond within the timeout or an entire line is not sent then this will throw an exception (when `->unwrap()` is called).
+
+If you want to wait forever for the server to respond you can replace `->timeoutAfter()` by `->watch()`.
 
 ### Reading from a socket with a periodic heartbeat
 
 ```php
 use Innmind\IO\{
     IO,
-    Readable\Frame,
+    Frame,
+    Sockets\Internet\Transport,
 };
-use Innmind\OperatingSystem\Factory;
-use Innmind\TimeContinuum\Earth\ElapsedPeriod;
-use Innmind\Socket\{
-    Address,
-    Client,
-};
-use Innmind\Stream\Streams;
+use Innmind\TimeContinuum\Period;
+use Innmind\Url\Url;
 use Innmind\Immutable\{
     Str,
     Sequence,
 };
 
-$socket = Client\Unix::of(Address\Unix::of('/tmp/foo'))->match(
-    static fn($socket) => $socket,
-    static fn() => throw new \RuntimeException;
-);
-$os = Factory::build();
-$io = IO::of($os->sockets()->watch(...));
-$frame = $io
+$status = IO::fromAmbienAuthority()
     ->sockets()
     ->clients()
-    ->wrap($socket)
-    ->toEncoding(Str\Encoding::ascii)
-    ->timeoutAfter(ElapsedPeriod::of(1_000))
-    ->heartbeatWith(static fn() => Sequence::of(Str::of('heartbeat')))
-    ->frames(Frame\Line::new())
-    ->one()
-    ->match(
-        static fn($line) => $line,
-        static fn() => throw new \RuntimeException,
-    );
+    ->internet(
+        Transport::tcp(),
+        Url::of('https://github.com')->authority(),
+    )
+    ->map(
+        static fn($socket) => $socket
+            ->timeoutAfter(Period::second(1))
+            ->heartbeatWith(static fn() => Sequence::of(Str::of('heartbeat')))
+            ->frames(Frame::line()),
+    )
+    ->flatMap(static fn($frames) => $frames->one())
+    ->unwrap()
+    ->toString();
 ```
 
-This example will wait to read a single from the socket `/tmp/foo.sock` and it will send a `heartbeat` message every second until the expected line is received.
+This is the same thing as the previous example except that it will send `heartbeat` through the socket every second until the server send a line.
 
-### Reading from a stream
-
-```php
-use Innmind\IO\IO;
-use Innmind\OperatingSystem\Factory;
-use Innmind\TimeContinuum\Earth\ElapsedPeriod;
-use Innmind\Stream\Streams;
-use Innmind\Socket\Address\Unix;
-use Innmind\Immutable\{
-    Str,
-    Fold,
-    Either,
-};
-
-$os = Factory::build();
-$streams = Streams::fromAmbienAuthority();
-$io = IO::of($os->sockets()->watch(...));
-$io
-    ->readable()
-    ->wrap(
-        $os
-            ->sockets()
-            ->connectTo(Unix::of('/some/socket')),
-    )
-    ->toEncoding('ASCII')
-    // or call ->watch() to wait forever for the stream to be ready before
-    // reading from it
-    ->timeoutAfter(ElapsedPeriod::of(1_000))
-    ->chunks(8192) // max length of each chunk
-    ->fold(
-        Fold::with([]),
-        static function(array $chunks, Str $chunk) {
-            $chunks[] = $chunk->toString();
-
-            if ($chunk->contains('quit')) {
-                return Fold::result($chunks);
-            }
-
-            if ($chunk->contains('throw')) {
-                return Fold::fail('some error');
-            }
-
-            return Fold::with($chunks);
-        },
-    )
-    ->match(
-        static fn(Either $result) => $result->match(
-            static fn(array $chunks) => doStuff($chunks),
-            static fn(string $error) => throw new \Exception($error), // $error === 'some error'
-        ),
-        static fn() => throw new \RuntimeException('Failed to read from the stream or it timed out'),
-    );
-```
-
-This example will:
-- open the local socket `/some/socket`
-- watch the socket to be ready for `1` second before it times out each time it tries to read from it
-- read chunks of a maximum length of `8192`
-- use the encoding `ASCII`
-- call the function passed to `->fold()` each time a chunk is read
-- it will continue reading from the stream until one of the chunks contains `quit` or `throw`
-- return a `Maybe<Either<string, list<string>>>`
-    - contains nothing when it failed to read from the stream or it timed out
-    - `string` is the value passed to `Fold::fail()`
-    - `list<string>` is the value passed to `Fold::result()`
-
-You can think of this `fold` operation as a reduce where you can control when to stop iterating by return either `Fold::fail()` or `Fold::result()`.
+You can call `->abortWhen()` after `->heartbeatWith()` to determine when to stop sending a heartbeat.

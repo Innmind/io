@@ -1,5 +1,24 @@
 # Changelog
 
+## [Unreleased]
+
+### Added
+
+- `Innmind\IO\Frame::buffer()`
+- Ability to write to a file
+- Ability to create a temporary file
+- Ability to create a socket pair
+
+### Changed
+
+- `Innmind\IO\IO::of()` has been renamed `IO::fromAmbientAuthority()`
+- `Innmind\IO\Readable\Frame` has been moved to `Innmind\IO\Frame` and is now a `final class`
+- The overhaul API has changed to merge `innmind/stream` and `innmind/socket` in this package. Refer to the documentation to see how to use it.
+
+### Removed
+
+- `->until()` method on a `Frame` sequence has been removed, you should call `->takeWhile()` on the produced `Innmind\Immutable\Sequence` instead
+
 ## 2.7.0 - 2024-03-09
 
 ### Added

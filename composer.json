@@ -16,9 +16,11 @@
     },
     "require": {
         "php": "~8.2",
-        "innmind/immutable": "~5.2",
-        "innmind/stream": "~4.0",
-        "innmind/socket": "~6.1"
+        "innmind/immutable": "~5.13",
+        "innmind/url": "~4.3",
+        "innmind/time-continuum": "^4.0.2",
+        "innmind/ip": "~3.2",
+        "innmind/validation": "~1.9"
     },
     "autoload": {
         "psr-4": {
@@ -31,8 +33,8 @@
         }
     },
     "require-dev": {
-        "vimeo/psalm": "~5.15",
-        "innmind/black-box": "~5.5",
+        "innmind/static-analysis": "^1.2.1",
+        "innmind/black-box": "~6.1",
         "innmind/coding-standard": "~2.0"
     }
 }
