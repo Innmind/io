@@ -60,7 +60,7 @@ final class Stream
             $this->rewind();
         }
 
-        if (\substr($meta['uri'] ?? '', 0, 10) !== 'php://temp') {
+        if ($this->seekable && \substr($meta['uri'] ?? '', 0, 10) !== 'php://temp') {
             $this->syncable = true;
         }
     }
