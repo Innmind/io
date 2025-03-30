@@ -39,4 +39,18 @@ return static function() {
             $assert->same("$size$extension", $model->toString());
         },
     );
+
+    yield proof(
+        'Stream::lessThan()',
+        given(
+            Set::integers()->above(0),
+            Set::integers()->above(1),
+        )->filter(static fn($a, $b) => \is_int($a + $b)),
+        static function($assert, $size, $additionnal) {
+            $model = Size::of($size);
+
+            $assert->false($model->lessThan($model));
+            $assert->true($model->lessThan(Size::of($size + $additionnal)));
+        },
+    );
 };

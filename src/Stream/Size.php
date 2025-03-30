@@ -24,6 +24,11 @@ final class Size
         return new self($value);
     }
 
+    public function lessThan(self $size): bool
+    {
+        return $this->value < $size->value;
+    }
+
     /**
      * @return int<0, max>
      */
