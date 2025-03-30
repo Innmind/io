@@ -89,10 +89,11 @@ class FunctionalTest extends TestCase
         $this
             ->forAll(
                 Set::of(
-                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z']],
-                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba']],
-                    [3, 'foobarbaz', ['foo', 'bar', 'baz']],
-                    [1, "\n", ["\n"]],
+                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', '']],
+                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba', 'z']],
+                    [3, 'foobarbaz', ['foo', 'bar', 'baz', '']],
+                    [1, '', ['']],
+                    [1, "\n", ["\n", '']],
                 ),
                 Set::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
@@ -108,11 +109,10 @@ class FunctionalTest extends TestCase
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Frame::chunk($size)->strict())
+                    ->frames(Frame::chunk($size)->loose())
                     ->lazy()
                     ->rewindable()
-                    ->sequence()
-                    ->take(\count($expected));
+                    ->sequence();
 
                 $values = $chunks
                     ->map(static fn($chunk) => $chunk->toString())
@@ -132,10 +132,11 @@ class FunctionalTest extends TestCase
         $this
             ->forAll(
                 Set::of(
-                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z']],
-                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba']],
-                    [3, 'foobarbaz', ['foo', 'bar', 'baz']],
-                    [1, "\n", ["\n"]],
+                    [1, 'foobarbaz', ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', '']],
+                    [2, 'foobarbaz', ['fo', 'ob', 'ar', 'ba', 'z']],
+                    [3, 'foobarbaz', ['foo', 'bar', 'baz', '']],
+                    [1, '', ['']],
+                    [1, "\n", ["\n", '']],
                 ),
                 Set::of(Str\Encoding::ascii, Str\Encoding::utf8),
             )
@@ -151,11 +152,10 @@ class FunctionalTest extends TestCase
                     ->read()
                     ->toEncoding($encoding)
                     ->watch()
-                    ->frames(Frame::chunk($size)->strict())
+                    ->frames(Frame::chunk($size)->loose())
                     ->lazy()
                     ->rewindable()
-                    ->sequence()
-                    ->take(\count($expected));
+                    ->sequence();
 
                 $values = $chunks
                     ->map(static fn($chunk) => $chunk->toString())
