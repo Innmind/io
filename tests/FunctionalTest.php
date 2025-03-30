@@ -28,21 +28,21 @@ class FunctionalTest extends TestCase
     {
         $this
             ->forAll(Set::of(
-                [1, ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z', 'o', 'o', 'f']],
-                [2, ['fo', 'ob', 'ar', 'ba', 'zo', 'of']],
-                [3, ['foo', 'bar', 'baz', 'oof']],
+                [1, ['f', 'o', 'o', 'b', 'a', 'r', 'b', 'a', 'z']],
+                [2, ['fo', 'ob', 'ar', 'ba', 'z']],
+                [3, ['foo', 'bar', 'baz']],
             ))
             ->then(function($in) {
                 [$size, $expected] = $in;
                 $tmp = \tmpfile();
-                \fwrite($tmp, 'foobarbazoof');
+                \fwrite($tmp, 'foobarbaz');
 
                 $chunks = IO::fromAmbientAuthority()
                     ->streams()
                     ->acquire($tmp)
                     ->read()
                     ->watch()
-                    ->frames(Frame::chunk($size)->strict())
+                    ->frames(Frame::chunk($size)->loose())
                     ->lazy()
                     ->rewindable()
                     ->sequence()
