@@ -316,16 +316,12 @@ class FunctionalTest extends TestCase
             ->read()
             ->toEncoding(Str\Encoding::ascii)
             ->watch()
-            ->frames(
-                Frame::line()->flatMap(
-                    static fn() => Frame::line()
-                        ->map(static fn($line) => $line->trim())
-                        ->flatMap(
-                            static fn($line) => Frame::line()
-                                ->map(static fn() => $line->toString()),
-                        ),
-                ),
-            )
+            ->frames(Frame::compose(
+                static fn($start, $payload, $end) => $payload->toString(),
+                Frame::line(),
+                Frame::line()->map(static fn($line) => $line->trim()),
+                Frame::line(),
+            ))
             ->lazy()
             ->rewindable()
             ->sequence()
@@ -364,17 +360,14 @@ class FunctionalTest extends TestCase
             ->read()
             ->toEncoding(Str\Encoding::ascii)
             ->watch()
-            ->frames(
-                Frame::line()->flatMap(
-                    static fn() => Frame::line()
-                        ->map(static fn($line) => $line->trim())
-                        ->filter(static fn($line) => $line->endsWith('B'))
-                        ->flatMap(
-                            static fn($line) => Frame::line()
-                                ->map(static fn() => $line->toString()),
-                        ),
-                ),
-            )
+            ->frames(Frame::compose(
+                static fn($start, $payload, $end) => $payload->toString(),
+                Frame::line(),
+                Frame::line()
+                    ->map(static fn($line) => $line->trim())
+                    ->filter(static fn($line) => $line->endsWith('B')),
+                Frame::line(),
+            ))
             ->one()
             ->match(
                 static fn($payload) => $payload,

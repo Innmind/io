@@ -257,4 +257,31 @@ return static function() {
             );
         },
     );
+
+    yield proof(
+        'Frame::compose()',
+        given(
+            Set::sequence(Set::strings())->atLeast(1),
+        ),
+        static function($assert, $chunks) use ($reader) {
+            $frame = Frame::compose(
+                static fn(...$chunks) => $chunks,
+                ...\array_map(
+                    static fn($chunk) => Frame::chunk(Str::of($chunk)->toEncoding(Str\Encoding::ascii)->length())->strict(),
+                    $chunks,
+                ),
+            );
+
+            $assert->same(
+                $chunks,
+                $frame($reader(Str::of(\implode('', $chunks))->toEncoding(Str\Encoding::ascii)))->match(
+                    static fn($chunks) => \array_map(
+                        static fn($chunk) => $chunk->toString(),
+                        $chunks,
+                    ),
+                    static fn($e) => $e,
+                ),
+            );
+        },
+    );
 };

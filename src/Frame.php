@@ -93,6 +93,30 @@ final class Frame
     }
 
     /**
+     * @psalm-pure
+     * @template A
+     *
+     * @param callable(...mixed): A $map
+     *
+     * @return self<A>
+     */
+    public static function compose(
+        callable $map,
+        self $first,
+        self ...$rest,
+    ): self {
+        return \array_reduce(
+            $rest,
+            static fn(self $carry, self $frame) => $carry->flatMap(
+                static fn(array $args) => $frame->map(
+                    static fn($value) => \array_merge($args, [$value]),
+                ),
+            ),
+            $first->map(static fn($value) => [$value]),
+        )->map(static fn(array $args) => $map(...$args));
+    }
+
+    /**
      * Beware, this produces a lazy Sequence so when you compose many of them
      * the order of operations may not be the one you expect.
      *
