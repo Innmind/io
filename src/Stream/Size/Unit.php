@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Stream\Size;
 
+use Innmind\IO\Stream\Size;
+
 /**
  * @psalm-immutable
  */
@@ -75,6 +77,14 @@ enum Unit
             self::bytes => $value,
             default => $value * $this->lowerBound(),
         };
+    }
+
+    /**
+     * @param int<0, max> $value
+     */
+    public function size(int $value): Size
+    {
+        return Size::of($this->times($value));
     }
 
     /**

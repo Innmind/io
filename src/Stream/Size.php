@@ -3,6 +3,9 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Stream;
 
+/**
+ * @psalm-immutable
+ */
 final class Size
 {
     /** @param int<0, max> $value */
@@ -12,6 +15,8 @@ final class Size
     }
 
     /**
+     * @psalm-pure
+     *
      * @param int<0, max> $value
      */
     public static function of(int $value): self
