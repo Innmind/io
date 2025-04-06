@@ -4,9 +4,11 @@ declare(strict_types = 1);
 namespace Innmind\IO\Files;
 
 use Innmind\IO\{
+    Files\Temporary\Pull,
     Internal,
     Internal\Capabilities,
 };
+use Innmind\Immutable\Attempt;
 
 final class Temporary
 {
@@ -29,5 +31,15 @@ final class Temporary
     public function read(): Read
     {
         return Read::temporary($this->capabilities, $this->stream);
+    }
+
+    /**
+     * @return Attempt<Pull>
+     */
+    public function pull(): Attempt
+    {
+        return $this->stream->rewind()->map(
+            fn() => Pull::of($this->capabilities, $this->stream),
+        );
     }
 }
