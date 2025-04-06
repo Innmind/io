@@ -5,6 +5,7 @@ namespace Innmind\IO;
 
 use Innmind\IO\{
     Files\Read,
+    Files\Temporary,
     Files\Write,
     Internal\Capabilities,
 };
@@ -43,7 +44,7 @@ final class Files
     /**
      * @param Sequence<Str> $chunks
      *
-     * @return Attempt<Read>
+     * @return Attempt<Temporary>
      */
     public function temporary(Sequence $chunks): Attempt
     {
@@ -56,7 +57,7 @@ final class Files
             ->flatMap(
                 static fn($tmp) => Write::temporary($capabilities, $tmp)
                     ->sink($chunks)
-                    ->map(static fn() => Read::temporary($capabilities, $tmp)),
+                    ->map(static fn() => Temporary::of($capabilities, $tmp)),
             );
     }
 }

@@ -275,12 +275,13 @@ return static function() {
     );
 
     yield proof(
-        'IO::files()->temporary()',
+        'IO::files()->temporary()->read()',
         given($strings),
         static function($assert, $chunks) {
             $read = IO::fromAmbientAuthority()
                 ->files()
                 ->temporary(Sequence::of(...$chunks)->map(Str::of(...)))
+                ->map(static fn($temporary) => $temporary->read())
                 ->match(
                     static fn($read) => $read,
                     static fn() => null,
