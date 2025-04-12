@@ -4,6 +4,7 @@ declare(strict_types = 1);
 use Innmind\IO\{
     IO,
     Files\Read,
+    Files\Temporary\Pull,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
@@ -275,12 +276,13 @@ return static function() {
     );
 
     yield proof(
-        'IO::files()->temporary()',
+        'IO::files()->temporary()->read()',
         given($strings),
         static function($assert, $chunks) {
             $read = IO::fromAmbientAuthority()
                 ->files()
                 ->temporary(Sequence::of(...$chunks)->map(Str::of(...)))
+                ->map(static fn($temporary) => $temporary->read())
                 ->match(
                     static fn($read) => $read,
                     static fn() => null,
@@ -305,6 +307,46 @@ return static function() {
                     ->fold(new Concat)
                     ->toString(),
                 'Temporary file should be accessible multiple times',
+            );
+        },
+    );
+
+    yield proof(
+        'IO::files()->temporary()->pull()',
+        given(
+            $strings,
+            Set::integers()->between(1, 100),
+            Set::of(...Str\Encoding::cases()),
+        ),
+        static function($assert, $chunks, $size, $encoding) {
+            $pull = IO::fromAmbientAuthority()
+                ->files()
+                ->temporary(Sequence::of(...$chunks)->map(Str::of(...)))
+                ->flatMap(static fn($temporary) => $temporary->pull())
+                ->match(
+                    static fn($pull) => $pull->watch()->toEncoding($encoding),
+                    static fn() => null,
+                );
+
+            $assert
+                ->object($pull)
+                ->instance(Pull::class);
+
+            $expected = \implode('', $chunks);
+            $read = '';
+
+            do {
+                $chunk = $pull
+                    ->chunk($size)
+                    ->unwrap();
+
+                $assert->same($encoding, $chunk->encoding());
+                $read .= $chunk->toString();
+            } while (!$chunk->empty());
+
+            $assert->same(
+                $expected,
+                $read,
             );
         },
     );

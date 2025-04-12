@@ -20,7 +20,7 @@
         "innmind/url": "~4.3",
         "innmind/time-continuum": "^4.0.2",
         "innmind/ip": "~3.2",
-        "innmind/validation": "~1.9"
+        "innmind/validation": "~2.0"
     },
     "autoload": {
         "psr-4": {
