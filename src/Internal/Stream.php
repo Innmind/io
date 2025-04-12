@@ -167,10 +167,9 @@ final class Stream
         }
 
         /** @var Constraint<int, int<0, max>> */
-        $positive = Of::callable(static fn(int $size) => match (true) {
-            $size >= 0 => Validation::success($size),
-            default => Validation::fail(Failure::of('size must be positive')),
-        });
+        $positive = Is::value(0)->or(
+            Is::int()->positive(),
+        );
         /** @var Constraint<mixed, resource> */
         $resource = Of::callable(static fn(mixed $resource) => match (\is_resource($resource)) {
             true => Validation::success($resource),
