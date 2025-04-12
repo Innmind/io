@@ -4,6 +4,10 @@ docs_dir: documentation
 
 nav:
   - Getting Started: index.md
+  - Files:
+    - files/read.md
+    - files/write.md
+    - files/temporary.md
 
 theme:
   name: material
