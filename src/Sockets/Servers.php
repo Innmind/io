@@ -3,41 +3,79 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Sockets;
 
-use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\Socket\Server as Socket;
-use Innmind\Stream\Watch;
+use Innmind\IO\{
+    Sockets\Servers\Server,
+    Sockets\Internet\Transport,
+    Sockets\Unix\Address,
+    Internal\Capabilities,
+};
+use Innmind\IP\IP;
+use Innmind\Url\Authority\Port;
+use Innmind\Immutable\Attempt;
 
 final class Servers
 {
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
-     */
-    private function __construct(callable $watch)
-    {
-        $this->watch = $watch;
+    private function __construct(
+        private Capabilities $capabilities,
+    ) {
     }
 
     /**
      * @internal
-     * @psalm-pure
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
-    public static function of(callable $watch): self
+    public static function of(Capabilities $capabilities): self
     {
-        return new self($watch);
+        return new self($capabilities);
     }
 
     /**
-     * @psalm-mutation-free
+     * @return Attempt<Server>
      */
-    public function wrap(Socket $socket): Server
+    public function internet(Transport $transport, IP $ip, Port $port): Attempt
     {
-        return Server::of($this->watch, $socket);
+        return $this
+            ->capabilities
+            ->sockets()
+            ->servers()
+            ->internet($transport, $ip, $port)
+            ->map(fn($socket) => Server::of(
+                $this->capabilities,
+                $this->capabilities->watch(),
+                $socket,
+            ));
+    }
+
+    /**
+     * @return Attempt<Server>
+     */
+    public function unix(Address $address): Attempt
+    {
+        return $this
+            ->capabilities
+            ->sockets()
+            ->servers()
+            ->unix($address)
+            ->map(fn($socket) => Server::of(
+                $this->capabilities,
+                $this->capabilities->watch(),
+                $socket,
+            ));
+    }
+
+    /**
+     * @return Attempt<Server>
+     */
+    public function takeOver(Address $address): Attempt
+    {
+        return $this
+            ->capabilities
+            ->sockets()
+            ->servers()
+            ->takeOver($address)
+            ->map(fn($socket) => Server::of(
+                $this->capabilities,
+                $this->capabilities->watch(),
+                $socket,
+            ));
     }
 }

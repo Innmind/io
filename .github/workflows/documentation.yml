@@ -1,0 +1,13 @@
+name: Documentation
+
+on:
+  push:
+    branches: [master, main]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    uses: innmind/github-workflows/.github/workflows/documentation.yml@main
+    secrets: inherit

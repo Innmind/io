@@ -3,41 +3,65 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Sockets;
 
-use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\Socket\Client as Socket;
-use Innmind\Stream\Watch;
+use Innmind\IO\{
+    Sockets\Clients\Client,
+    Sockets\Internet\Transport,
+    Sockets\Unix\Address,
+    Streams\Stream,
+    Internal\Capabilities,
+};
+use Innmind\Url\Authority;
+use Innmind\Immutable\Attempt;
 
 final class Clients
 {
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
-     */
-    private function __construct(callable $watch)
-    {
-        $this->watch = $watch;
+    private function __construct(
+        private Capabilities $capabilities,
+    ) {
     }
 
     /**
      * @internal
-     * @psalm-pure
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
-    public static function of(callable $watch): self
-    {
-        return new self($watch);
+    public static function of(
+        Capabilities $capabilities,
+    ): self {
+        return new self($capabilities);
     }
 
     /**
-     * @psalm-mutation-free
+     * @return Attempt<Client>
      */
-    public function wrap(Socket $socket): Client
+    public function internet(Transport $transport, Authority $authority): Attempt
     {
-        return Client::of($this->watch, $socket);
+        return $this
+            ->capabilities
+            ->sockets()
+            ->clients()
+            ->internet($transport, $authority)
+            ->map(fn($socket) => Client::of(
+                Stream::of(
+                    $this->capabilities,
+                    $socket,
+                ),
+            ));
+    }
+
+    /**
+     * @return Attempt<Client>
+     */
+    public function unix(Address $address): Attempt
+    {
+        return $this
+            ->capabilities
+            ->sockets()
+            ->clients()
+            ->unix($address)
+            ->map(fn($socket) => Client::of(
+                Stream::of(
+                    $this->capabilities,
+                    $socket,
+                ),
+            ));
     }
 }

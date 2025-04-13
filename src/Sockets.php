@@ -3,48 +3,56 @@ declare(strict_types = 1);
 
 namespace Innmind\IO;
 
-use Innmind\TimeContinuum\ElapsedPeriod;
-use Innmind\Stream\Watch;
+use Innmind\IO\{
+    Sockets\Clients,
+    Sockets\Clients\Client,
+    Sockets\Servers,
+    Internal\Capabilities,
+};
+use Innmind\Immutable\Attempt;
 
 final class Sockets
 {
-    /** @var callable(?ElapsedPeriod): Watch */
-    private $watch;
-
-    /**
-     * @psalm-mutation-free
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
-     */
-    private function __construct(callable $watch)
-    {
-        $this->watch = $watch;
+    private function __construct(
+        private Capabilities $capabilities,
+    ) {
     }
 
     /**
      * @internal
-     * @psalm-pure
-     *
-     * @param callable(?ElapsedPeriod): Watch $watch
      */
-    public static function of(callable $watch): self
+    public static function of(
+        Capabilities $capabilities,
+    ): self {
+        return new self($capabilities);
+    }
+
+    public function clients(): Clients
     {
-        return new self($watch);
+        return Clients::of($this->capabilities);
+    }
+
+    public function servers(): Servers
+    {
+        return Servers::of($this->capabilities);
     }
 
     /**
-     * @psalm-mutation-free
+     * @return Attempt<array{Client, Client}>
      */
-    public function clients(): Sockets\Clients
+    public function pair(): Attempt
     {
-        return Sockets\Clients::of($this->watch);
-    }
-
-    /**
-     * @psalm-mutation-free
-     */
-    public function servers(): Sockets\Servers
-    {
-        return Sockets\Servers::of($this->watch);
+        return $this->capabilities->sockets()->pair()->map(
+            fn($pair) => [
+                Client::of(Streams\Stream::of(
+                    $this->capabilities,
+                    $pair[0],
+                )),
+                Client::of(Streams\Stream::of(
+                    $this->capabilities,
+                    $pair[1],
+                )),
+            ],
+        );
     }
 }
