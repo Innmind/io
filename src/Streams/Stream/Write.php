@@ -43,9 +43,8 @@ final class Write
     }
 
     /**
-     * This method is called when using a heartbeat is defined to abort
-     * restarting the watching of the socket. It is also used to abort when
-     * sending messages (the abort is triggered before trying to send a message).
+     * This method is used to abort when sending messages (the abort is
+     * triggered before trying to send a message).
      *
      * Use this method to abort the watch when you receive signals.
      *
