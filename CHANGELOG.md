@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Losing frame type when calling `$io->streams()->acquire()->read()->frames()->rewindable()`
+
 ## 3.0.0 - 2025-04-13
 
 ### Added
