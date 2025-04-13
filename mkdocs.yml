@@ -11,6 +11,11 @@ nav:
   - streams.md
   - sockets.md
   - frames.md
+  - Use cases:
+    - use-cases/files/chunks.md
+    - use-cases/files/lines.md
+    - use-cases/socket/read.md
+    - use-cases/socket/heartbeat.md
 
 theme:
   name: material
