@@ -77,6 +77,8 @@ final class Lazy
 
     /**
      * @psalm-mutation-free
+     *
+     * @return self<T>
      */
     public function rewindable(): self
     {
