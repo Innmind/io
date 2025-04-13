@@ -9,6 +9,7 @@ nav:
     - files/write.md
     - files/temporary.md
   - streams.md
+  - sockets.md
   - frames.md
 
 theme:
