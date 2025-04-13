@@ -174,8 +174,7 @@ final class Read
 
     /**
      * This method is called when using a heartbeat is defined to abort
-     * restarting the watching of the stream. It is also used to abort when
-     * sending messages (the abort is triggered before trying to send a message).
+     * restarting the watching of the stream.
      *
      * Use this method to abort the watch when you receive signals.
      *
