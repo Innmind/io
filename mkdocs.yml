@@ -8,6 +8,7 @@ nav:
     - files/read.md
     - files/write.md
     - files/temporary.md
+  - streams.md
 
 theme:
   name: material
