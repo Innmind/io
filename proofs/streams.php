@@ -307,6 +307,59 @@ return static function() {
     );
 
     yield proof(
+        'IO::streams()->acquire()->read()->pool()->nonBlocking()->chunks()',
+        given(
+            $string,
+            $string,
+            Set::of(...Str\Encoding::cases()),
+        ),
+        static function($assert, $a, $b, $encoding) {
+            $tmpA = \tmpfile();
+            \fwrite($tmpA, $a);
+            $tmpB = \tmpfile();
+            \fwrite($tmpB, $b);
+
+            $io = IO::fromAmbientAuthority();
+            $chunks = $io
+                ->streams()
+                ->acquire($tmpA)
+                ->read()
+                ->pool('a')
+                ->with(
+                    'b',
+                    $io
+                        ->streams()
+                        ->acquire($tmpB)
+                        ->read(),
+                )
+                ->watch()
+                ->toEncoding($encoding)
+                ->nonBlocking()
+                ->chunks();
+
+            $assert->same(2, $chunks->size());
+            $chunks->foreach(static fn($chunk) => $assert->same(
+                $encoding,
+                $chunk->value()->encoding(),
+            ));
+            $assert->same(
+                [$a],
+                $chunks
+                    ->filter(static fn($chunk) => $chunk->key() === 'a')
+                    ->map(static fn($chunk) => $chunk->value()->toString())
+                    ->toList(),
+            );
+            $assert->same(
+                [$b],
+                $chunks
+                    ->filter(static fn($chunk) => $chunk->key() === 'b')
+                    ->map(static fn($chunk) => $chunk->value()->toString())
+                    ->toList(),
+            );
+        },
+    );
+
+    yield proof(
         'IO::streams()->acquire()->close()',
         given($string),
         static function($assert, $content) {
