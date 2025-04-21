@@ -1,5 +1,15 @@
 # Changelog
 
+## 3.1.0 - 2025-04-21
+
+### Added
+
+- `Innmind\IO\Streams\Stream\Read\Pool::nonBlocking()`
+
+### Fixed
+
+- `Innmind\IO\Streams\Stream\Read\Pool` was losing the id type when calling `->watch()`, `->timeoutAfter()` or `->toEncoding()`
+
 ## 3.0.1 - 2025-04-13
 
 ### Fixed

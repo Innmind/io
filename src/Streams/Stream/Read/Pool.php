@@ -30,6 +30,7 @@ final class Pool
         private Map $streams,
         private ?Period $timeout,
         private ?Str\Encoding $encoding,
+        private bool $blocking,
     ) {
     }
 
@@ -51,6 +52,7 @@ final class Pool
             Map::of([$stream->internal(), $id]),
             null,
             null,
+            true,
         );
     }
 
@@ -69,6 +71,7 @@ final class Pool
             ($this->streams)($stream->internal(), $id),
             $this->timeout,
             $this->encoding,
+            $this->blocking,
         );
     }
 
@@ -80,6 +83,9 @@ final class Pool
         return $this->timeoutAfter(Period::second(0));
     }
 
+    /**
+     * @return self<T>
+     */
     public function watch(): self
     {
         return new self(
@@ -87,9 +93,13 @@ final class Pool
             $this->streams,
             null,
             $this->encoding,
+            $this->blocking,
         );
     }
 
+    /**
+     * @return self<T>
+     */
     public function timeoutAfter(Period $timeout): self
     {
         return new self(
@@ -97,9 +107,13 @@ final class Pool
             $this->streams,
             $timeout,
             $this->encoding,
+            $this->blocking,
         );
     }
 
+    /**
+     * @return self<T>
+     */
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
@@ -107,6 +121,21 @@ final class Pool
             $this->streams,
             $this->timeout,
             $encoding,
+            $this->blocking,
+        );
+    }
+
+    /**
+     * @return self<T>
+     */
+    public function nonBlocking(): self
+    {
+        return new self(
+            $this->capabilities,
+            $this->streams,
+            $this->timeout,
+            $this->encoding,
+            false,
         );
     }
 
@@ -115,6 +144,7 @@ final class Pool
      */
     public function chunks(): Sequence
     {
+        $blocking = $this->blocking;
         $watch = $this->capabilities->watch();
         $watch = match ($this->timeout) {
             null => $watch->waitForever(),
@@ -124,6 +154,15 @@ final class Pool
             ->streams
             ->keys()
             ->filter(static fn($stream) => !$stream->closed())
+            ->flatMap(
+                static fn($stream) => (match ($blocking) {
+                    true => $stream->blocking(),
+                    false => $stream->nonBlocking(),
+                })
+                    ->map(static fn() => $stream)
+                    ->toSequence()
+                    ->toSet(),
+            )
             ->reduce(
                 $watch,
                 static fn(Internal\Watch $watch, $stream) => $watch->forRead($stream),
