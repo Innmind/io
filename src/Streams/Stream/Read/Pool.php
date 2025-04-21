@@ -80,6 +80,9 @@ final class Pool
         return $this->timeoutAfter(Period::second(0));
     }
 
+    /**
+     * @return self<T>
+     */
     public function watch(): self
     {
         return new self(
@@ -90,6 +93,9 @@ final class Pool
         );
     }
 
+    /**
+     * @return self<T>
+     */
     public function timeoutAfter(Period $timeout): self
     {
         return new self(
@@ -100,6 +106,9 @@ final class Pool
         );
     }
 
+    /**
+     * @return self<T>
+     */
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
