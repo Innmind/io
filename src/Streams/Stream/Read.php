@@ -71,6 +71,11 @@ final class Read
     }
 
     /**
+     * This doesn't affect the blocking when pooling.
+     *
+     * To prevent having some streams being blocking and others not, the non
+     * blocking have to be explicitly called on the pool.
+     *
      * @psalm-mutation-free
      */
     public function nonBlocking(): self
