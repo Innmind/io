@@ -5,10 +5,14 @@ namespace Innmind\IO\Files;
 
 use Innmind\IO\{
     Files\Temporary\Pull,
+    Files\Temporary\Push,
     Internal,
     Internal\Capabilities,
 };
-use Innmind\Immutable\Attempt;
+use Innmind\Immutable\{
+    Attempt,
+    SideEffect,
+};
 
 final class Temporary
 {
@@ -28,6 +32,17 @@ final class Temporary
         return new self($capabilities, $stream);
     }
 
+    /**
+     * This method is required for innmind/http-transport as the Curl
+     * implementation requires to expose the raw resource.
+     *
+     * @internal
+     */
+    public function internal(): Internal\Stream
+    {
+        return $this->stream;
+    }
+
     public function read(): Read
     {
         return Read::temporary($this->capabilities, $this->stream);
@@ -41,5 +56,18 @@ final class Temporary
         return $this->stream->rewind()->map(
             fn() => Pull::of($this->capabilities, $this->stream),
         );
+    }
+
+    public function push(): Push
+    {
+        return Push::of($this->capabilities, $this->stream);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function close(): Attempt
+    {
+        return $this->stream->close();
     }
 }
