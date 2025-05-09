@@ -5,6 +5,7 @@ namespace Innmind\IO\Files;
 
 use Innmind\IO\{
     Files\Temporary\Pull,
+    Files\Temporary\Push,
     Internal,
     Internal\Capabilities,
 };
@@ -55,6 +56,11 @@ final class Temporary
         return $this->stream->rewind()->map(
             fn() => Pull::of($this->capabilities, $this->stream),
         );
+    }
+
+    public function push(): Push
+    {
+        return Push::of($this->capabilities, $this->stream);
     }
 
     /**

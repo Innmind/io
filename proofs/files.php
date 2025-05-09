@@ -353,6 +353,46 @@ return static function() {
     );
 
     yield proof(
+        'IO::files()->temporary()->push()',
+        given(
+            $strings,
+            Set::of(...Str\Encoding::cases()),
+        ),
+        static function($assert, $chunks, $encoding) {
+            $tmp = IO::fromAmbientAuthority()
+                ->files()
+                ->temporary(Sequence::of())
+                ->match(
+                    static fn($tmp) => $tmp,
+                    static fn() => null,
+                );
+
+            $assert
+                ->object($tmp)
+                ->instance(Temporary::class);
+            $push = $tmp->push()->watch();
+
+            foreach ($chunks as $chunk) {
+                $assert
+                    ->object($push->chunk(Str::of($chunk, $encoding))->match(
+                        static fn($sideEffect) => $sideEffect,
+                        static fn() => null,
+                    ))
+                    ->instance(SideEffect::class);
+            }
+
+            $assert->same(
+                \implode('', $chunks),
+                $tmp
+                    ->read()
+                    ->chunks(8192)
+                    ->fold(new Concat)
+                    ->toString(),
+            );
+        },
+    );
+
+    yield proof(
         'IO::files()->temporary()->close()',
         given($strings),
         static function($assert, $chunks) {
