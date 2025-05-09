@@ -8,7 +8,10 @@ use Innmind\IO\{
     Internal,
     Internal\Capabilities,
 };
-use Innmind\Immutable\Attempt;
+use Innmind\Immutable\{
+    Attempt,
+    SideEffect,
+};
 
 final class Temporary
 {
@@ -52,5 +55,13 @@ final class Temporary
         return $this->stream->rewind()->map(
             fn() => Pull::of($this->capabilities, $this->stream),
         );
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function close(): Attempt
+    {
+        return $this->stream->close();
     }
 }

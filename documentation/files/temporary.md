@@ -47,3 +47,9 @@ You can then use it in 2 ways:
     ```
 
     The call to `->chunk()` is stateful as it remembers the position in the file. This means that you can only read forward, and only once.
+
+Once you're down working with the file you can close it like this:
+
+```php
+$temporary->close()->unwrap();
+```
