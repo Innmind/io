@@ -28,6 +28,17 @@ final class Temporary
         return new self($capabilities, $stream);
     }
 
+    /**
+     * This method is required for innmind/http-transport as the Curl
+     * implementation requires to expose the raw resource.
+     *
+     * @internal
+     */
+    public function internal(): Internal\Stream
+    {
+        return $this->stream;
+    }
+
     public function read(): Read
     {
         return Read::temporary($this->capabilities, $this->stream);
