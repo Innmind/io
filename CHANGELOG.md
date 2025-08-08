@@ -1,5 +1,12 @@
 # Changelog
 
+## 3.3.0 - 2025-08-08
+
+### Added
+
+- `Innmind\IO\Streams\Stream\Write::sinkAttempts()`
+- `Innmind\IO\Sockets\Clients\Client::sinkAttempts()`
+
 ## 3.2.0 - 2025-05-09
 
 ### Added
