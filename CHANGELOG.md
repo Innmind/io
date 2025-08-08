@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.3.1 - 2025-08-08
+
+### Fixed
+
+- Trying to switch between blocking/non-blocking on a closed stream was throwing an exception
+
 ## 3.3.0 - 2025-08-08
 
 ### Added
