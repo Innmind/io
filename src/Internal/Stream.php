@@ -80,6 +80,11 @@ final class Stream
      */
     public function nonBlocking(): Maybe
     {
+        if ($this->closed()) {
+            /** @var Maybe<SideEffect> */
+            return Maybe::nothing();
+        }
+
         $return = \stream_set_blocking($this->resource, false);
 
         if ($return === false) {
@@ -98,6 +103,11 @@ final class Stream
      */
     public function blocking(): Maybe
     {
+        if ($this->closed()) {
+            /** @var Maybe<SideEffect> */
+            return Maybe::nothing();
+        }
+
         $return = \stream_set_blocking($this->resource, false);
 
         if ($return === false) {
