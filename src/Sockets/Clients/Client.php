@@ -136,6 +136,16 @@ final class Client
     }
 
     /**
+     * @param Sequence<Attempt<Str>> $chunks
+     *
+     * @return Attempt<SideEffect>
+     */
+    public function sinkAttempts(Sequence $chunks): Attempt
+    {
+        return $this->write->sinkAttempts($chunks);
+    }
+
+    /**
      * @template T
      *
      * @param Frame<T> $frame
