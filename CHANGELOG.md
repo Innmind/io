@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.1 - 2025-08-17
+
+### Fixed
+
+- Internal async design
+
 ## 3.4.0 - 2025-08-17
 
 ### Added
