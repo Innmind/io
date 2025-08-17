@@ -17,6 +17,7 @@ use Innmind\TimeContinuum\{
 use Innmind\Immutable\{
     Sequence,
     Maybe,
+    Attempt,
 };
 
 /**
@@ -75,15 +76,29 @@ final class Suspended
         return $watch;
     }
 
+    /**
+     * @param Attempt<Ready> $ready
+     */
     public function next(
         Clock $clock,
-        Ready $ready,
+        Attempt $ready,
     ): self|Resumable {
+        $error = $ready->match(
+            static fn() => true,
+            static fn() => false,
+        );
+
+        if ($error) {
+            return Resumable::of($ready);
+        }
+
+        $ready = $ready->unwrap();
+
         $read = $this->read->intersect($ready->toRead());
         $write = $this->write->intersect($ready->toWrite());
 
         if (!$read->empty() || !$write->empty()) {
-            return Resumable::of(new Ready($read, $write));
+            return Resumable::of(Attempt::result(new Ready($read, $write)));
         }
 
         $timedout = $this
@@ -101,10 +116,10 @@ final class Suspended
             );
 
         if ($timedout) {
-            return Resumable::of(new Ready(
+            return Resumable::of(Attempt::result(new Ready(
                 Sequence::of(),
                 Sequence::of(),
-            ));
+            )));
         }
 
         return $this;

@@ -4,23 +4,33 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Async;
 
 use Innmind\IO\Internal\Watch\Ready;
+use Innmind\Immutable\Attempt;
 
 /**
  * @internal
  */
 final class Resumable
 {
+    /**
+     * @param Attempt<Ready> $ready
+     */
     private function __construct(
-        private Ready $ready,
+        private Attempt $ready,
     ) {
     }
 
-    public static function of(Ready $ready): self
+    /**
+     * @param Attempt<Ready> $ready
+     */
+    public static function of(Attempt $ready): self
     {
         return new self($ready);
     }
 
-    public function ready(): Ready
+    /**
+     * @return Attempt<Ready>
+     */
+    public function ready(): Attempt
     {
         return $this->ready;
     }
