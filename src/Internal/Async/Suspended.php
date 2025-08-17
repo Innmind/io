@@ -89,6 +89,11 @@ final class Suspended
         );
 
         if ($error) {
+            // The drawback of resuming with the error is that an error occuring
+            // due to another Fiber will affect all of them as for now there is
+            // no way to distinguish due which Fiber the watch failed.
+            // This will need real world experience to know if this approach is
+            // ok or not.
             return Resumable::of($ready);
         }
 
