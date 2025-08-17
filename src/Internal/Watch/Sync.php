@@ -11,7 +11,6 @@ use Innmind\IO\{
 use Innmind\TimeContinuum\Period;
 use Innmind\Immutable\{
     Map,
-    Sequence,
     Maybe,
     Attempt
 };
@@ -41,20 +40,45 @@ final class Sync
      */
     public function __invoke(): Attempt
     {
-        if (
-            $this->read->empty() &&
-            $this->write->empty()
-        ) {
-            /** @var Sequence<Stream|Server> */
-            $read = Sequence::of();
-            /** @var Sequence<Stream> */
-            $write = Sequence::of();
+        // File streams are never watched as the default implementation of PHP
+        // when using stream_select is that the files are always ready.
+        // In a standard synchronous process watching them would have no impact.
+        // However when watching files across multiple Fibers (thus doing async
+        // code) then the files are _synchronized_. File synchronization can be
+        // described with a Fiber TA watching a file FA and another Fiber TB
+        // watching a file FB. If TA reaches the end of FA before TB reaches the
+        // end of FB, stream_select will not return FA as ready until TB reached
+        // the end of FB. This means that TA will hang until TB reached the end
+        // of FB.
+        // At scale this means that all tasks will go as slow as the slowest one
+        // of all. The process will hang most of the time.
+        // This is a circumvention while this package doesn't truely support
+        // async file IO (via ev or uv for example).
+        $read = $this->read->exclude(
+            static fn($_, $stream) => $stream instanceof Stream && $stream->isFile(),
+        );
+        $write = $this->write->exclude(
+            static fn($_, $stream) => $stream->isFile(),
+        );
+        $readFiles = $this->read->values()->filter(
+            static fn($stream) => $stream instanceof Stream && $stream->isFile(),
+        );
+        $writeFiles = $this->write->values()->filter(
+            static fn($stream) => $stream->isFile(),
+        );
 
-            return Attempt::result(new Ready($read, $write));
+        if (
+            $read->empty() &&
+            $write->empty()
+        ) {
+            return Attempt::result(new Ready(
+                $readFiles,
+                $writeFiles,
+            ));
         }
 
-        $read = $this->read->keys()->toList();
-        $write = $this->write->keys()->toList();
+        $read = $read->keys()->toList();
+        $write = $write->keys()->toList();
         $outOfBand = [];
         [$seconds, $microseconds] = $this
             ->timeout
@@ -79,11 +103,13 @@ final class Sync
         $readable = $this
             ->read
             ->filter(static fn($resource) => \in_array($resource, $read, true))
-            ->values();
+            ->values()
+            ->append($readFiles);
         $writable = $this
             ->write
             ->filter(static fn($resource) => \in_array($resource, $write, true))
-            ->values();
+            ->values()
+            ->append($writeFiles);
 
         return Attempt::result(new Ready($readable, $writable));
     }

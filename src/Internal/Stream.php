@@ -34,6 +34,7 @@ final class Stream
 {
     /** @var resource */
     private $resource;
+    private bool $file;
     private bool $closed = false;
     private bool $seekable = false;
     private bool $syncable = false;
@@ -41,7 +42,7 @@ final class Stream
     /**
      * @param resource $resource
      */
-    private function __construct($resource)
+    private function __construct($resource, bool $file)
     {
         /**
          * @psalm-suppress DocblockTypeContradiction
@@ -52,6 +53,7 @@ final class Stream
         }
 
         $this->resource = $resource;
+        $this->file = $file;
         $meta = \stream_get_meta_data($resource);
 
         if ($meta['seekable'] && \substr($meta['uri'], 0, 9) !== 'php://std') {
@@ -72,7 +74,22 @@ final class Stream
      */
     public static function of($resource): self
     {
-        return new self($resource);
+        return new self($resource, false);
+    }
+
+    /**
+     * @internal
+     *
+     * @param resource $resource
+     */
+    public static function file($resource): self
+    {
+        return new self($resource, true);
+    }
+
+    public function isFile(): bool
+    {
+        return $this->file;
     }
 
     /**
