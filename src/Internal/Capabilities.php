@@ -3,13 +3,21 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
+use Innmind\TimeContinuum\Clock;
+
 /**
  * @internal
  */
 final class Capabilities
 {
-    private function __construct()
-    {
+    /**
+     * The async nature is determined by the presence of the clock only as the
+     * sync implementation don't need one. And having a separate bool flag would
+     * not be understood by Psalm.
+     */
+    private function __construct(
+        private ?Clock $clock,
+    ) {
     }
 
     /**
@@ -17,7 +25,15 @@ final class Capabilities
      */
     public static function fromAmbientAuthority(): self
     {
-        return new self;
+        return new self(null);
+    }
+
+    /**
+     * @internal
+     */
+    public static function async(Clock $clock): self
+    {
+        return new self($clock);
     }
 
     public function files(): Capabilities\Files
@@ -37,6 +53,9 @@ final class Capabilities
 
     public function watch(): Watch
     {
-        return Watch::new();
+        return match ($this->clock) {
+            null => Watch::sync(),
+            default => Watch::async($this->clock),
+        };
     }
 }
