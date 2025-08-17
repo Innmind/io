@@ -37,6 +37,8 @@ final class Suspended
         private Maybe $timeout,
         private Sequence $read,
         private Sequence $write,
+        private PointInTime $lastChecked,
+        private Maybe $remaining,
     ) {
     }
 
@@ -58,6 +60,8 @@ final class Suspended
             $timeout,
             $read,
             $write,
+            $at,
+            $timeout,
         );
     }
 
@@ -67,7 +71,7 @@ final class Suspended
     public function watch(): Watch
     {
         $watch = Watch::sync();
-        $watch = $this->timeout->match(
+        $watch = $this->remaining->match(
             $watch->timeoutAfter(...),
             static fn() => $watch,
         );
@@ -113,12 +117,12 @@ final class Suspended
             return Resumable::of(Attempt::result(new Ready($read, $write)));
         }
 
+        $now = $clock->now();
         $timedout = $this
             ->timeout
             ->map(static fn($period) => $period->asElapsedPeriod())
             ->filter(
-                fn($threshold) => $clock
-                    ->now()
+                fn($threshold) => $now
                     ->elapsedSince($this->at)
                     ->longerThan($threshold),
             )
@@ -134,6 +138,34 @@ final class Suspended
             )));
         }
 
-        return $this;
+        $expectedEnd = $this->timeout->map(
+            $this->at->goForward(...),
+        );
+        $overshoot = $expectedEnd
+            ->map($this->lastChecked->aheadof(...))
+            ->match(
+                static fn($overshoot) => $overshoot,
+                static fn() => false, // can't overshoot when waiting forever
+            );
+
+        if ($overshoot) {
+            return Resumable::of(Attempt::result(new Ready(
+                Sequence::of(),
+                Sequence::of(),
+            )));
+        }
+
+        return new self(
+            $this->at,
+            $this->timeout,
+            $this->read,
+            $this->write,
+            $now,
+            $expectedEnd->map(
+                fn($point) => $point
+                    ->elapsedSince($this->lastChecked)
+                    ->asPeriod(),
+            ),
+        );
     }
 }
