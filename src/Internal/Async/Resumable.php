@@ -30,7 +30,7 @@ final class Resumable
     /**
      * @return Attempt<Ready>
      */
-    public function ready(): Attempt
+    public function unwrap(): Attempt
     {
         return $this->ready;
     }
