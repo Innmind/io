@@ -22,7 +22,7 @@ return static function() {
         \fseek($tmp, 0);
 
         return Reader::of(
-            Wait::of(Watch::new(), Stream::of($tmp)),
+            Wait::of(Watch::sync(), Stream::of($tmp)),
             Maybe::just($data->encoding()),
         );
     };

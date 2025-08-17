@@ -71,6 +71,6 @@ final class Files
             return Attempt::error(new RuntimeException("Failed to open file '$path'"));
         }
 
-        return Attempt::result(Stream::of($stream));
+        return Attempt::result(Stream::file($stream));
     }
 }

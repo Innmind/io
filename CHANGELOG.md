@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.0 - 2025-08-17
+
+### Added
+
+- `Innmind\IO\IO::async()` (This is an internal feature for `innmind/async` that may introduce BC breaks in next minor versions)
+
 ## 3.3.1 - 2025-08-08
 
 ### Fixed

@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO;
 
 use Innmind\IO\Internal\Capabilities;
+use Innmind\TimeContinuum\Clock;
 
 final class IO
 {
@@ -15,6 +16,16 @@ final class IO
     public static function fromAmbientAuthority(): self
     {
         return new self(Capabilities::fromAmbientAuthority());
+    }
+
+    /**
+     * This is an internal feature for the innmind/async package.
+     *
+     * @internal
+     */
+    public static function async(Clock $clock): self
+    {
+        return new self(Capabilities::async($clock));
     }
 
     public function files(): Files
