@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.5.0 - 2025-08-17
+
+### Added
+
+- Async improvements
+
 ## 3.4.1 - 2025-08-17
 
 ### Fixed
