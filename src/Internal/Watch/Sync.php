@@ -134,25 +134,14 @@ final class Sync
     /**
      * @psalm-mutation-free
      */
-    public function forRead(
-        Stream|Server $read,
-        Stream|Server ...$reads,
-    ): self {
-        $streams = ($this->read)(
-            $read->resource(),
-            $read,
-        );
-
-        foreach ($reads as $read) {
-            $streams = $streams(
-                $read->resource(),
-                $read,
-            );
-        }
-
+    public function forRead(Stream|Server $read): self
+    {
         return new self(
             $this->timeout,
-            $streams,
+            ($this->read)(
+                $read->resource(),
+                $read,
+            ),
             $this->write,
         );
     }
@@ -160,26 +149,15 @@ final class Sync
     /**
      * @psalm-mutation-free
      */
-    public function forWrite(
-        Stream $write,
-        Stream ...$writes,
-    ): self {
-        $streams = ($this->write)(
-            $write->resource(),
-            $write,
-        );
-
-        foreach ($writes as $write) {
-            $streams = $streams(
-                $write->resource(),
-                $write,
-            );
-        }
-
+    public function forWrite(Stream $write): self
+    {
         return new self(
             $this->timeout,
             $this->read,
-            $streams,
+            ($this->write)(
+                $write->resource(),
+                $write,
+            ),
         );
     }
 

@@ -102,16 +102,14 @@ final class Async
     /**
      * @psalm-mutation-free
      */
-    public function forRead(
-        Stream|Server $read,
-        Stream|Server ...$reads,
-    ): self {
+    public function forRead(Stream|Server $read): self
+    {
         return new self(
             $this->clock,
             $this->timeout,
             $this
                 ->read
-                ->append(Sequence::of($read, ...$reads))
+                ->add($read)
                 ->distinct(),
             $this->write,
         );
@@ -120,17 +118,15 @@ final class Async
     /**
      * @psalm-mutation-free
      */
-    public function forWrite(
-        Stream $write,
-        Stream ...$writes,
-    ): self {
+    public function forWrite(Stream $write): self
+    {
         return new self(
             $this->clock,
             $this->timeout,
             $this->read,
             $this
                 ->write
-                ->append(Sequence::of($write, ...$writes))
+                ->add($write)
                 ->distinct(),
         );
     }

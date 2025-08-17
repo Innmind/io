@@ -86,24 +86,20 @@ final class Watch
     /**
      * @psalm-mutation-free
      */
-    public function forRead(
-        Stream|Server $read,
-        Stream|Server ...$reads,
-    ): self {
+    public function forRead(Stream|Server $read): self
+    {
         return new self(
-            $this->implementation->forRead($read, ...$reads),
+            $this->implementation->forRead($read),
         );
     }
 
     /**
      * @psalm-mutation-free
      */
-    public function forWrite(
-        Stream $write,
-        Stream ...$writes,
-    ): self {
+    public function forWrite(Stream $write): self
+    {
         return new self(
-            $this->implementation->forWrite($write, ...$writes),
+            $this->implementation->forWrite($write),
         );
     }
 
