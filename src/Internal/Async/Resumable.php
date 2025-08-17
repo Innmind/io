@@ -8,6 +8,7 @@ use Innmind\Immutable\Attempt;
 
 /**
  * @internal
+ * @psalm-immutable
  */
 final class Resumable
 {
@@ -20,6 +21,8 @@ final class Resumable
     }
 
     /**
+     * @psalm-pure
+     *
      * @param Attempt<Ready> $ready
      */
     public static function of(Attempt $ready): self
@@ -30,7 +33,7 @@ final class Resumable
     /**
      * @return Attempt<Ready>
      */
-    public function ready(): Attempt
+    public function unwrap(): Attempt
     {
         return $this->ready;
     }

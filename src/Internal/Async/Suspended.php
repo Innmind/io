@@ -26,6 +26,8 @@ use Innmind\Immutable\{
 final class Suspended
 {
     /**
+     * @psalm-mutation-free
+     *
      * @param Maybe<Period> $timeout
      * @param Sequence<Stream|Server> $read
      * @param Sequence<Stream> $write
@@ -39,6 +41,8 @@ final class Suspended
     }
 
     /**
+     * @psalm-pure
+     *
      * @param Maybe<Period> $timeout
      * @param Sequence<Stream|Server> $read
      * @param Sequence<Stream> $write
@@ -57,6 +61,9 @@ final class Suspended
         );
     }
 
+    /**
+     * @psalm-mutation-free
+     */
     public function watch(): Watch
     {
         $watch = Watch::sync();

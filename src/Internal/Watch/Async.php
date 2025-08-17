@@ -7,6 +7,7 @@ use Innmind\IO\{
     Internal\Stream,
     Internal\Socket\Server,
     Internal\Async\Suspended,
+    Internal\Async\Resumable,
 };
 use Innmind\TimeContinuum\{
     Clock,
@@ -44,13 +45,15 @@ final class Async
      */
     public function __invoke(): Attempt
     {
-        /** @var Attempt<Ready> */
-        return \Fiber::suspend(Suspended::of(
+        /** @var Resumable */
+        $return = \Fiber::suspend(Suspended::of(
             $this->clock->now(),
             $this->timeout,
             $this->read,
             $this->write,
         ));
+
+        return $return->unwrap();
     }
 
     /**
