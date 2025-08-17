@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Async;
 
 use Innmind\IO\Internal\{
+    Watch,
     Watch\Ready,
     Stream,
     Socket\Server,
@@ -55,28 +56,23 @@ final class Suspended
         );
     }
 
-    /**
-     * @return Maybe<Period>
-     */
-    public function timeout(): Maybe
+    public function watch(): Watch
     {
-        return $this->timeout;
-    }
+        $watch = Watch::sync();
+        $watch = $this->timeout->match(
+            $watch->timeoutAfter(...),
+            static fn() => $watch,
+        );
+        $watch = $this->read->reduce(
+            $watch,
+            static fn(Watch $watch, $stream) => $watch->forRead($stream),
+        );
+        $watch = $this->write->reduce(
+            $watch,
+            static fn(Watch $watch, $stream) => $watch->forWrite($stream),
+        );
 
-    /**
-     * @return Sequence<Stream|Server>
-     */
-    public function read(): Sequence
-    {
-        return $this->read;
-    }
-
-    /**
-     * @return Sequence<Stream>
-     */
-    public function write(): Sequence
-    {
-        return $this->write;
+        return $watch;
     }
 
     public function next(
