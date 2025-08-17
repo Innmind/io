@@ -67,14 +67,28 @@ final class Suspended
 
     /**
      * @psalm-mutation-free
+     *
+     * @param ?Period $timeout This is for another Fiber that needs to halt maybe for a shorter time than this suspension
      */
-    public function watch(): Watch
+    public function watch(?Period $timeout = null): Watch
     {
+        $timeout = Maybe::of($timeout);
         $watch = Watch::sync();
-        $watch = $this->remaining->match(
-            $watch->timeoutAfter(...),
-            static fn() => $watch,
-        );
+        $watch = Maybe::all($this->remaining, $timeout)
+            ->map(static fn(Period $a, Period $b) => match (true) {
+                $a
+                    ->asElapsedPeriod()
+                    ->longerThan(
+                        $b->asElapsedPeriod(),
+                    ) => $b,
+                default => $a,
+            })
+            ->otherwise(fn() => $this->remaining)
+            ->otherwise(static fn() => $timeout)
+            ->match(
+                $watch->timeoutAfter(...),
+                static fn() => $watch,
+            );
         $watch = $this->read->reduce(
             $watch,
             static fn(Watch $watch, $stream) => $watch->forRead($stream),
