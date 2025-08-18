@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Internal async implementation
+
 ## 3.5.0 - 2025-08-17
 
 ### Added

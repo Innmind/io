@@ -37,7 +37,6 @@ final class Suspended
         private Maybe $timeout,
         private Sequence $read,
         private Sequence $write,
-        private PointInTime $lastChecked,
         private Maybe $remaining,
     ) {
     }
@@ -60,7 +59,6 @@ final class Suspended
             $timeout,
             $read,
             $write,
-            $at,
             $timeout,
         );
     }
@@ -109,8 +107,8 @@ final class Suspended
         Attempt $ready,
     ): self|Resumable {
         $error = $ready->match(
-            static fn() => true,
             static fn() => false,
+            static fn() => true,
         );
 
         if ($error) {
@@ -132,31 +130,11 @@ final class Suspended
         }
 
         $now = $clock->now();
-        $timedout = $this
-            ->timeout
-            ->map(static fn($period) => $period->asElapsedPeriod())
-            ->filter(
-                fn($threshold) => $now
-                    ->elapsedSince($this->at)
-                    ->longerThan($threshold),
-            )
-            ->match(
-                static fn() => true,
-                static fn() => false,
-            );
-
-        if ($timedout) {
-            return Resumable::of(Attempt::result(new Ready(
-                Sequence::of(),
-                Sequence::of(),
-            )));
-        }
-
         $expectedEnd = $this->timeout->map(
             $this->at->goForward(...),
         );
         $overshoot = $expectedEnd
-            ->map($this->lastChecked->aheadof(...))
+            ->map($now->aheadof(...))
             ->match(
                 static fn($overshoot) => $overshoot,
                 static fn() => false, // can't overshoot when waiting forever
@@ -174,10 +152,9 @@ final class Suspended
             $this->timeout,
             $this->read,
             $this->write,
-            $now,
             $expectedEnd->map(
-                fn($point) => $point
-                    ->elapsedSince($this->lastChecked)
+                static fn($point) => $point
+                    ->elapsedSince($now)
                     ->asPeriod(),
             ),
         );
