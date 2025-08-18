@@ -109,8 +109,8 @@ final class Suspended
         Attempt $ready,
     ): self|Resumable {
         $error = $ready->match(
-            static fn() => true,
             static fn() => false,
+            static fn() => true,
         );
 
         if ($error) {
