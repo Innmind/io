@@ -15,7 +15,7 @@
         "issues": "http://github.com/innmind/io/issues"
     },
     "require": {
-        "php": "~8.2",
+        "php": "~8.4",
         "innmind/immutable": "~5.13",
         "innmind/url": "~4.3",
         "innmind/time-continuum": "^4.0.2",
