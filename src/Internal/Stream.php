@@ -112,7 +112,7 @@ final class Stream
         $_ = \stream_set_write_buffer($this->resource, 0);
         $_ = \stream_set_read_buffer($this->resource, 0);
 
-        return Maybe::just(new SideEffect);
+        return Maybe::just(SideEffect::identity);
     }
 
     /**
@@ -132,7 +132,7 @@ final class Stream
             return Maybe::nothing();
         }
 
-        return Maybe::just(new SideEffect);
+        return Maybe::just(SideEffect::identity);
     }
 
     /**
@@ -157,7 +157,7 @@ final class Stream
 
         if ($this->closed()) {
             /** @var Attempt<SideEffect> */
-            return Attempt::result(new SideEffect);
+            return Attempt::result(SideEffect::identity);
         }
 
         $status = \fseek($this->resource, 0);
@@ -165,7 +165,7 @@ final class Stream
         /** @var Attempt<SideEffect> */
         return match ($status) {
             -1 => Attempt::error(new PositionNotSeekable),
-            default => Attempt::result(new SideEffect),
+            default => Attempt::result(SideEffect::identity),
         };
     }
 
@@ -225,7 +225,7 @@ final class Stream
     public function close(): Attempt
     {
         if ($this->closed()) {
-            return Attempt::result(new SideEffect);
+            return Attempt::result(SideEffect::identity);
         }
 
         /** @psalm-suppress InvalidPropertyAssignmentValue */
@@ -237,7 +237,7 @@ final class Stream
 
         $this->closed = true;
 
-        return Attempt::result(new SideEffect);
+        return Attempt::result(SideEffect::identity);
     }
 
     /**
@@ -313,7 +313,7 @@ final class Stream
         }
 
         /** @var Attempt<SideEffect> */
-        return Attempt::result(new SideEffect);
+        return Attempt::result(SideEffect::identity);
     }
 
     /**
@@ -327,7 +327,7 @@ final class Stream
         }
 
         if (!$this->syncable) {
-            return Attempt::result(new SideEffect);
+            return Attempt::result(SideEffect::identity);
         }
 
         $written = @\fsync($this->resource);
@@ -338,6 +338,6 @@ final class Stream
         }
 
         /** @var Attempt<SideEffect> */
-        return Attempt::result(new SideEffect);
+        return Attempt::result(SideEffect::identity);
     }
 }

@@ -154,7 +154,7 @@ return static function() {
                         ->maybe(static fn($lines, $line) => $line->maybe()->map($lines)),
                 )
                 ->flatMap(Frame::maybe(...));
-            $values = $frame($reader(Str::of($data)))->match(
+            $values = $frame($reader(Str::of($data, Str\Encoding::ascii)))->match(
                 static fn($values) => $values,
                 static fn() => null,
             );

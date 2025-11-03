@@ -108,7 +108,7 @@ final class Write
             ->map(static fn($chunk) => $chunk->map(
                 static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii),
             ))
-            ->sink(new SideEffect)
+            ->sink(SideEffect::identity)
             ->attempt(
                 static fn($_, $chunk) => $chunk
                     ->flatMap(static fn($chunk) => match ($abort()) {

@@ -103,7 +103,7 @@ final class Write
 
         return $chunks
             ->map(static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii))
-            ->sink(new SideEffect)
+            ->sink(SideEffect::identity)
             ->attempt(
                 static fn($_, $chunk) => $watch()
                     ->map(static fn($ready) => $ready->toWrite())

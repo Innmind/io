@@ -16,11 +16,11 @@
     },
     "require": {
         "php": "~8.4",
-        "innmind/immutable": "~5.13",
-        "innmind/url": "~4.3",
-        "innmind/time-continuum": "^4.0.2",
-        "innmind/ip": "~3.2",
-        "innmind/validation": "~2.0"
+        "innmind/immutable": "dev-next",
+        "innmind/url": "dev-next",
+        "innmind/time-continuum": "dev-next",
+        "innmind/ip": "dev-next",
+        "innmind/validation": "dev-next"
     },
     "autoload": {
         "psr-4": {

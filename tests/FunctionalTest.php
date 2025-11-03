@@ -860,7 +860,7 @@ class FunctionalTest extends TestCase
             )
             ->map(static fn($data) => $data->toString());
 
-        $this->assertCount(3, $result);
+        $this->assertSame(3, $result->size());
         $this->assertTrue($result->contains('foo'));
         $this->assertTrue($result->contains('bar'));
         $this->assertTrue($result->contains('baz'));
