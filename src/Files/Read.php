@@ -6,7 +6,6 @@ namespace Innmind\IO\Files;
 use Innmind\IO\{
     Stream\Size,
     Internal,
-    Exception\FailedToLoadStream,
     Internal\Capabilities,
     Internal\Watch,
 };
@@ -15,6 +14,7 @@ use Innmind\Immutable\{
     Str,
     Maybe,
     Sequence,
+    SideEffect,
 };
 
 final class Read
@@ -45,10 +45,7 @@ final class Read
             static fn() => $capabilities
                 ->files()
                 ->read($path)
-                ->match(
-                    static fn($stream) => $stream,
-                    static fn() => throw new \RuntimeException('Failed to read file'),
-                ),
+                ->unwrap(),
             $capabilities->watch(),
             $encoding,
             true,
@@ -126,19 +123,13 @@ final class Read
         $chunks = Sequence::lazy(static function($register) use ($size, $load, $watch, $autoClose) {
             $stream = $load();
             $wait = Internal\Stream\Wait::of($watch, $stream);
-            $rewind = static fn(): null => $stream->rewind()->match(
-                static fn() => null,
-                static fn() => throw new FailedToLoadStream,
-            );
+            $rewind = static fn(): SideEffect => $stream->rewind()->unwrap();
 
             $register(static function() use ($rewind, $stream, $autoClose) {
                 $rewind();
 
                 if ($autoClose) {
-                    $_ = $stream->close()->match(
-                        static fn() => null,
-                        static fn() => throw new FailedToLoadStream,
-                    );
+                    $_ = $stream->close()->unwrap();
                 }
             });
             $rewind();
@@ -161,10 +152,7 @@ final class Read
             $rewind();
 
             if ($autoClose) {
-                $_ = $stream->close()->match(
-                    static fn() => null,
-                    static fn() => throw new FailedToLoadStream,
-                );
+                $_ = $stream->close()->unwrap();
             }
         });
 
@@ -188,19 +176,13 @@ final class Read
         $chunks = Sequence::lazy(static function($register) use ($load, $watch, $autoClose) {
             $stream = $load();
             $wait = Internal\Stream\Wait::of($watch, $stream);
-            $rewind = static fn(): null => $stream->rewind()->match(
-                static fn() => null,
-                static fn() => throw new FailedToLoadStream,
-            );
+            $rewind = static fn(): SideEffect => $stream->rewind()->unwrap();
 
             $register(static function() use ($rewind, $stream, $autoClose) {
                 $rewind();
 
                 if ($autoClose) {
-                    $_ = $stream->close()->match(
-                        static fn() => null,
-                        static fn() => throw new FailedToLoadStream,
-                    );
+                    $_ = $stream->close()->unwrap();
                 }
             });
             $rewind();
@@ -223,10 +205,7 @@ final class Read
             $rewind();
 
             if ($autoClose) {
-                $_ = $stream->close()->match(
-                    static fn() => null,
-                    static fn() => throw new FailedToLoadStream,
-                );
+                $_ = $stream->close()->unwrap();
             }
         });
 

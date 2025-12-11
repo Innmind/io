@@ -42,10 +42,7 @@ final class Write
             static fn() => $capabilities
                 ->files()
                 ->write($path)
-                ->match(
-                    static fn($stream) => $stream,
-                    static fn() => throw new \RuntimeException('Failed to open file'),
-                ),
+                ->unwrap(),
             true,
             false,
         );
