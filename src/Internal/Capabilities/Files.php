@@ -55,14 +55,6 @@ final class Files
     }
 
     /**
-     * @param resource $resource
-     */
-    public function acquire($resource): Stream
-    {
-        return Stream::of($resource);
-    }
-
-    /**
      * @return Maybe<mixed>
      */
     public function require(Path $path): Maybe
