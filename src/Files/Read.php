@@ -135,7 +135,7 @@ final class Read
                 $rewind();
 
                 if ($autoClose) {
-                    $stream->close()->match(
+                    $_ = $stream->close()->match(
                         static fn() => null,
                         static fn() => throw new FailedToLoadStream,
                     );
@@ -161,7 +161,7 @@ final class Read
             $rewind();
 
             if ($autoClose) {
-                $stream->close()->match(
+                $_ = $stream->close()->match(
                     static fn() => null,
                     static fn() => throw new FailedToLoadStream,
                 );
@@ -197,7 +197,7 @@ final class Read
                 $rewind();
 
                 if ($autoClose) {
-                    $stream->close()->match(
+                    $_ = $stream->close()->match(
                         static fn() => null,
                         static fn() => throw new FailedToLoadStream,
                     );
@@ -223,7 +223,7 @@ final class Read
             $rewind();
 
             if ($autoClose) {
-                $stream->close()->match(
+                $_ = $stream->close()->match(
                     static fn() => null,
                     static fn() => throw new FailedToLoadStream,
                 );

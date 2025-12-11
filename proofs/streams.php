@@ -285,7 +285,7 @@ return static function() {
                 ->chunks();
 
             $assert->same(2, $chunks->size());
-            $chunks->foreach(static fn($chunk) => $assert->same(
+            $_ = $chunks->foreach(static fn($chunk) => $assert->same(
                 $encoding,
                 $chunk->value()->encoding(),
             ));
@@ -338,7 +338,7 @@ return static function() {
                 ->chunks();
 
             $assert->same(2, $chunks->size());
-            $chunks->foreach(static fn($chunk) => $assert->same(
+            $_ = $chunks->foreach(static fn($chunk) => $assert->same(
                 $encoding,
                 $chunk->value()->encoding(),
             ));

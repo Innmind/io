@@ -99,8 +99,8 @@ return static function() {
                 );
 
             $assert->same('foo', $result);
-            $client->close()->memoize();
-            $server->close()->memoize();
+            $_ = $client->close()->memoize();
+            $_ = $server->close()->memoize();
         },
     );
 };

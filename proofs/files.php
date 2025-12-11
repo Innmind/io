@@ -55,7 +55,7 @@ return static function() {
                 ->number($loaded->size())
                 ->int()
                 ->greaterThan(0);
-            $loaded
+            $_ = $loaded
                 ->dropEnd(1)
                 ->foreach(static fn($chunk) => $assert->same(
                     $size,
@@ -90,7 +90,7 @@ return static function() {
             $data = \implode('', $chunks);
             \file_put_contents($tmp, $data);
 
-            IO::fromAmbientAuthority()
+            $_ = IO::fromAmbientAuthority()
                 ->files()
                 ->read(Path::of($tmp))
                 ->toEncoding($encoding)
@@ -128,7 +128,7 @@ return static function() {
                 ->number($loaded->size())
                 ->int()
                 ->greaterThan(0);
-            $loaded
+            $_ = $loaded
                 ->dropEnd(1)
                 ->foreach(static fn($line) => $assert->true(
                     $line->endsWith("\n"),
@@ -175,7 +175,7 @@ return static function() {
             $data = \implode("\n", $lines);
             \file_put_contents($tmp, $data);
 
-            IO::fromAmbientAuthority()
+            $_ = IO::fromAmbientAuthority()
                 ->files()
                 ->read(Path::of($tmp))
                 ->toEncoding($encoding)

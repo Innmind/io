@@ -140,13 +140,13 @@ final class Lazy
                 true => $stream->blocking(),
                 false => $stream->nonBlocking(),
             };
-            $result->match(
+            $_ = $result->match(
                 static fn() => null,
                 static fn() => throw new \RuntimeException('Failed to set blocking mode'),
             );
 
             if ($rewindable) {
-                $stream->rewind()->match(
+                $_ = $stream->rewind()->match(
                     static fn() => null,
                     static fn() => throw new FailedToLoadStream,
                 );
