@@ -8,7 +8,10 @@ use Innmind\IO\{
     Exception\RuntimeException,
 };
 use Innmind\Url\Path;
-use Innmind\Immutable\Attempt;
+use Innmind\Immutable\{
+    Attempt,
+    Maybe,
+};
 
 /**
  * @internal
@@ -57,6 +60,26 @@ final class Files
     public function acquire($resource): Stream
     {
         return Stream::of($resource);
+    }
+
+    /**
+     * @return Maybe<mixed>
+     */
+    public function require(Path $path): Maybe
+    {
+        $path = $path->toString();
+
+        if (!\file_exists($path) || \is_dir($path)) {
+            /** @var Maybe<mixed> */
+            return Maybe::nothing();
+        }
+
+        /**
+         * @psalm-suppress UnresolvableInclude
+         * @psalm-suppress MixedArgument
+         * @var Maybe<mixed>
+         */
+        return Maybe::just(require $path);
     }
 
     /**

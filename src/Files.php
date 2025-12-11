@@ -13,6 +13,7 @@ use Innmind\Url\Path;
 use Innmind\Immutable\{
     Str,
     Attempt,
+    Maybe,
     Sequence,
 };
 
@@ -39,6 +40,14 @@ final class Files
     public function write(Path $path): Write
     {
         return Write::of($this->capabilities, $path);
+    }
+
+    /**
+     * @return Maybe<mixed>
+     */
+    public function require(Path $path): Maybe
+    {
+        return $this->capabilities->files()->require($path);
     }
 
     /**

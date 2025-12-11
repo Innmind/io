@@ -430,4 +430,29 @@ return static function() {
             );
         },
     );
+
+    yield test(
+        'IO::files()->require()',
+        static function($assert) {
+            $assert->same(
+                42,
+                IO::fromAmbientAuthority()
+                    ->files()
+                    ->require(Path::of('fixtures/to-load.php'))
+                    ->match(
+                        static fn($value) => $value,
+                        static fn() => null,
+                    ),
+            );
+            $assert->false(
+                IO::fromAmbientAuthority()
+                    ->files()
+                    ->require(Path::of('fixtures/unknown.php'))
+                    ->match(
+                        static fn() => true,
+                        static fn() => false,
+                    ),
+            );
+        },
+    );
 };

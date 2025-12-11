@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `Innmind\IO\Files::require()`
+
 ### Changed
 
 - Requires PHP `8.4`
