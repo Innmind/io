@@ -23,9 +23,12 @@ final class IO
      *
      * @internal
      */
-    public static function async(Clock $clock): self
+    public static function async(self $io, Clock $clock): self
     {
-        return new self(Capabilities::async($clock));
+        return new self(Capabilities::async(
+            $io->capabilities,
+            $clock,
+        ));
     }
 
     public function files(): Files
