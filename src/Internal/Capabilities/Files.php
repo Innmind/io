@@ -117,6 +117,22 @@ final class Files
         };
     }
 
+    public function exists(Path $path): bool
+    {
+        if (!\file_exists($path->toString())) {
+            return false;
+        }
+
+        if (\is_link($path->toString())) {
+            return false;
+        }
+
+        return match ($path->directory()) {
+            false => true,
+            true => \is_dir($path->toString()),
+        };
+    }
+
     /**
      * @return Attempt<Stream>
      */

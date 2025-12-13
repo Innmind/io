@@ -90,4 +90,12 @@ final class Files
     {
         return $this->capabilities->files()->mediaType($path);
     }
+
+    /**
+     * @experimental
+     */
+    public function exists(Path $path): bool
+    {
+        return $this->capabilities->files()->exists($path);
+    }
 }
