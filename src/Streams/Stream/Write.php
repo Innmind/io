@@ -121,10 +121,7 @@ final class Write
                             ->flatMap(
                                 static fn($toWrite) => $toWrite
                                     ->find(static fn($ready) => $ready === $stream)
-                                    ->match(
-                                        static fn($stream) => Attempt::result($stream),
-                                        static fn() => Attempt::error(new RuntimeException('Stream not ready to write to')),
-                                    ),
+                                    ->attempt(static fn() => new RuntimeException('Stream not ready to write to')),
                             )
                             ->flatMap(static fn($stream) => $stream->write($chunk)),
                     ),
