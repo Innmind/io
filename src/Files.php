@@ -7,6 +7,7 @@ use Innmind\IO\{
     Files\Read,
     Files\Temporary,
     Files\Write,
+    Files\Name,
     Internal\Capabilities,
 };
 use Innmind\Url\Path;
@@ -68,5 +69,25 @@ final class Files
                     ->sink($chunks)
                     ->map(static fn() => Temporary::of($capabilities, $tmp)),
             );
+    }
+
+    /**
+     * @experimental
+     *
+     * @return Sequence<Name>
+     */
+    public function list(Path $path): Sequence
+    {
+        return $this->capabilities->files()->list($path);
+    }
+
+    /**
+     * @experimental
+     *
+     * @return Attempt<string>
+     */
+    public function mediaType(Path $path): Attempt
+    {
+        return $this->capabilities->files()->mediaType($path);
     }
 }

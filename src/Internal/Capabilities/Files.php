@@ -5,12 +5,14 @@ namespace Innmind\IO\Internal\Capabilities;
 
 use Innmind\IO\{
     Internal\Stream,
+    Files\Name,
     Exception\RuntimeException,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Attempt,
     Maybe,
+    Sequence,
 };
 
 /**
@@ -72,6 +74,47 @@ final class Files
          * @var Maybe<mixed>
          */
         return Maybe::just(require $path);
+    }
+
+    /**
+     * @return Sequence<Name>
+     */
+    public function list(Path $path): Sequence
+    {
+        return Sequence::lazy(static function() use ($path): \Generator {
+            $files = new \FilesystemIterator($path->toString());
+
+            /** @var \SplFileInfo $file */
+            foreach ($files as $file) {
+                if ($file->isLink()) {
+                    continue;
+                }
+
+                $name = $file->getBasename();
+
+                if ($name === '') {
+                    continue;
+                }
+
+                yield Name::of(
+                    $name,
+                    $file->isDir(),
+                );
+            }
+        });
+    }
+
+    /**
+     * @return Attempt<string>
+     */
+    public function mediaType(Path $path): Attempt
+    {
+        $mediaType = @\mime_content_type($path->toString());
+
+        return match ($mediaType) {
+            false => Attempt::error(new \RuntimeException('Failed to access media type')),
+            default => Attempt::result($mediaType),
+        };
     }
 
     /**
