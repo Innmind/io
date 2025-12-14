@@ -10,6 +10,7 @@ use Innmind\IO\{
     Internal\Capabilities\Files\Simulation,
     Files\Name,
     Files\Kind,
+    Simulation\Disk,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
@@ -40,9 +41,12 @@ final class Files
     /**
      * @internal
      */
-    public static function simulation(self $files): self
+    public static function simulation(self $files, Disk $disk): self
     {
-        return new self(Simulation::of($files->implementation));
+        return new self(Simulation::of(
+            $files->implementation,
+            $disk,
+        ));
     }
 
     /**

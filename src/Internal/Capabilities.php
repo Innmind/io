@@ -3,11 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
-use Innmind\IO\Internal\Capabilities\{
-    Implementation,
-    AmbientAuthority,
-    Async,
-    Simulation,
+use Innmind\IO\{
+    Internal\Capabilities\Implementation,
+    Internal\Capabilities\AmbientAuthority,
+    Internal\Capabilities\Async,
+    Internal\Capabilities\Simulation,
+    Simulation\Disk,
 };
 use Innmind\TimeContinuum\Clock;
 
@@ -43,9 +44,12 @@ final class Capabilities
     /**
      * @internal
      */
-    public static function simulation(self $capabilities): self
+    public static function simulation(self $capabilities, Disk $disk): self
     {
-        return new self(Simulation::of($capabilities->implementation));
+        return new self(Simulation::of(
+            $capabilities->implementation,
+            $disk,
+        ));
     }
 
     public function files(): Capabilities\Files
