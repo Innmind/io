@@ -154,10 +154,17 @@ final class Files
             return Attempt::result(SideEffect::identity);
         }
 
-        return match ($path->directory() && \is_dir($path->toString())) {
-            true => $this->rmdir($path),
-            false => $this->unlink($path->toString()),
-        };
+        if ($path->directory() && \is_dir($path->toString())) {
+            return $this->rmdir($path->toString());
+        }
+
+        $path = $path->toString();
+
+        if (\is_dir($path)) {
+            return $this->rmdir($path.'/');
+        }
+
+        return $this->unlink($path);
     }
 
     /**
@@ -226,13 +233,13 @@ final class Files
     /**
      * @return Attempt<SideEffect>
      */
-    private function rmdir(Path $path): Attempt
+    private function rmdir(string $path): Attempt
     {
         return $this
-            ->list($path)
+            ->list(Path::of($path))
             ->map(static fn($name) => \sprintf(
                 '%s%s%s',
-                $path->toString(),
+                $path,
                 $name->toString(),
                 match ($name->directory()) {
                     true => '/',
@@ -242,12 +249,12 @@ final class Files
             ->map(Path::of(...))
             ->sink(SideEffect::identity)
             ->attempt(fn($_, $file) => $this->remove($file))
-            ->map(static fn() => @\rmdir($path->toString()))
+            ->map(static fn() => @\rmdir($path))
             ->flatMap(static fn($removed) => match ($removed) {
                 true => Attempt::result(SideEffect::identity),
                 false => Attempt::error(new \RuntimeException(\sprintf(
                     "Failed to remove directory '%s'",
-                    $path->toString(),
+                    $path,
                 ))),
             });
     }
