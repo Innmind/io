@@ -112,7 +112,7 @@ final class Simulation implements Implementation
     #[\Override]
     public function create(Path $path): Attempt
     {
-        // todo should the Io be injected at the creation of the disk ?
+        // todo should the IO be injected at the creation of the disk ?
         return $this->disk->create($this->files, $path);
     }
 
