@@ -109,4 +109,14 @@ final class Files
     {
         return $this->capabilities->files()->create($path);
     }
+
+    /**
+     * @experimental
+     *
+     * @return Attempt<SideEffect>
+     */
+    public function remove(Path $path): Attempt
+    {
+        return $this->capabilities->files()->remove($path);
+    }
 }

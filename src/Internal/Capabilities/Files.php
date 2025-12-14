@@ -146,6 +146,21 @@ final class Files
     }
 
     /**
+     * @return Attempt<SideEffect>
+     */
+    public function remove(Path $path): Attempt
+    {
+        if (!\file_exists($path->toString())) {
+            return Attempt::result(SideEffect::identity);
+        }
+
+        return match ($path->directory() && \is_dir($path->toString())) {
+            true => $this->rmdir($path),
+            false => $this->unlink($path->toString()),
+        };
+    }
+
+    /**
      * @return Attempt<Stream>
      */
     private function open(string $path, string $mode): Attempt
@@ -206,5 +221,48 @@ final class Files
         }
 
         return Attempt::result(SideEffect::identity);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    private function rmdir(Path $path): Attempt
+    {
+        return $this
+            ->list($path)
+            ->map(static fn($name) => \sprintf(
+                '%s%s%s',
+                $path->toString(),
+                $name->toString(),
+                match ($name->directory()) {
+                    true => '/',
+                    false => '',
+                },
+            ))
+            ->map(Path::of(...))
+            ->sink(SideEffect::identity)
+            ->attempt(fn($_, $file) => $this->remove($file))
+            ->map(static fn() => @\rmdir($path->toString()))
+            ->flatMap(static fn($removed) => match ($removed) {
+                true => Attempt::result(SideEffect::identity),
+                false => Attempt::error(new \RuntimeException(\sprintf(
+                    "Failed to remove directory '%s'",
+                    $path->toString(),
+                ))),
+            });
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    private function unlink(string $path): Attempt
+    {
+        return match (@\unlink($path)) {
+            true => Attempt::result(SideEffect::identity),
+            false => Attempt::error(new \RuntimeException(\sprintf(
+                "Failed to remove file '%s'",
+                $path,
+            ))),
+        };
     }
 }
