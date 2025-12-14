@@ -75,14 +75,18 @@ final class Simulation implements Implementation
     #[\Override]
     public function list(Path $path): Sequence
     {
-        return $this
-            ->disk
-            ->list($path)
-            ->map(static fn($name, $file) => match (true) {
-                $file instanceof Disk\Directory => Name::of($name, Kind::directory),
-                $file instanceof Disk\File => Name::of($name, Kind::file),
-            })
-            ->values();
+        return Sequence::lazy(function() use ($path) {
+            // to make sure to have the current state of the filesystem
+            yield $this
+                ->disk
+                ->list($path)
+                ->snapshot()
+                ->map(static fn($name, $file) => match (true) {
+                    $file instanceof Disk\Directory => Name::of($name, Kind::directory),
+                    $file instanceof Disk\File => Name::of($name, Kind::file),
+                })
+                ->values();
+        })->flatMap(static fn($files) => $files);
     }
 
     #[\Override]

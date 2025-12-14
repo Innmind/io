@@ -18,7 +18,7 @@ final class Content
     /**
      * @internal
      */
-    public static function new(Stream $stream): self
+    public static function of(Stream $stream): self
     {
         return new self($stream);
     }
