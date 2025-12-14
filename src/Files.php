@@ -7,7 +7,10 @@ use Innmind\IO\{
     Files\Read,
     Files\Temporary,
     Files\Write,
-    Files\Name,
+    Files\File,
+    Files\Directory,
+    Files\Link,
+    Files\Kind,
     Internal\Capabilities,
 };
 use Innmind\Url\Path;
@@ -73,23 +76,19 @@ final class Files
     }
 
     /**
-     * @experimental
-     *
-     * @return Sequence<Name>
+     * @return Attempt<File|Directory|Link>
      */
-    public function list(Path $path): Sequence
+    public function access(Path $path): Attempt
     {
-        return $this->capabilities->files()->list($path);
-    }
-
-    /**
-     * @experimental
-     *
-     * @return Attempt<string>
-     */
-    public function mediaType(Path $path): Attempt
-    {
-        return $this->capabilities->files()->mediaType($path);
+        return $this
+            ->capabilities
+            ->files()
+            ->kind($path)
+            ->map(fn($kind) => match ($kind) {
+                Kind::directory => Directory::of($this->capabilities, $path),
+                Kind::file => File::of($this->capabilities, $path),
+                Kind::link => Link::of(),
+            });
     }
 
     /**

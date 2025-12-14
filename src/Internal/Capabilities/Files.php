@@ -6,6 +6,7 @@ namespace Innmind\IO\Internal\Capabilities;
 use Innmind\IO\{
     Internal\Stream,
     Files\Name,
+    Files\Kind,
     Exception\RuntimeException,
 };
 use Innmind\Url\Path;
@@ -116,6 +117,24 @@ final class Files
             false => Attempt::error(new \RuntimeException('Failed to access media type')),
             default => Attempt::result($mediaType),
         };
+    }
+
+    /**
+     * @return Attempt<Kind>
+     */
+    public function kind(Path $path): Attempt
+    {
+        $path = $path->toString();
+
+        if (!\file_exists($path)) {
+            return Attempt::error(new \RuntimeException('File not found'));
+        }
+
+        return Attempt::result(match (true) {
+            \is_dir($path) => Kind::directory,
+            \is_link($path) => Kind::link,
+            default => Kind::file,
+        });
     }
 
     public function exists(Path $path): bool
