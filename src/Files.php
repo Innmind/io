@@ -105,9 +105,6 @@ final class Files
             });
     }
 
-    /**
-     * @experimental
-     */
     public function exists(Path $path): bool
     {
         return $this->capabilities->files()->exists($path);
