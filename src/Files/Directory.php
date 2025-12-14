@@ -26,6 +26,10 @@ final class Directory
         Capabilities $capabilities,
         Path $path,
     ): self {
+        if (!$path->directory()) {
+            $path = Path::of($path->toString().'/');
+        }
+
         return new self($capabilities, $path);
     }
 
