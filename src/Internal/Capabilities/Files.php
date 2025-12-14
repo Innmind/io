@@ -13,6 +13,7 @@ use Innmind\Immutable\{
     Attempt,
     Maybe,
     Sequence,
+    SideEffect,
 };
 
 /**
@@ -134,6 +135,17 @@ final class Files
     }
 
     /**
+     * @return Attempt<SideEffect>
+     */
+    public function create(Path $path): Attempt
+    {
+        return match ($path->directory()) {
+            true => $this->createDirectory($path),
+            false => $this->touch($path),
+        };
+    }
+
+    /**
      * @return Attempt<Stream>
      */
     private function open(string $path, string $mode): Attempt
@@ -146,5 +158,53 @@ final class Files
         }
 
         return Attempt::result(Stream::file($stream));
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    private function createDirectory(Path $path): Attempt
+    {
+        $path = $path->toString();
+
+        // We do not check the result of this function as it will return false
+        // if the path already exist. This can lead to race conditions where
+        // another process created the directory between the condition that
+        // checked if it existed and the call to this method. The only important
+        // part is to check wether the directory exists or not afterward.
+        @\mkdir($path, recursive: true);
+
+        if (!\is_dir($path)) {
+            return Attempt::error(new \RuntimeException(\sprintf(
+                "Failed to create directory '%s'",
+                $path,
+            )));
+        }
+
+        return Attempt::result(SideEffect::identity);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    private function touch(Path $path): Attempt
+    {
+        $path = $path->toString();
+
+        if (!@\touch($path)) {
+            return Attempt::error(new \RuntimeException(\sprintf(
+                "Failed to create file '%s'",
+                $path,
+            )));
+        }
+
+        if (!\file_exists($path)) {
+            return Attempt::error(new \RuntimeException(\sprintf(
+                "Failed to create file '%s'",
+                $path,
+            )));
+        }
+
+        return Attempt::result(SideEffect::identity);
     }
 }
