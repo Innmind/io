@@ -5,6 +5,9 @@
 ### Added
 
 - `Innmind\IO\Files::require()`
+- `Innmind\IO\Files::access()`
+- `Innmind\IO\Files::create()`
+- `Innmind\IO\Files::exists()`
 
 ### Changed
 
