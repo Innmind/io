@@ -92,21 +92,26 @@ final class Files
     }
 
     /**
+     * @return Attempt<File|Directory>
+     */
+    public function create(Path $path): Attempt
+    {
+        return $this
+            ->capabilities
+            ->files()
+            ->create($path)
+            ->map(fn() => match ($path->directory()) {
+                true => Directory::of($this->capabilities, $path),
+                false => File::of($this->capabilities, $path),
+            });
+    }
+
+    /**
      * @experimental
      */
     public function exists(Path $path): bool
     {
         return $this->capabilities->files()->exists($path);
-    }
-
-    /**
-     * @experimental
-     *
-     * @return Attempt<SideEffect>
-     */
-    public function create(Path $path): Attempt
-    {
-        return $this->capabilities->files()->create($path);
     }
 
     /**
