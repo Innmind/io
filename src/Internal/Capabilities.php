@@ -7,6 +7,7 @@ use Innmind\IO\Internal\Capabilities\{
     Implementation,
     AmbientAuthority,
     Async,
+    Simulation,
 };
 use Innmind\TimeContinuum\Clock;
 
@@ -37,6 +38,14 @@ final class Capabilities
             $capabilities->implementation,
             $clock,
         ));
+    }
+
+    /**
+     * @internal
+     */
+    public static function simulation(self $capabilities): self
+    {
+        return new self(Simulation::of($capabilities->implementation));
     }
 
     public function files(): Capabilities\Files

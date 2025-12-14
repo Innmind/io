@@ -8,41 +8,42 @@ use Innmind\IO\Internal\Watch;
 /**
  * @internal
  */
-final class AmbientAuthority implements Implementation
+final class Simulation implements Implementation
 {
     private function __construct(
+        private Implementation $capabilities,
     ) {
     }
 
     /**
      * @internal
      */
-    public static function of(): self
+    public static function of(Implementation $capabilities): self
     {
-        return new self;
+        return new self($capabilities);
     }
 
     #[\Override]
     public function files(): Files
     {
-        return Files::fromAmbientAuthority();
+        return Files::simulation($this->capabilities->files());
     }
 
     #[\Override]
     public function streams(): Streams
     {
-        return Streams::of();
+        return $this->capabilities->streams();
     }
 
     #[\Override]
     public function sockets(): Sockets
     {
-        return Sockets::of();
+        return $this->capabilities->sockets();
     }
 
     #[\Override]
     public function watch(): Watch
     {
-        return Watch::sync();
+        return $this->capabilities->watch();
     }
 }
