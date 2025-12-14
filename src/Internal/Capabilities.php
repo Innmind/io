@@ -3,10 +3,12 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
-use Innmind\IO\Internal\Capabilities\{
-    Implementation,
-    AmbientAuthority,
-    Async,
+use Innmind\IO\{
+    Internal\Capabilities\Implementation,
+    Internal\Capabilities\AmbientAuthority,
+    Internal\Capabilities\Async,
+    Internal\Capabilities\Simulation,
+    Simulation\Disk,
 };
 use Innmind\TimeContinuum\Clock;
 
@@ -36,6 +38,17 @@ final class Capabilities
         return new self(Async::of(
             $capabilities->implementation,
             $clock,
+        ));
+    }
+
+    /**
+     * @internal
+     */
+    public static function simulation(self $capabilities, Disk $disk): self
+    {
+        return new self(Simulation::of(
+            $capabilities->implementation,
+            $disk,
         ));
     }
 

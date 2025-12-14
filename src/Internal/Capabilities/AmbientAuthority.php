@@ -25,7 +25,7 @@ final class AmbientAuthority implements Implementation
     #[\Override]
     public function files(): Files
     {
-        return Files::of();
+        return Files::fromAmbientAuthority();
     }
 
     #[\Override]

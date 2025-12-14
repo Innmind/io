@@ -17,6 +17,7 @@
     "require": {
         "php": "~8.4",
         "innmind/immutable": "dev-next",
+        "innmind/mutable": "dev-next",
         "innmind/url": "dev-next",
         "innmind/time-continuum": "dev-next",
         "innmind/ip": "dev-next",

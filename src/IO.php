@@ -31,6 +31,21 @@ final class IO
         ));
     }
 
+    /**
+     * This is an internal feature for the innmind/testing package.
+     *
+     * @internal
+     */
+    public static function simulation(
+        self $io,
+        Simulation\Disk $disk,
+    ): self {
+        return new self(Capabilities::simulation(
+            $io->capabilities,
+            $disk,
+        ));
+    }
+
     public function files(): Files
     {
         return Files::of($this->capabilities);
