@@ -5,7 +5,11 @@ namespace Innmind\IO\Files;
 
 use Innmind\IO\Internal\Capabilities;
 use Innmind\Url\Path;
-use Innmind\Immutable\Sequence;
+use Innmind\Immutable\{
+    Sequence,
+    Attempt,
+    SideEffect,
+};
 
 final class Directory
 {
@@ -34,5 +38,16 @@ final class Directory
             ->capabilities
             ->files()
             ->list($this->path);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function remove(): Attempt
+    {
+        return $this
+            ->capabilities
+            ->files()
+            ->remove($this->path);
     }
 }

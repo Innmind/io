@@ -5,7 +5,10 @@ namespace Innmind\IO\Files;
 
 use Innmind\IO\Internal\Capabilities;
 use Innmind\Url\Path;
-use Innmind\Immutable\Attempt;
+use Innmind\Immutable\{
+    Attempt,
+    SideEffect,
+};
 
 final class File
 {
@@ -33,6 +36,17 @@ final class File
     public function write(): Write
     {
         return Write::of($this->capabilities, $this->path);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function remove(): Attempt
+    {
+        return $this
+            ->capabilities
+            ->files()
+            ->remove($this->path);
     }
 
     /**

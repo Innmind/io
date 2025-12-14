@@ -19,7 +19,6 @@ use Innmind\Immutable\{
     Attempt,
     Maybe,
     Sequence,
-    SideEffect,
 };
 
 final class Files
@@ -112,15 +111,5 @@ final class Files
     public function exists(Path $path): bool
     {
         return $this->capabilities->files()->exists($path);
-    }
-
-    /**
-     * @experimental
-     *
-     * @return Attempt<SideEffect>
-     */
-    public function remove(Path $path): Attempt
-    {
-        return $this->capabilities->files()->remove($path);
     }
 }
