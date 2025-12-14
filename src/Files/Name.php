@@ -13,7 +13,7 @@ final class Name
      */
     private function __construct(
         private string $name,
-        private bool $directory,
+        private Kind $kind,
     ) {
     }
 
@@ -22,14 +22,14 @@ final class Name
      *
      * @param non-empty-string $name
      */
-    public static function of(string $name, bool $directory): self
+    public static function of(string $name, Kind $kind): self
     {
-        return new self($name, $directory);
+        return new self($name, $kind);
     }
 
-    public function directory(): bool
+    public function kind(): Kind
     {
-        return $this->directory;
+        return $this->kind;
     }
 
     /**

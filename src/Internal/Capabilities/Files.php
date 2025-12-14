@@ -88,10 +88,6 @@ final class Files
 
             /** @var \SplFileInfo $file */
             foreach ($files as $file) {
-                if ($file->isLink()) {
-                    continue;
-                }
-
                 $name = $file->getBasename();
 
                 if ($name === '') {
@@ -100,7 +96,11 @@ final class Files
 
                 yield Name::of(
                     $name,
-                    $file->isDir(),
+                    match (true) {
+                        $file->isDir() => Kind::directory,
+                        $file->isLink() => Kind::link,
+                        default => Kind::file,
+                    },
                 );
             }
         });
@@ -140,10 +140,6 @@ final class Files
     public function exists(Path $path): bool
     {
         if (!\file_exists($path->toString())) {
-            return false;
-        }
-
-        if (\is_link($path->toString())) {
             return false;
         }
 
@@ -260,9 +256,9 @@ final class Files
                 '%s%s%s',
                 $path,
                 $name->toString(),
-                match ($name->directory()) {
-                    true => '/',
-                    false => '',
+                match ($name->kind()) {
+                    Kind::directory => '/',
+                    default => '',
                 },
             ))
             ->map(Path::of(...))
