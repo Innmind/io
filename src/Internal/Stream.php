@@ -4,27 +4,16 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal;
 
 use Innmind\IO\{
+    Internal\Stream\Implementation,
+    Internal\Stream\Native,
     Stream\Size,
-    Exception\InvalidArgumentException,
-    Exception\DataPartiallyWritten,
-    Exception\FailedToCloseStream,
-    Exception\FailedToWriteToStream,
-    Exception\PositionNotSeekable,
-    Exception\RuntimeException,
 };
-use Innmind\Validation\{
-    Is,
-    Of,
-    Constraint,
-    Failure,
-};
+use Innmind\Validation\Of;
 use Innmind\Immutable\{
     Str,
     Maybe,
     Attempt,
     SideEffect,
-    Validation,
-    Predicate\Instance,
 };
 
 /**
@@ -32,39 +21,9 @@ use Innmind\Immutable\{
  */
 final class Stream
 {
-    /** @var resource */
-    private $resource;
-    private bool $file;
-    private bool $closed = false;
-    private bool $seekable = false;
-    private bool $syncable = false;
-
-    /**
-     * @param resource $resource
-     */
-    private function __construct($resource, bool $file)
-    {
-        /**
-         * @psalm-suppress DocblockTypeContradiction
-         * @psalm-suppress RedundantConditionGivenDocblockType
-         */
-        if (!\is_resource($resource) || \get_resource_type($resource) !== 'stream') {
-            throw new InvalidArgumentException;
-        }
-
-        $this->resource = $resource;
-        $this->file = $file;
-        $meta = \stream_get_meta_data($resource);
-
-        if ($meta['seekable'] && \substr($meta['uri'], 0, 9) !== 'php://std') {
-            //stdin, stdout and stderr are not seekable
-            $this->seekable = true;
-            $this->rewind();
-        }
-
-        if ($this->seekable && \substr($meta['uri'] ?? '', 0, 10) !== 'php://temp') {
-            $this->syncable = true;
-        }
+    private function __construct(
+        private Implementation $implementation,
+    ) {
     }
 
     /**
@@ -74,7 +33,7 @@ final class Stream
      */
     public static function of($resource): self
     {
-        return new self($resource, false);
+        return new self(Native::of($resource));
     }
 
     /**
@@ -84,12 +43,12 @@ final class Stream
      */
     public static function file($resource): self
     {
-        return new self($resource, true);
+        return new self(Native::file($resource));
     }
 
     public function isFile(): bool
     {
-        return $this->file;
+        return $this->implementation->isFile();
     }
 
     /**
@@ -97,22 +56,7 @@ final class Stream
      */
     public function nonBlocking(): Maybe
     {
-        if ($this->closed()) {
-            /** @var Maybe<SideEffect> */
-            return Maybe::nothing();
-        }
-
-        $return = \stream_set_blocking($this->resource, false);
-
-        if ($return === false) {
-            /** @var Maybe<SideEffect> */
-            return Maybe::nothing();
-        }
-
-        $_ = \stream_set_write_buffer($this->resource, 0);
-        $_ = \stream_set_read_buffer($this->resource, 0);
-
-        return Maybe::just(SideEffect::identity);
+        return $this->implementation->nonBlocking();
     }
 
     /**
@@ -120,19 +64,7 @@ final class Stream
      */
     public function blocking(): Maybe
     {
-        if ($this->closed()) {
-            /** @var Maybe<SideEffect> */
-            return Maybe::nothing();
-        }
-
-        $return = \stream_set_blocking($this->resource, false);
-
-        if ($return === false) {
-            /** @var Maybe<SideEffect> */
-            return Maybe::nothing();
-        }
-
-        return Maybe::just(SideEffect::identity);
+        return $this->implementation->blocking();
     }
 
     /**
@@ -142,7 +74,7 @@ final class Stream
      */
     public function resource()
     {
-        return $this->resource;
+        return $this->implementation->resource();
     }
 
     /**
@@ -150,23 +82,7 @@ final class Stream
      */
     public function rewind(): Attempt
     {
-        if (!$this->seekable) {
-            /** @var Attempt<SideEffect> */
-            return Attempt::error(new PositionNotSeekable);
-        }
-
-        if ($this->closed()) {
-            /** @var Attempt<SideEffect> */
-            return Attempt::result(SideEffect::identity);
-        }
-
-        $status = \fseek($this->resource, 0);
-
-        /** @var Attempt<SideEffect> */
-        return match ($status) {
-            -1 => Attempt::error(new PositionNotSeekable),
-            default => Attempt::result(SideEffect::identity),
-        };
+        return $this->implementation->rewind();
     }
 
     /**
@@ -174,11 +90,7 @@ final class Stream
      */
     public function end(): bool
     {
-        if ($this->closed()) {
-            return true;
-        }
-
-        return \feof($this->resource);
+        return $this->implementation->end();
     }
 
     /**
@@ -188,35 +100,7 @@ final class Stream
      */
     public function size(): Maybe
     {
-        if ($this->closed()) {
-            /** @var Maybe<Size> */
-            return Maybe::nothing();
-        }
-
-        /** @var Constraint<int, int<0, max>> */
-        $positive = Is::value(0)->or(
-            Is::int()->positive(),
-        );
-        /** @var Constraint<mixed, resource> */
-        $resource = Of::callable(static fn(mixed $resource) => match (\is_resource($resource)) {
-            true => Validation::success($resource),
-            false => Validation::fail(Failure::of('not a resource')),
-        });
-        $validate = $resource
-            ->map(\fstat(...))
-            ->and(Is::shape(
-                'size',
-                Is::string()
-                    ->or(Is::int())
-                    ->map(static fn($size) => (int) $size)
-                    ->and($positive)
-                    ->map(Size::of(...)),
-            ))
-            ->map(static fn(array $stat): mixed => $stat['size']);
-
-        return $validate($this->resource)
-            ->maybe()
-            ->keep(Instance::of(Size::class));
+        return $this->implementation->size();
     }
 
     /**
@@ -224,20 +108,7 @@ final class Stream
      */
     public function close(): Attempt
     {
-        if ($this->closed()) {
-            return Attempt::result(SideEffect::identity);
-        }
-
-        /** @psalm-suppress InvalidPropertyAssignmentValue */
-        $return = \fclose($this->resource);
-
-        if ($return === false) {
-            return Attempt::error(new FailedToCloseStream);
-        }
-
-        $this->closed = true;
-
-        return Attempt::result(SideEffect::identity);
+        return $this->implementation->close();
     }
 
     /**
@@ -245,8 +116,7 @@ final class Stream
      */
     public function closed(): bool
     {
-        /** @psalm-suppress DocblockTypeContradiction */
-        return $this->closed || !\is_resource($this->resource);
+        return $this->implementation->closed();
     }
 
     /**
@@ -256,20 +126,7 @@ final class Stream
      */
     public function read(?int $length = null): Attempt
     {
-        if ($this->closed()) {
-            /** @var Attempt<Str> */
-            return Attempt::error(new RuntimeException('Stream closed'));
-        }
-
-        $data = \stream_get_contents(
-            $this->resource,
-            $length ?? -1,
-        );
-
-        return match ($data) {
-            false => Attempt::error(new RuntimeException('Failed to read the stream')),
-            default => Attempt::result(Str::of($data)),
-        };
+        return $this->implementation->read($length);
     }
 
     /**
@@ -277,17 +134,7 @@ final class Stream
      */
     public function readLine(): Attempt
     {
-        if ($this->closed()) {
-            /** @var Attempt<Str> */
-            return Attempt::error(new RuntimeException('Stream closed'));
-        }
-
-        $line = \fgets($this->resource);
-
-        return match ($line) {
-            false => Attempt::error(new RuntimeException('Failed to read the stream')),
-            default => Attempt::result(Str::of($line)),
-        };
+        return $this->implementation->readLine();
     }
 
     /**
@@ -295,25 +142,7 @@ final class Stream
      */
     public function write(Str $data): Attempt
     {
-        if ($this->closed()) {
-            /** @var Attempt<SideEffect> */
-            return Attempt::error(new FailedToWriteToStream);
-        }
-
-        $written = @\fwrite($this->resource, $data->toString());
-
-        if ($written === false) {
-            /** @var Attempt<SideEffect> */
-            return Attempt::error(new FailedToWriteToStream);
-        }
-
-        if ($written !== $data->length()) {
-            /** @var Attempt<SideEffect> */
-            return Attempt::error(DataPartiallyWritten::of($data, $written));
-        }
-
-        /** @var Attempt<SideEffect> */
-        return Attempt::result(SideEffect::identity);
+        return $this->implementation->write($data);
     }
 
     /**
@@ -321,23 +150,6 @@ final class Stream
      */
     public function sync(): Attempt
     {
-        if ($this->closed()) {
-            /** @var Attempt<SideEffect> */
-            return Attempt::error(new FailedToWriteToStream);
-        }
-
-        if (!$this->syncable) {
-            return Attempt::result(SideEffect::identity);
-        }
-
-        $written = @\fsync($this->resource);
-
-        if ($written === false) {
-            /** @var Attempt<SideEffect> */
-            return Attempt::error(new FailedToWriteToStream);
-        }
-
-        /** @var Attempt<SideEffect> */
-        return Attempt::result(SideEffect::identity);
+        return $this->implementation->sync();
     }
 }
