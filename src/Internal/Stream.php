@@ -6,6 +6,7 @@ namespace Innmind\IO\Internal;
 use Innmind\IO\{
     Internal\Stream\Implementation,
     Internal\Stream\AmbientAuthority,
+    Internal\Stream\Simulated,
     Stream\Size,
 };
 use Innmind\Validation\Of;
@@ -44,6 +45,14 @@ final class Stream
     public static function file($resource): self
     {
         return new self(AmbientAuthority::file($resource));
+    }
+
+    /**
+     * @internal
+     */
+    public static function simulated(self $stream): self
+    {
+        return new self(Simulated::of($stream->implementation));
     }
 
     public function isFile(): bool

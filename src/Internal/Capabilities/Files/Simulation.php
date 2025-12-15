@@ -42,7 +42,7 @@ final class Simulation implements Implementation
             ->disk
             ->access($path)
             ->flatMap(static fn($file) => match (true) {
-                $file instanceof Disk\File => Attempt::result($file->content()->stream()),
+                $file instanceof Disk\File => $file->content()->stream(),
                 default => Attempt::error(new \RuntimeException('No such file')),
             });
     }
