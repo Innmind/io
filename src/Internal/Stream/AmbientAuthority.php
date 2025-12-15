@@ -30,7 +30,7 @@ use Innmind\Immutable\{
 /**
  * @internal
  */
-final class Native implements Implementation
+final class AmbientAuthority implements Implementation
 {
     /** @var resource */
     private $resource;

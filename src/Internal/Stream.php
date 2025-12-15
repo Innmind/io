@@ -5,7 +5,7 @@ namespace Innmind\IO\Internal;
 
 use Innmind\IO\{
     Internal\Stream\Implementation,
-    Internal\Stream\Native,
+    Internal\Stream\AmbientAuthority,
     Stream\Size,
 };
 use Innmind\Validation\Of;
@@ -33,7 +33,7 @@ final class Stream
      */
     public static function of($resource): self
     {
-        return new self(Native::of($resource));
+        return new self(AmbientAuthority::of($resource));
     }
 
     /**
@@ -43,7 +43,7 @@ final class Stream
      */
     public static function file($resource): self
     {
-        return new self(Native::file($resource));
+        return new self(AmbientAuthority::file($resource));
     }
 
     public function isFile(): bool
