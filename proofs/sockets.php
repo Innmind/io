@@ -6,7 +6,7 @@ use Innmind\IO\{
     Frame,
     Sockets\Unix\Address,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Sequence,
@@ -99,8 +99,8 @@ return static function() {
                 );
 
             $assert->same('foo', $result);
-            $client->close()->memoize();
-            $server->close()->memoize();
+            $_ = $client->close()->memoize();
+            $_ = $server->close()->memoize();
         },
     );
 };

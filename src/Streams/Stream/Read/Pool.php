@@ -8,7 +8,7 @@ use Innmind\IO\{
     Internal,
     Internal\Capabilities,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Immutable\{
     Map,
     Sequence,

@@ -64,10 +64,7 @@ final class Push
                 static fn($ready) => $ready
                     ->toWrite()
                     ->find(static fn($ready) => $ready === $stream)
-                    ->match(
-                        Attempt::result(...),
-                        static fn() => Attempt::error(new \RuntimeException('Stream not ready')),
-                    ),
+                    ->attempt(static fn() => new \RuntimeException('Stream not ready')),
             )
             ->flatMap(static fn($stream) => $stream->write($chunk->toEncoding(Str\Encoding::ascii)));
     }

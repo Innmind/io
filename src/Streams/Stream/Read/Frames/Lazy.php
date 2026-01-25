@@ -6,7 +6,6 @@ namespace Innmind\IO\Streams\Stream\Read\Frames;
 use Innmind\IO\{
     Streams\Stream\Write,
     Frame,
-    Exception\FailedToLoadStream,
     Internal\Stream,
     Internal\Watch,
     Internal\Reader,
@@ -140,23 +139,16 @@ final class Lazy
                 true => $stream->blocking(),
                 false => $stream->nonBlocking(),
             };
-            $result->match(
-                static fn() => null,
-                static fn() => throw new \RuntimeException('Failed to set blocking mode'),
-            );
+            $_ = $result
+                ->attempt(static fn() => new \RuntimeException('Failed to set blocking mode'))
+                ->unwrap();
 
             if ($rewindable) {
-                $stream->rewind()->match(
-                    static fn() => null,
-                    static fn() => throw new FailedToLoadStream,
-                );
+                $_ = $stream->rewind()->unwrap();
             }
 
             while (!$stream->end()) {
-                yield $frame($reader)->match(
-                    static fn($frame): mixed => $frame,
-                    static fn($e) => throw $e,
-                );
+                yield $frame($reader)->unwrap();
             }
         });
     }

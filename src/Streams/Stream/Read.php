@@ -11,7 +11,7 @@ use Innmind\IO\{
     Internal\Stream,
     Internal\Watch,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Immutable\{
     Str,
     Maybe,

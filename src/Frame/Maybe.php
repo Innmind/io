@@ -35,9 +35,8 @@ final class Maybe implements Implementation
     #[\Override]
     public function __invoke(Reader|Reader\Buffer $reader): Attempt
     {
-        return $this->value->match(
-            static fn($value) => Attempt::result($value),
-            static fn() => Attempt::error(new RuntimeException('No value provided')),
+        return $this->value->attempt(
+            static fn() => new RuntimeException('No value provided'),
         );
     }
 

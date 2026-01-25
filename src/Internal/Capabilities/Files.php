@@ -5,26 +5,48 @@ namespace Innmind\IO\Internal\Capabilities;
 
 use Innmind\IO\{
     Internal\Stream,
-    Exception\RuntimeException,
+    Internal\Capabilities\Files\Implementation,
+    Internal\Capabilities\Files\AmbientAuthority,
+    Internal\Capabilities\Files\Simulation,
+    Files\Name,
+    Files\Kind,
+    Simulation\Disk,
 };
 use Innmind\Url\Path;
-use Innmind\Immutable\Attempt;
+use Innmind\Immutable\{
+    Attempt,
+    Maybe,
+    Sequence,
+    SideEffect,
+};
 
 /**
  * @internal
  */
 final class Files
 {
-    private function __construct()
-    {
+    private function __construct(
+        private Implementation $implementation,
+    ) {
     }
 
     /**
      * @internal
      */
-    public static function of(): self
+    public static function fromAmbientAuthority(): self
     {
-        return new self;
+        return new self(AmbientAuthority::of());
+    }
+
+    /**
+     * @internal
+     */
+    public static function simulation(self $files, Disk $disk): self
+    {
+        return new self(Simulation::of(
+            $files->implementation,
+            $disk,
+        ));
     }
 
     /**
@@ -32,7 +54,7 @@ final class Files
      */
     public function read(Path $path): Attempt
     {
-        return $this->open($path->toString(), 'r');
+        return $this->implementation->read($path);
     }
 
     /**
@@ -40,7 +62,7 @@ final class Files
      */
     public function write(Path $path): Attempt
     {
-        return $this->open($path->toString(), 'w');
+        return $this->implementation->write($path);
     }
 
     /**
@@ -48,29 +70,59 @@ final class Files
      */
     public function temporary(): Attempt
     {
-        return $this->open('php://temp', 'r+');
+        return $this->implementation->temporary();
     }
 
     /**
-     * @param resource $resource
+     * @return Maybe<mixed>
      */
-    public function acquire($resource): Stream
+    public function require(Path $path): Maybe
     {
-        return Stream::of($resource);
+        return $this->implementation->require($path);
     }
 
     /**
-     * @return Attempt<Stream>
+     * @return Sequence<Name>
      */
-    private function open(string $path, string $mode): Attempt
+    public function list(Path $path): Sequence
     {
-        $stream = \fopen($path, $mode);
+        return $this->implementation->list($path);
+    }
 
-        if ($stream === false) {
-            /** @var Attempt<Stream> */
-            return Attempt::error(new RuntimeException("Failed to open file '$path'"));
-        }
+    /**
+     * @return Attempt<string>
+     */
+    public function mediaType(Path $path): Attempt
+    {
+        return $this->implementation->mediaType($path);
+    }
 
-        return Attempt::result(Stream::file($stream));
+    /**
+     * @return Attempt<Kind>
+     */
+    public function kind(Path $path): Attempt
+    {
+        return $this->implementation->kind($path);
+    }
+
+    public function exists(Path $path): bool
+    {
+        return $this->implementation->exists($path);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function create(Path $path): Attempt
+    {
+        return $this->implementation->create($path);
+    }
+
+    /**
+     * @return Attempt<SideEffect>
+     */
+    public function remove(Path $path): Attempt
+    {
+        return $this->implementation->remove($path);
     }
 }

@@ -41,10 +41,7 @@ final class Wait
                 fn($toRead) => $toRead
                     ->find(fn($ready) => $ready === $this->stream)
                     ->keep(Instance::of(Stream::class))
-                    ->match(
-                        static fn($stream) => Attempt::result($stream),
-                        static fn() => Attempt::error(new RuntimeException('Stream not ready')),
-                    ),
+                    ->attempt(static fn() => new RuntimeException('Stream not ready')),
             );
     }
 

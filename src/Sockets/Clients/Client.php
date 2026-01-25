@@ -8,7 +8,7 @@ use Innmind\IO\{
     Streams\Stream,
     Frame,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Immutable\{
     Str,
     Attempt,

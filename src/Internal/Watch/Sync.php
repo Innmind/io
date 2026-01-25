@@ -8,7 +8,7 @@ use Innmind\IO\{
     Internal\Socket\Server,
     Exception\RuntimeException,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Immutable\{
     Map,
     Maybe,

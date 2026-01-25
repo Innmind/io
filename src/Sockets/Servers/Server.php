@@ -12,7 +12,7 @@ use Innmind\IO\{
     Internal\Watch,
     Exception\RuntimeException,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Immutable\{
     Attempt,
     SideEffect,
