@@ -19,7 +19,7 @@
         "innmind/immutable": "~6.0",
         "innmind/mutable": "~1.0",
         "innmind/url": "~5.0",
-        "innmind/time-continuum": "~5.1",
+        "innmind/time": "~1.0",
         "innmind/ip": "~4.0",
         "innmind/validation": "~3.0"
     },

@@ -10,7 +10,7 @@ use Innmind\IO\{
     Internal\Capabilities\Simulation,
     Simulation\Disk,
 };
-use Innmind\TimeContinuum\Clock;
+use Innmind\Time\Clock;
 
 /**
  * @internal

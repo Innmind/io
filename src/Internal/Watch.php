@@ -9,7 +9,7 @@ use Innmind\IO\{
     Internal\Watch\Ready,
     Internal\Socket\Server,
 };
-use Innmind\TimeContinuum\{
+use Innmind\Time\{
     Clock,
     Period,
 };

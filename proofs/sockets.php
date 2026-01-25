@@ -6,7 +6,7 @@ use Innmind\IO\{
     Frame,
     Sockets\Unix\Address,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Sequence,
