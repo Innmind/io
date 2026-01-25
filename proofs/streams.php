@@ -159,7 +159,7 @@ return static function() {
             $assert->same(
                 \implode("\n", $lines),
                 $load()
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
         },
@@ -207,7 +207,7 @@ return static function() {
             $assert->same(
                 \implode("\n", $lines),
                 $load()
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
         },
@@ -248,7 +248,7 @@ return static function() {
             $assert->same(
                 \implode("\n", $lines),
                 $sequence
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
         },

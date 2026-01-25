@@ -72,7 +72,7 @@ return static function() {
             $assert->same(
                 $data,
                 $loaded
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
         },
@@ -143,7 +143,7 @@ return static function() {
             $assert->same(
                 $data,
                 $loaded
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
 
@@ -298,14 +298,14 @@ return static function() {
                 $expected,
                 $read
                     ->lines()
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
             $assert->same(
                 $expected,
                 $read
                     ->lines()
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
                 'Temporary file should be accessible multiple times',
             );
@@ -386,7 +386,7 @@ return static function() {
                 $tmp
                     ->read()
                     ->chunks(8192)
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
         },
