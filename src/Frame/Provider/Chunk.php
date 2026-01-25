@@ -43,6 +43,7 @@ final class Chunk
      *
      * @return Frame<Str>
      */
+    #[\NoDiscard]
     public function strict(): Frame
     {
         $size = $this->size;
@@ -57,6 +58,7 @@ final class Chunk
      *
      * @return Frame<Str>
      */
+    #[\NoDiscard]
     public function loose(): Frame
     {
         /** @var Frame<Str> */

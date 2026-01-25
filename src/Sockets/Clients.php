@@ -23,6 +23,7 @@ final class Clients
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
     ): self {
@@ -32,6 +33,7 @@ final class Clients
     /**
      * @return Attempt<Client>
      */
+    #[\NoDiscard]
     public function internet(Transport $transport, Authority $authority): Attempt
     {
         return $this
@@ -50,6 +52,7 @@ final class Clients
     /**
      * @return Attempt<Client>
      */
+    #[\NoDiscard]
     public function unix(Address $address): Attempt
     {
         return $this

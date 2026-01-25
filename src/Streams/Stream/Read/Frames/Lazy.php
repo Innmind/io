@@ -51,6 +51,7 @@ final class Lazy
      *
      * @return self<A>
      */
+    #[\NoDiscard]
     public static function of(
         Write $write,
         Stream $stream,
@@ -79,6 +80,7 @@ final class Lazy
      *
      * @return self<T>
      */
+    #[\NoDiscard]
     public function rewindable(): self
     {
         return new self(
@@ -97,6 +99,7 @@ final class Lazy
     /**
      * @return Sequence<T>
      */
+    #[\NoDiscard]
     public function sequence(): Sequence
     {
         $write = $this->write;

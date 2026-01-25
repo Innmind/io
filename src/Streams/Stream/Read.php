@@ -40,6 +40,7 @@ final class Read
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Write $write,
         Capabilities $capabilities,
@@ -65,6 +66,7 @@ final class Read
     /**
      * @internal
      */
+    #[\NoDiscard]
     public function internal(): Stream
     {
         return $this->stream;
@@ -78,6 +80,7 @@ final class Read
      *
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function nonBlocking(): self
     {
         return new self(
@@ -95,6 +98,7 @@ final class Read
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
@@ -112,6 +116,7 @@ final class Read
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -129,6 +134,7 @@ final class Read
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function timeoutAfter(Period $period): self
     {
         return new self(
@@ -146,6 +152,7 @@ final class Read
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function poll(): self
     {
         return $this->timeoutAfter(Period::second(0));
@@ -163,6 +170,7 @@ final class Read
      *
      * @param callable(): Sequence<Str> $provide
      */
+    #[\NoDiscard]
     public function heartbeatWith(callable $provide): self
     {
         return new self(
@@ -190,6 +198,7 @@ final class Read
      *
      * @param callable(): bool $abort
      */
+    #[\NoDiscard]
     public function abortWhen(callable $abort): self
     {
         return new self(
@@ -211,6 +220,7 @@ final class Read
      *
      * @return Pool<T>
      */
+    #[\NoDiscard]
     public function pool(mixed $id): Pool
     {
         return Pool::of(
@@ -227,6 +237,7 @@ final class Read
      *
      * @return Frames<T>
      */
+    #[\NoDiscard]
     public function frames(Frame $frame): Frames
     {
         return Frames::of(

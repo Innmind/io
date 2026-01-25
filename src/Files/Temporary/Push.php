@@ -25,6 +25,7 @@ final class Push
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Internal\Stream $stream,
@@ -43,6 +44,7 @@ final class Push
      *
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -54,6 +56,7 @@ final class Push
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function chunk(Str $chunk): Attempt
     {
         $stream = $this->stream;

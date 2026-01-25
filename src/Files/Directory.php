@@ -22,6 +22,7 @@ final class Directory
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Path $path,
@@ -36,6 +37,7 @@ final class Directory
     /**
      * @return Sequence<Name>
      */
+    #[\NoDiscard]
     public function list(): Sequence
     {
         return $this
@@ -47,6 +49,7 @@ final class Directory
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function remove(): Attempt
     {
         return $this

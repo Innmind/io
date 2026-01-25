@@ -21,17 +21,20 @@ final class Sockets
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
     ): self {
         return new self($capabilities);
     }
 
+    #[\NoDiscard]
     public function clients(): Clients
     {
         return Clients::of($this->capabilities);
     }
 
+    #[\NoDiscard]
     public function servers(): Servers
     {
         return Servers::of($this->capabilities);
@@ -40,6 +43,7 @@ final class Sockets
     /**
      * @return Attempt<array{Client, Client}>
      */
+    #[\NoDiscard]
     public function pair(): Attempt
     {
         return $this->capabilities->sockets()->pair()->map(

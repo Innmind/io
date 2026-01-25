@@ -13,6 +13,7 @@ final class IO
     ) {
     }
 
+    #[\NoDiscard]
     public static function fromAmbientAuthority(): self
     {
         return new self(Capabilities::fromAmbientAuthority());
@@ -23,6 +24,7 @@ final class IO
      *
      * @internal
      */
+    #[\NoDiscard]
     public static function async(self $io, Clock $clock): self
     {
         return new self(Capabilities::async(
@@ -36,6 +38,7 @@ final class IO
      *
      * @internal
      */
+    #[\NoDiscard]
     public static function simulation(
         self $io,
         Simulation\Disk $disk,
@@ -46,16 +49,19 @@ final class IO
         ));
     }
 
+    #[\NoDiscard]
     public function files(): Files
     {
         return Files::of($this->capabilities);
     }
 
+    #[\NoDiscard]
     public function streams(): Streams
     {
         return Streams::of($this->capabilities);
     }
 
+    #[\NoDiscard]
     public function sockets(): Sockets
     {
         return Sockets::of($this->capabilities);

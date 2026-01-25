@@ -21,6 +21,7 @@ final class File
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Path $path,
@@ -28,11 +29,13 @@ final class File
         return new self($capabilities, $path);
     }
 
+    #[\NoDiscard]
     public function read(): Read
     {
         return Read::of($this->capabilities, $this->path);
     }
 
+    #[\NoDiscard]
     public function write(): Write
     {
         return Write::of($this->capabilities, $this->path);
@@ -41,6 +44,7 @@ final class File
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function remove(): Attempt
     {
         return $this
@@ -52,6 +56,7 @@ final class File
     /**
      * @return Attempt<string>
      */
+    #[\NoDiscard]
     public function mediaType(): Attempt
     {
         return $this

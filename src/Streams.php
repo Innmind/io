@@ -18,6 +18,7 @@ final class Streams
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Capabilities $capabilities): self
     {
         return new self($capabilities);
@@ -26,6 +27,7 @@ final class Streams
     /**
      * @param resource $resource
      */
+    #[\NoDiscard]
     public function acquire($resource): Stream
     {
         return Stream::of(

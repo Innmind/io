@@ -32,6 +32,7 @@ final class Write
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Watch $watch, Stream $stream): self
     {
         return new self(
@@ -52,6 +53,7 @@ final class Write
      *
      * @param callable(): bool $abort
      */
+    #[\NoDiscard]
     public function abortWhen(callable $abort): self
     {
         return new self(
@@ -65,6 +67,7 @@ final class Write
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -80,6 +83,7 @@ final class Write
      *
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function sink(Sequence $chunks): Attempt
     {
         return $this->sinkAttempts(
@@ -92,6 +96,7 @@ final class Write
      *
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function sinkAttempts(Sequence $chunks): Attempt
     {
         $stream = $this->stream;

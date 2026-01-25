@@ -31,6 +31,7 @@ final class Server
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Watch $watch,
@@ -42,6 +43,7 @@ final class Server
     /**
      * @internal
      */
+    #[\NoDiscard]
     public function unwrap(): Watch
     {
         return $this->watch;
@@ -50,6 +52,7 @@ final class Server
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -62,6 +65,7 @@ final class Server
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function timeoutAfter(Period $period): self
     {
         return new self(
@@ -74,6 +78,7 @@ final class Server
     /**
      * @return Attempt<Client>
      */
+    #[\NoDiscard]
     public function accept(): Attempt
     {
         $socket = $this->socket;
@@ -97,6 +102,7 @@ final class Server
             ));
     }
 
+    #[\NoDiscard]
     public function pool(self $server): Pool
     {
         return Pool::of($this->capabilities, $this->watch->forRead(
@@ -107,6 +113,7 @@ final class Server
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function close(): Attempt
     {
         return $this->socket->close();
