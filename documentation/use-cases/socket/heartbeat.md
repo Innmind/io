@@ -11,7 +11,7 @@ use Innmind\IO\{
     Frame,
     Sockets\Internet\Transport,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Url\Url;
 use Innmind\Immutable\{
     Str,

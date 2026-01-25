@@ -81,7 +81,7 @@ This is the default behaviour.
 ### `->timeoutAfter()`
 
 ```php
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 
 $server = $server->timeoutAfter(Period::second(1));
 ```
@@ -172,7 +172,7 @@ This is default behaviour.
 ### `->timeoutAfter()`
 
 ```php
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 
 $client = $client->timeoutAfter(Period::second(1));
 ```
