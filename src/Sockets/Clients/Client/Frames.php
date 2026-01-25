@@ -30,6 +30,7 @@ final class Frames
      *
      * @return self<A>
      */
+    #[\NoDiscard]
     public static function of(Stream $frames): self
     {
         return new self($frames);
@@ -38,6 +39,7 @@ final class Frames
     /**
      * @return Attempt<T>
      */
+    #[\NoDiscard]
     public function one(): Attempt
     {
         return $this->frames->one();
@@ -46,6 +48,7 @@ final class Frames
     /**
      * @return Lazy<T>
      */
+    #[\NoDiscard]
     public function lazy(): Lazy
     {
         return Lazy::of($this->frames->lazy());

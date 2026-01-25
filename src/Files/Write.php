@@ -35,6 +35,7 @@ final class Write
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Capabilities $capabilities, Path $path): self
     {
         return new self(
@@ -51,6 +52,7 @@ final class Write
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function temporary(
         Capabilities $capabilities,
         Internal\Stream $stream,
@@ -71,6 +73,7 @@ final class Write
      *
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -86,6 +89,7 @@ final class Write
      *
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function sink(Sequence $chunks): Attempt
     {
         $stream = ($this->load)();

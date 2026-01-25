@@ -27,6 +27,7 @@ final class Lazy
      *
      * @return self<A>
      */
+    #[\NoDiscard]
     public static function of(Stream $frames): self
     {
         return new self($frames);
@@ -35,6 +36,7 @@ final class Lazy
     /**
      * @return Sequence<T>
      */
+    #[\NoDiscard]
     public function sequence(): Sequence
     {
         return $this->frames->sequence();

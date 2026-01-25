@@ -22,6 +22,7 @@ enum Unit
      *
      * @param int<0, max> $size
      */
+    #[\NoDiscard]
     public static function for(int $size): self
     {
         if ($size < 1024) {
@@ -52,6 +53,7 @@ enum Unit
      *
      * @param int<0, max> $size
      */
+    #[\NoDiscard]
     public static function format(int $size): string
     {
         $unit = self::for($size);
@@ -71,6 +73,7 @@ enum Unit
      *
      * @return int<0, max>
      */
+    #[\NoDiscard]
     public function times(int $value): int
     {
         return match ($this) {
@@ -82,6 +85,7 @@ enum Unit
     /**
      * @param int<0, max> $value
      */
+    #[\NoDiscard]
     public function of(int $value): Size
     {
         return Size::of($this->times($value));

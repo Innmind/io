@@ -22,11 +22,13 @@ final class Name
      *
      * @param non-empty-string $name
      */
+    #[\NoDiscard]
     public static function of(string $name, Kind $kind): self
     {
         return new self($name, $kind);
     }
 
+    #[\NoDiscard]
     public function kind(): Kind
     {
         return $this->kind;
@@ -35,6 +37,7 @@ final class Name
     /**
      * @return non-empty-string
      */
+    #[\NoDiscard]
     public function toString(): string
     {
         return $this->name;

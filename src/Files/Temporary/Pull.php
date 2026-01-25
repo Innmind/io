@@ -30,6 +30,7 @@ final class Pull
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Internal\Stream $stream,
@@ -47,6 +48,7 @@ final class Pull
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
@@ -64,6 +66,7 @@ final class Pull
      *
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -76,6 +79,7 @@ final class Pull
     /**
      * @return Maybe<Size>
      */
+    #[\NoDiscard]
     public function size(): Maybe
     {
         return $this->stream->size();
@@ -86,6 +90,7 @@ final class Pull
      *
      * @return Attempt<Str>
      */
+    #[\NoDiscard]
     public function chunk(int $size): Attempt
     {
         $stream = $this->stream;

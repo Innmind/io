@@ -27,6 +27,7 @@ final class Pool
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Capabilities $capabilities, Watch $watch): self
     {
         return new self($capabilities, $watch);
@@ -35,6 +36,7 @@ final class Pool
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function with(Server $server): self
     {
         return new self(
@@ -46,6 +48,7 @@ final class Pool
     /**
      * @return Sequence<Client>
      */
+    #[\NoDiscard]
     public function accept(): Sequence
     {
         return ($this->watch)()

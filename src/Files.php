@@ -31,16 +31,19 @@ final class Files
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Capabilities $capabilities): self
     {
         return new self($capabilities);
     }
 
+    #[\NoDiscard]
     public function read(Path $path): Read
     {
         return Read::of($this->capabilities, $path);
     }
 
+    #[\NoDiscard]
     public function write(Path $path): Write
     {
         return Write::of($this->capabilities, $path);
@@ -49,6 +52,7 @@ final class Files
     /**
      * @return Maybe<mixed>
      */
+    #[\NoDiscard]
     public function require(Path $path): Maybe
     {
         return $this->capabilities->files()->require($path);
@@ -59,6 +63,7 @@ final class Files
      *
      * @return Attempt<Temporary>
      */
+    #[\NoDiscard]
     public function temporary(Sequence $chunks): Attempt
     {
         $capabilities = $this->capabilities;
@@ -77,6 +82,7 @@ final class Files
     /**
      * @return Attempt<File|Directory|Link>
      */
+    #[\NoDiscard]
     public function access(Path $path): Attempt
     {
         return $this
@@ -93,6 +99,7 @@ final class Files
     /**
      * @return Attempt<File|Directory>
      */
+    #[\NoDiscard]
     public function create(Path $path): Attempt
     {
         return $this
@@ -105,6 +112,7 @@ final class Files
             });
     }
 
+    #[\NoDiscard]
     public function exists(Path $path): bool
     {
         return $this->capabilities->files()->exists($path);

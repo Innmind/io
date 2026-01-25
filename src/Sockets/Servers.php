@@ -23,6 +23,7 @@ final class Servers
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Capabilities $capabilities): self
     {
         return new self($capabilities);
@@ -31,6 +32,7 @@ final class Servers
     /**
      * @return Attempt<Server>
      */
+    #[\NoDiscard]
     public function internet(Transport $transport, IP $ip, Port $port): Attempt
     {
         return $this
@@ -48,6 +50,7 @@ final class Servers
     /**
      * @return Attempt<Server>
      */
+    #[\NoDiscard]
     public function unix(Address $address): Attempt
     {
         return $this
@@ -65,6 +68,7 @@ final class Servers
     /**
      * @return Attempt<Server>
      */
+    #[\NoDiscard]
     public function takeOver(Address $address): Attempt
     {
         return $this

@@ -25,6 +25,7 @@ final class Temporary
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Internal\Stream $stream,
@@ -38,11 +39,13 @@ final class Temporary
      *
      * @internal
      */
+    #[\NoDiscard]
     public function internal(): Internal\Stream
     {
         return $this->stream;
     }
 
+    #[\NoDiscard]
     public function read(): Read
     {
         return Read::temporary($this->capabilities, $this->stream);
@@ -51,6 +54,7 @@ final class Temporary
     /**
      * @return Attempt<Pull>
      */
+    #[\NoDiscard]
     public function pull(): Attempt
     {
         return $this->stream->rewind()->map(
@@ -58,6 +62,7 @@ final class Temporary
         );
     }
 
+    #[\NoDiscard]
     public function push(): Push
     {
         return Push::of($this->capabilities, $this->stream);
@@ -66,6 +71,7 @@ final class Temporary
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function close(): Attempt
     {
         return $this->stream->close();
