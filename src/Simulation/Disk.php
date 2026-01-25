@@ -20,6 +20,9 @@ use Innmind\Immutable\{
     SideEffect,
 };
 
+/**
+ * @internal
+ */
 final class Disk
 {
     private function __construct(
@@ -27,14 +30,15 @@ final class Disk
     ) {
     }
 
+    /**
+     * @internal
+     */
     public static function new(): self
     {
         return new self(Directory::new());
     }
 
     /**
-     * @internal
-     *
      * @return Attempt<File|Directory>
      */
     public function access(Path $path): Attempt
@@ -58,8 +62,6 @@ final class Disk
     }
 
     /**
-     * @internal
-     *
      * @return Attempt<SideEffect>
      */
     public function create(Files $files, Path $path): Attempt
@@ -80,8 +82,6 @@ final class Disk
     }
 
     /**
-     * @internal
-     *
      * @return Attempt<SideEffect>
      */
     public function remove(Path $path): Attempt
@@ -100,9 +100,6 @@ final class Disk
             );
     }
 
-    /**
-     * @internal
-     */
     public function exists(Path $path): bool
     {
         return $this->access($path)->match(
