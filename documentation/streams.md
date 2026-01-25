@@ -52,7 +52,7 @@ This is default behaviour.
 ### `->timeoutAfter()`
 
 ```php
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 
 $read = $read->timeoutAfter(Period::second(1));
 ```

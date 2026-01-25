@@ -8,7 +8,7 @@ use Innmind\IO\{
     Frame,
     Sockets\Unix\Address,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Url\Path;
 use Innmind\Immutable\{
     Sequence,
@@ -486,8 +486,8 @@ class FunctionalTest extends TestCase
                 ),
         );
 
-        $client->close()->memoize();
-        $server->close()->memoize();
+        $_ = $client->close()->memoize();
+        $_ = $server->close()->memoize();
     }
 
     public function testSocketClientHeartbeatWithSocketClosing()
@@ -543,7 +543,7 @@ class FunctionalTest extends TestCase
                                 static fn() => null,
                             ),
                     );
-                    $client->close()->memoize();
+                    $_ = $client->close()->memoize();
                 }
 
                 return Sequence::of();
@@ -557,7 +557,7 @@ class FunctionalTest extends TestCase
 
         $this->assertSame(2, $heartbeats);
         $this->assertFalse($result, 'It should fail due to the closing of the socket');
-        $server->close();
+        $_ = $server->close();
     }
 
     public function testSocketClientHeartbeat()
@@ -631,8 +631,8 @@ class FunctionalTest extends TestCase
 
         $this->assertSame(2, $heartbeats);
         $this->assertSame('bar', $result);
-        $client->close()->memoize();
-        $server->close()->memoize();
+        $_ = $client->close()->memoize();
+        $_ = $server->close()->memoize();
     }
 
     public function testSocketAbort()
@@ -703,8 +703,8 @@ class FunctionalTest extends TestCase
 
         $this->assertSame(3, $heartbeats);
         $this->assertNull($result);
-        $client->close()->memoize();
-        $server->close()->memoize();
+        $_ = $client->close()->memoize();
+        $_ = $server->close()->memoize();
     }
 
     public function testServerAcceptConnection()
@@ -754,8 +754,8 @@ class FunctionalTest extends TestCase
             );
 
         $this->assertSame('foo', $result);
-        $client->close()->memoize();
-        $server->close()->memoize();
+        $_ = $client->close()->memoize();
+        $_ = $server->close()->memoize();
     }
 
     public function testServerPool()
@@ -860,15 +860,15 @@ class FunctionalTest extends TestCase
             )
             ->map(static fn($data) => $data->toString());
 
-        $this->assertCount(3, $result);
+        $this->assertSame(3, $result->size());
         $this->assertTrue($result->contains('foo'));
         $this->assertTrue($result->contains('bar'));
         $this->assertTrue($result->contains('baz'));
-        $clientFoo->close()->memoize();
-        $clientBar->close()->memoize();
-        $clientBaz->close()->memoize();
-        $serverFoo->close()->memoize();
-        $serverBar->close()->memoize();
-        $serverBaz->close()->memoize();
+        $_ = $clientFoo->close()->memoize();
+        $_ = $clientBar->close()->memoize();
+        $_ = $clientBaz->close()->memoize();
+        $_ = $serverFoo->close()->memoize();
+        $_ = $serverBar->close()->memoize();
+        $_ = $serverBaz->close()->memoize();
     }
 }

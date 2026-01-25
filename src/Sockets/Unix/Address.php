@@ -17,11 +17,13 @@ final class Address
     /**
      * @psalm-pure
      */
+    #[\NoDiscard]
     public static function of(Path $path): self
     {
         return new self($path);
     }
 
+    #[\NoDiscard]
     public function toString(): string
     {
         /** @var array{dirname: string, filename: string} */

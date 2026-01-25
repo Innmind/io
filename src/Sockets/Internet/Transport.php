@@ -25,41 +25,49 @@ final class Transport
         $this->options = Map::of();
     }
 
+    #[\NoDiscard]
     public static function tcp(): self
     {
         return new self('tcp');
     }
 
+    #[\NoDiscard]
     public static function ssl(): self
     {
         return new self('ssl');
     }
 
+    #[\NoDiscard]
     public static function sslv3(): self
     {
         return new self('sslv3');
     }
 
+    #[\NoDiscard]
     public static function sslv2(): self
     {
         return new self('sslv2');
     }
 
+    #[\NoDiscard]
     public static function tls(): self
     {
         return new self('tls');
     }
 
+    #[\NoDiscard]
     public static function tlsv10(): self
     {
         return new self('tlsv1.0');
     }
 
+    #[\NoDiscard]
     public static function tlsv11(): self
     {
         return new self('tlsv1.1');
     }
 
+    #[\NoDiscard]
     public static function tlsv12(): self
     {
         return new self('tlsv1.2');
@@ -68,6 +76,7 @@ final class Transport
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function withOption(string $key, int|bool|float|string|array $value): self
     {
         $self = clone $this;
@@ -79,11 +88,13 @@ final class Transport
     /**
      * @return Map<string, int|bool|float|string|array>
      */
+    #[\NoDiscard]
     public function options(): Map
     {
         return $this->options;
     }
 
+    #[\NoDiscard]
     public function toString(): string
     {
         return $this->transport;

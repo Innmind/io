@@ -25,6 +25,7 @@ final class Push
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Internal\Stream $stream,
@@ -43,6 +44,7 @@ final class Push
      *
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -54,6 +56,7 @@ final class Push
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function chunk(Str $chunk): Attempt
     {
         $stream = $this->stream;
@@ -64,10 +67,7 @@ final class Push
                 static fn($ready) => $ready
                     ->toWrite()
                     ->find(static fn($ready) => $ready === $stream)
-                    ->match(
-                        Attempt::result(...),
-                        static fn() => Attempt::error(new \RuntimeException('Stream not ready')),
-                    ),
+                    ->attempt(static fn() => new \RuntimeException('Stream not ready')),
             )
             ->flatMap(static fn($stream) => $stream->write($chunk->toEncoding(Str\Encoding::ascii)));
     }

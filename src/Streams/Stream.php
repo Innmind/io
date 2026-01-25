@@ -25,6 +25,7 @@ final class Stream
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Internal\Stream $stream,
@@ -32,6 +33,7 @@ final class Stream
         return new self($capabilities, $stream);
     }
 
+    #[\NoDiscard]
     public function read(): Read
     {
         return Read::of(
@@ -41,6 +43,7 @@ final class Stream
         );
     }
 
+    #[\NoDiscard]
     public function write(): Write
     {
         return Write::of($this->capabilities->watch(), $this->stream);
@@ -49,6 +52,7 @@ final class Stream
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function close(): Attempt
     {
         return $this->stream->close();

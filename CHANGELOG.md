@@ -1,5 +1,20 @@
 # Changelog
 
+## 4.0.0 - 2026-01-25
+
+### Added
+
+- `Innmind\IO\Files::require()`
+- `Innmind\IO\Files::access()`
+- `Innmind\IO\Files::create()`
+- `Innmind\IO\Files::exists()`
+
+### Changed
+
+- Requires PHP `8.4`
+- Requires `innmind/immutable:~6.0`
+- Requires `innmind/time:~1.0`
+
 ## 3.5.1 - 2025-08-18
 
 ### Fixed

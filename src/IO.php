@@ -4,7 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO;
 
 use Innmind\IO\Internal\Capabilities;
-use Innmind\TimeContinuum\Clock;
+use Innmind\Time\Clock;
 
 final class IO
 {
@@ -13,6 +13,7 @@ final class IO
     ) {
     }
 
+    #[\NoDiscard]
     public static function fromAmbientAuthority(): self
     {
         return new self(Capabilities::fromAmbientAuthority());
@@ -23,21 +24,44 @@ final class IO
      *
      * @internal
      */
-    public static function async(Clock $clock): self
+    #[\NoDiscard]
+    public static function async(self $io, Clock $clock): self
     {
-        return new self(Capabilities::async($clock));
+        return new self(Capabilities::async(
+            $io->capabilities,
+            $clock,
+        ));
     }
 
+    /**
+     * This is an internal feature for the innmind/testing package.
+     *
+     * @internal
+     */
+    #[\NoDiscard]
+    public static function simulation(
+        self $io,
+        Simulation\Disk $disk,
+    ): self {
+        return new self(Capabilities::simulation(
+            $io->capabilities,
+            $disk,
+        ));
+    }
+
+    #[\NoDiscard]
     public function files(): Files
     {
         return Files::of($this->capabilities);
     }
 
+    #[\NoDiscard]
     public function streams(): Streams
     {
         return Streams::of($this->capabilities);
     }
 
+    #[\NoDiscard]
     public function sockets(): Sockets
     {
         return Sockets::of($this->capabilities);

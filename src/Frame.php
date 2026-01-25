@@ -51,6 +51,7 @@ final class Frame
      *
      * @return self<U>
      */
+    #[\NoDiscard]
     public static function just(mixed $value): self
     {
         return new self(M::just($value));
@@ -64,6 +65,7 @@ final class Frame
      *
      * @return self<U>
      */
+    #[\NoDiscard]
     public static function maybe(Maybe $value): self
     {
         return new self(M::of($value));
@@ -74,6 +76,7 @@ final class Frame
      *
      * @param int<1, max> $size
      */
+    #[\NoDiscard]
     public static function chunk(int $size): Frame\Provider\Chunk
     {
         return Frame\Provider\Chunk::of(
@@ -87,6 +90,7 @@ final class Frame
      *
      * @return self<Str>
      */
+    #[\NoDiscard]
     public static function line(): self
     {
         return new self(Line::new());
@@ -100,6 +104,7 @@ final class Frame
      *
      * @return self<A>
      */
+    #[\NoDiscard]
     public static function compose(
         callable $map,
         self $first,
@@ -127,6 +132,7 @@ final class Frame
      *
      * @return self<Seq<Attempt<U>>>
      */
+    #[\NoDiscard]
     public static function sequence(self $frame): self
     {
         return new self(Sequence::of($frame));
@@ -149,6 +155,7 @@ final class Frame
      *
      * @return self<U>
      */
+    #[\NoDiscard]
     public static function buffer(int $size, self $frame): self
     {
         /** @psalm-suppress ImpurePropertyFetch It's safe to access the implementation */
@@ -162,6 +169,7 @@ final class Frame
      *
      * @return self<T>
      */
+    #[\NoDiscard]
     public function filter(callable $predicate): self
     {
         return new self(Frame\Filter::of(
@@ -179,6 +187,7 @@ final class Frame
      *
      * @return self<U>
      */
+    #[\NoDiscard]
     public function map(callable $map): self
     {
         return new self(Frame\Map::of(
@@ -196,6 +205,7 @@ final class Frame
      *
      * @return self<U>
      */
+    #[\NoDiscard]
     public function flatMap(callable $map): self
     {
         return new self(Frame\FlatMap::of(

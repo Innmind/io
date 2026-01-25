@@ -8,7 +8,7 @@ use Innmind\IO\{
     Streams\Stream,
     Frame,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Immutable\{
     Str,
     Attempt,
@@ -28,6 +28,7 @@ final class Client
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Stream $stream): self
     {
         return new self(
@@ -40,6 +41,7 @@ final class Client
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
@@ -52,6 +54,7 @@ final class Client
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -64,6 +67,7 @@ final class Client
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function timeoutAfter(Period $period): self
     {
         return new self(
@@ -76,6 +80,7 @@ final class Client
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function poll(): self
     {
         return $this->timeoutAfter(Period::second(0));
@@ -93,6 +98,7 @@ final class Client
      *
      * @param callable(): Sequence<Str> $chunks
      */
+    #[\NoDiscard]
     public function heartbeatWith(callable $chunks): self
     {
         return new self(
@@ -116,6 +122,7 @@ final class Client
      *
      * @param callable(): bool $abort
      */
+    #[\NoDiscard]
     public function abortWhen(callable $abort): self
     {
         return new self(
@@ -130,6 +137,7 @@ final class Client
      *
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function sink(Sequence $chunks): Attempt
     {
         return $this->write->sink($chunks);
@@ -140,6 +148,7 @@ final class Client
      *
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function sinkAttempts(Sequence $chunks): Attempt
     {
         return $this->write->sinkAttempts($chunks);
@@ -152,6 +161,7 @@ final class Client
      *
      * @return Frames<T>
      */
+    #[\NoDiscard]
     public function frames(Frame $frame): Frames
     {
         return Frames::of($this->read->frames($frame));
@@ -160,6 +170,7 @@ final class Client
     /**
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function close(): Attempt
     {
         return $this->stream->close();

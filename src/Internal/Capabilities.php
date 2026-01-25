@@ -3,20 +3,22 @@ declare(strict_types = 1);
 
 namespace Innmind\IO\Internal;
 
-use Innmind\TimeContinuum\Clock;
+use Innmind\IO\{
+    Internal\Capabilities\Implementation,
+    Internal\Capabilities\AmbientAuthority,
+    Internal\Capabilities\Async,
+    Internal\Capabilities\Simulation,
+    Simulation\Disk,
+};
+use Innmind\Time\Clock;
 
 /**
  * @internal
  */
 final class Capabilities
 {
-    /**
-     * The async nature is determined by the presence of the clock only as the
-     * sync implementation don't need one. And having a separate bool flag would
-     * not be understood by Psalm.
-     */
     private function __construct(
-        private ?Clock $clock,
+        private Implementation $implementation,
     ) {
     }
 
@@ -25,37 +27,48 @@ final class Capabilities
      */
     public static function fromAmbientAuthority(): self
     {
-        return new self(null);
+        return new self(AmbientAuthority::of());
     }
 
     /**
      * @internal
      */
-    public static function async(Clock $clock): self
+    public static function async(self $capabilities, Clock $clock): self
     {
-        return new self($clock);
+        return new self(Async::of(
+            $capabilities->implementation,
+            $clock,
+        ));
+    }
+
+    /**
+     * @internal
+     */
+    public static function simulation(self $capabilities, Disk $disk): self
+    {
+        return new self(Simulation::of(
+            $capabilities->implementation,
+            $disk,
+        ));
     }
 
     public function files(): Capabilities\Files
     {
-        return Capabilities\Files::of();
+        return $this->implementation->files();
     }
 
     public function streams(): Capabilities\Streams
     {
-        return Capabilities\Streams::of();
+        return $this->implementation->streams();
     }
 
     public function sockets(): Capabilities\Sockets
     {
-        return Capabilities\Sockets::of();
+        return $this->implementation->sockets();
     }
 
     public function watch(): Watch
     {
-        return match ($this->clock) {
-            null => Watch::sync(),
-            default => Watch::async($this->clock),
-        };
+        return $this->implementation->watch();
     }
 }

@@ -9,9 +9,9 @@ use Innmind\IO\Internal\{
     Stream,
     Socket\Server,
 };
-use Innmind\TimeContinuum\{
+use Innmind\Time\{
     Clock,
-    PointInTime,
+    Point,
     Period,
 };
 use Innmind\Immutable\{
@@ -33,7 +33,7 @@ final class Suspended
      * @param Sequence<Stream> $write
      */
     private function __construct(
-        private PointInTime $at,
+        private Point $at,
         private Maybe $timeout,
         private Sequence $read,
         private Sequence $write,
@@ -49,7 +49,7 @@ final class Suspended
      * @param Sequence<Stream> $write
      */
     public static function of(
-        PointInTime $at,
+        Point $at,
         Maybe $timeout,
         Sequence $read,
         Sequence $write,

@@ -55,7 +55,7 @@ return static function() {
                 ->number($loaded->size())
                 ->int()
                 ->greaterThan(0);
-            $loaded
+            $_ = $loaded
                 ->dropEnd(1)
                 ->foreach(static fn($chunk) => $assert->same(
                     $size,
@@ -72,7 +72,7 @@ return static function() {
             $assert->same(
                 $data,
                 $loaded
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
         },
@@ -90,7 +90,7 @@ return static function() {
             $data = \implode('', $chunks);
             \file_put_contents($tmp, $data);
 
-            IO::fromAmbientAuthority()
+            $_ = IO::fromAmbientAuthority()
                 ->files()
                 ->read(Path::of($tmp))
                 ->toEncoding($encoding)
@@ -128,7 +128,7 @@ return static function() {
                 ->number($loaded->size())
                 ->int()
                 ->greaterThan(0);
-            $loaded
+            $_ = $loaded
                 ->dropEnd(1)
                 ->foreach(static fn($line) => $assert->true(
                     $line->endsWith("\n"),
@@ -143,7 +143,7 @@ return static function() {
             $assert->same(
                 $data,
                 $loaded
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
 
@@ -175,7 +175,7 @@ return static function() {
             $data = \implode("\n", $lines);
             \file_put_contents($tmp, $data);
 
-            IO::fromAmbientAuthority()
+            $_ = IO::fromAmbientAuthority()
                 ->files()
                 ->read(Path::of($tmp))
                 ->toEncoding($encoding)
@@ -298,14 +298,14 @@ return static function() {
                 $expected,
                 $read
                     ->lines()
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
             $assert->same(
                 $expected,
                 $read
                     ->lines()
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
                 'Temporary file should be accessible multiple times',
             );
@@ -386,7 +386,7 @@ return static function() {
                 $tmp
                     ->read()
                     ->chunks(8192)
-                    ->fold(new Concat)
+                    ->fold(Concat::monoid)
                     ->toString(),
             );
         },
@@ -427,6 +427,31 @@ return static function() {
                     static fn($size) => $size,
                     static fn() => null,
                 ),
+            );
+        },
+    );
+
+    yield test(
+        'IO::files()->require()',
+        static function($assert) {
+            $assert->same(
+                42,
+                IO::fromAmbientAuthority()
+                    ->files()
+                    ->require(Path::of('fixtures/to-load.php'))
+                    ->match(
+                        static fn($value) => $value,
+                        static fn() => null,
+                    ),
+            );
+            $assert->false(
+                IO::fromAmbientAuthority()
+                    ->files()
+                    ->require(Path::of('fixtures/unknown.php'))
+                    ->match(
+                        static fn() => true,
+                        static fn() => false,
+                    ),
             );
         },
     );

@@ -8,7 +8,7 @@ use Innmind\IO\{
     Internal,
     Internal\Capabilities,
 };
-use Innmind\TimeContinuum\Period;
+use Innmind\Time\Period;
 use Innmind\Immutable\{
     Map,
     Sequence,
@@ -42,6 +42,7 @@ final class Pool
      *
      * @return self<A>
      */
+    #[\NoDiscard]
     public static function of(
         Capabilities $capabilities,
         Read $stream,
@@ -63,6 +64,7 @@ final class Pool
      *
      * @return self<T|U>
      */
+    #[\NoDiscard]
     public function with(mixed $id, Read $stream): self
     {
         /** @psalm-suppress InvalidArgument Due to the id union */
@@ -78,6 +80,7 @@ final class Pool
     /**
      * @return self<T>
      */
+    #[\NoDiscard]
     public function poll(): self
     {
         return $this->timeoutAfter(Period::second(0));
@@ -86,6 +89,7 @@ final class Pool
     /**
      * @return self<T>
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -100,6 +104,7 @@ final class Pool
     /**
      * @return self<T>
      */
+    #[\NoDiscard]
     public function timeoutAfter(Period $timeout): self
     {
         return new self(
@@ -114,6 +119,7 @@ final class Pool
     /**
      * @return self<T>
      */
+    #[\NoDiscard]
     public function toEncoding(Str\Encoding $encoding): self
     {
         return new self(
@@ -128,6 +134,7 @@ final class Pool
     /**
      * @return self<T>
      */
+    #[\NoDiscard]
     public function nonBlocking(): self
     {
         return new self(
@@ -142,6 +149,7 @@ final class Pool
     /**
      * @return Sequence<Pair<T, Str>>
      */
+    #[\NoDiscard]
     public function chunks(): Sequence
     {
         $blocking = $this->blocking;

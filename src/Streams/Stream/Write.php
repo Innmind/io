@@ -32,6 +32,7 @@ final class Write
     /**
      * @internal
      */
+    #[\NoDiscard]
     public static function of(Watch $watch, Stream $stream): self
     {
         return new self(
@@ -52,6 +53,7 @@ final class Write
      *
      * @param callable(): bool $abort
      */
+    #[\NoDiscard]
     public function abortWhen(callable $abort): self
     {
         return new self(
@@ -65,6 +67,7 @@ final class Write
     /**
      * @psalm-mutation-free
      */
+    #[\NoDiscard]
     public function watch(): self
     {
         return new self(
@@ -80,6 +83,7 @@ final class Write
      *
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function sink(Sequence $chunks): Attempt
     {
         return $this->sinkAttempts(
@@ -92,6 +96,7 @@ final class Write
      *
      * @return Attempt<SideEffect>
      */
+    #[\NoDiscard]
     public function sinkAttempts(Sequence $chunks): Attempt
     {
         $stream = $this->stream;
@@ -108,7 +113,7 @@ final class Write
             ->map(static fn($chunk) => $chunk->map(
                 static fn($chunk) => $chunk->toEncoding(Str\Encoding::ascii),
             ))
-            ->sink(new SideEffect)
+            ->sink(SideEffect::identity)
             ->attempt(
                 static fn($_, $chunk) => $chunk
                     ->flatMap(static fn($chunk) => match ($abort()) {
@@ -121,10 +126,7 @@ final class Write
                             ->flatMap(
                                 static fn($toWrite) => $toWrite
                                     ->find(static fn($ready) => $ready === $stream)
-                                    ->match(
-                                        static fn($stream) => Attempt::result($stream),
-                                        static fn() => Attempt::error(new RuntimeException('Stream not ready to write to')),
-                                    ),
+                                    ->attempt(static fn() => new RuntimeException('Stream not ready to write to')),
                             )
                             ->flatMap(static fn($stream) => $stream->write($chunk)),
                     ),

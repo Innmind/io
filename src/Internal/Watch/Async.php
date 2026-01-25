@@ -9,7 +9,7 @@ use Innmind\IO\{
     Internal\Async\Suspended,
     Internal\Async\Resumable,
 };
-use Innmind\TimeContinuum\{
+use Innmind\Time\{
     Clock,
     Period,
 };

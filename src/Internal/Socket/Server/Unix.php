@@ -73,7 +73,7 @@ final class Unix implements Server
                 });
         }
 
-        return Attempt::result(new SideEffect);
+        return Attempt::result(SideEffect::identity);
     }
 
     /**

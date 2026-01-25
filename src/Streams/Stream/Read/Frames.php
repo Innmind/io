@@ -53,6 +53,7 @@ final class Frames
      *
      * @return self<A>
      */
+    #[\NoDiscard]
     public static function of(
         Write $write,
         Stream $stream,
@@ -78,6 +79,7 @@ final class Frames
     /**
      * @return Attempt<T>
      */
+    #[\NoDiscard]
     public function one(): Attempt
     {
         $stream = $this->stream;
@@ -113,6 +115,7 @@ final class Frames
     /**
      * @return Lazy<T>
      */
+    #[\NoDiscard]
     public function lazy(): Lazy
     {
         return Lazy::of(
