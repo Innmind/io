@@ -64,7 +64,7 @@ final class Capabilities
 
     public function sockets(): Capabilities\Sockets
     {
-        return $this->implementation->sockets();
+        return $this->implementation->sockets($this->files());
     }
 
     public function watch(): Watch

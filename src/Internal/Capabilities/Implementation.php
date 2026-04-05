@@ -12,6 +12,6 @@ interface Implementation
 {
     public function files(): Files;
     public function streams(): Streams;
-    public function sockets(): Sockets;
+    public function sockets(Files $files): Sockets;
     public function watch(): Watch;
 }

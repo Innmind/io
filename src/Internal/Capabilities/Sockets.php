@@ -14,16 +14,17 @@ use Innmind\Immutable\Attempt;
  */
 final class Sockets
 {
-    private function __construct()
-    {
+    private function __construct(
+        private Files $files,
+    ) {
     }
 
     /**
      * @internal
      */
-    public static function of(): self
+    public static function of(Files $files): self
     {
-        return new self;
+        return new self($files);
     }
 
     public function clients(): Sockets\Clients
@@ -33,7 +34,7 @@ final class Sockets
 
     public function servers(): Sockets\Servers
     {
-        return Sockets\Servers::of();
+        return Sockets\Servers::of($this->files);
     }
 
     /**
