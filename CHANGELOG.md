@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- `Innmind\IO\Frame::keep()`
+
 ### Fixed
 
 - Taking over a socket address in a simulated environment (as it tried to delete a concrete file)
