@@ -1,5 +1,15 @@
 # Changelog
 
+## 4.1.0 - 2026-04-05
+
+### Added
+
+- `Innmind\IO\Frame::keep()`
+
+### Fixed
+
+- Taking over a socket address in a simulated environment (as it tried to delete a concrete file)
+
 ## 4.0.0 - 2026-01-25
 
 ### Added

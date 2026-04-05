@@ -10,6 +10,7 @@ use Innmind\IO\{
     Internal\Socket\Server,
     Internal\Socket\Server\Internet,
     Internal\Socket\Server\Unix,
+    Internal\Capabilities\Files,
     Exception\RuntimeException,
 };
 use Innmind\IP\IP;
@@ -21,16 +22,17 @@ use Innmind\Immutable\Attempt;
  */
 final class Servers
 {
-    private function __construct()
-    {
+    private function __construct(
+        private Files $files,
+    ) {
     }
 
     /**
      * @internal
      */
-    public static function of(): self
+    public static function of(Files $files): self
     {
-        return new self;
+        return new self($files);
     }
 
     /**
@@ -93,10 +95,11 @@ final class Servers
     {
         return $this
             ->unix($path)
-            ->recover(function() use ($path) {
-                @\unlink($path->toString());
-
-                return $this->unix($path);
-            });
+            ->recover(
+                fn() => $this
+                    ->files
+                    ->remove($path->asPath())
+                    ->flatMap(fn() => $this->unix($path)),
+            );
     }
 }

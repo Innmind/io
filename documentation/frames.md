@@ -117,6 +117,25 @@ $nonErroneousFrame = Frame::line()->filter(
 );
 ```
 
+## `->keep()`
+
+This is similar to `->filter()` with the advantage of psalm understanding the type in the new `Frame`.
+
+```php
+use Innmind\IO\Frame;
+use Innmind\Immutable\{
+    Str,
+    Predicate\Instance,
+};
+
+$nonEmptyLineFrame = Frame::line()
+    ->map(static fn($line) => match ($line->empty()) {
+        true => null,
+        false => $line,
+    })
+    ->keep(Instance::of(Str::class));
+```
+
 ## `->map()`
 
 This method allows to transform the read data to any type you want.

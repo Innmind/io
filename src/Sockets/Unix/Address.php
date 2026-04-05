@@ -24,6 +24,12 @@ final class Address
     }
 
     #[\NoDiscard]
+    public function asPath(): Path
+    {
+        return $this->path;
+    }
+
+    #[\NoDiscard]
     public function toString(): string
     {
         /** @var array{dirname: string, filename: string} */

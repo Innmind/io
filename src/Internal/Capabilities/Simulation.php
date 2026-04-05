@@ -43,9 +43,9 @@ final class Simulation implements Implementation
     }
 
     #[\Override]
-    public function sockets(): Sockets
+    public function sockets(Files $files): Sockets
     {
-        return $this->capabilities->sockets();
+        return $this->capabilities->sockets($files);
     }
 
     #[\Override]
