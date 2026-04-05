@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Taking over a socket address in a simulated environment (as it tried to delete a concrete file)
+
 ## 4.0.0 - 2026-01-25
 
 ### Added

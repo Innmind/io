@@ -35,9 +35,9 @@ final class AmbientAuthority implements Implementation
     }
 
     #[\Override]
-    public function sockets(): Sockets
+    public function sockets(Files $files): Sockets
     {
-        return Sockets::of();
+        return Sockets::of($files);
     }
 
     #[\Override]
