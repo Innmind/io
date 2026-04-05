@@ -98,8 +98,8 @@ final class Servers
             ->recover(
                 fn() => $this
                     ->files
-                    ->remove($path->asPath()),
-            )
-            ->flatMap(fn() => $this->unix($path));
+                    ->remove($path->asPath())
+                    ->flatMap(fn() => $this->unix($path)),
+            );
     }
 }
