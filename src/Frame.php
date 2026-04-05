@@ -16,6 +16,7 @@ use Innmind\Immutable\{
     Maybe,
     Attempt,
     Sequence as Seq,
+    Predicate,
 };
 
 /**
@@ -176,6 +177,21 @@ final class Frame
             $this->implementation,
             $predicate,
         ));
+    }
+
+    /**
+     * @psalm-mutation-free
+     * @template U
+     *
+     * @param Predicate<U> $predicate
+     *
+     * @return self<U>
+     */
+    #[\NoDiscard]
+    public function keep(Predicate $predicate): self
+    {
+        /** @var self<U> */
+        return $this->filter($predicate);
     }
 
     /**

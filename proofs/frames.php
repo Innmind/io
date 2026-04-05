@@ -12,6 +12,7 @@ use Innmind\Immutable\{
     Str,
     Maybe,
     Sequence,
+    Predicate,
 };
 use Innmind\BlackBox\Set;
 
@@ -194,6 +195,37 @@ return static function() {
             $assert->null(
                 $frame
                     ->filter(static fn() => false)($reader($string))
+                    ->match(
+                        static fn($value) => $value,
+                        static fn() => null,
+                    ),
+            );
+        },
+    );
+
+    yield proof(
+        'Frame::keep()',
+        given(
+            Set::strings()
+                ->unicode()
+                ->map(Str::of(...))
+                ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
+        ),
+        static function($assert, $string) use ($reader) {
+            $frame = Frame::chunk($string->length())->strict();
+
+            $assert->same(
+                $string->toString(),
+                $frame
+                    ->keep(Predicate::of(static fn() => true))($reader($string))
+                    ->match(
+                        static fn($value) => $value->toString(),
+                        static fn() => null,
+                    ),
+            );
+            $assert->null(
+                $frame
+                    ->keep(Predicate::of(static fn() => false))($reader($string))
                     ->match(
                         static fn($value) => $value,
                         static fn() => null,
