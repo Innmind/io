@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- Taking over a socket didn't remove the correct path (missed the `.sock` extension)
+
 ## 4.1.0 - 2026-04-05
 
 ### Added
