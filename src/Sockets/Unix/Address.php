@@ -16,6 +16,8 @@ final class Address
 
     /**
      * @psalm-pure
+     *
+     * The path will be suffixed with a .sock extension
      */
     #[\NoDiscard]
     public static function of(Path $path): self
