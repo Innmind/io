@@ -2,7 +2,10 @@
     "name": "innmind/io",
     "type": "library",
     "description": "High level abstraction for streams and sockets",
-    "keywords": ["stream", "socket"],
+    "keywords": [
+        "stream",
+        "socket"
+    ],
     "homepage": "http://github.com/innmind/io",
     "license": "MIT",
     "authors": [
