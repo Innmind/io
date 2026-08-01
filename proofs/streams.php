@@ -11,9 +11,12 @@ use Innmind\Immutable\{
     SideEffect,
     Monoid\Concat,
 };
-use Innmind\BlackBox\Set;
+use Innmind\BlackBox\{
+    Set,
+    Prove,
+};
 
-return static function() {
+return static function(Prove $prove) {
     // Here we make sure to only use characters that are "reversible". Writing
     // and then reading should return the exact same character.
     $string = Set::strings()->madeOf(
@@ -31,7 +34,7 @@ return static function() {
         Set::sequence($string)->between(0, 20),
     );
 
-    yield test(
+    yield $prove->test(
         'IO::streams()->acquire()->read()->frames()->one()',
         static function($assert) {
             $http = <<<RAW
@@ -118,9 +121,9 @@ return static function() {
         },
     );
 
-    yield proof(
-        'IO::streams()->acquire()->read()->frames()->sequence()',
-        given(
+    yield $prove
+        ->proof('IO::streams()->acquire()->read()->frames()->sequence()')
+        ->given(
             Set::either(
                 Set::sequence($string->between(0, 20)->filter(
                     static fn($line) => !\str_contains($line, "\n"),
@@ -129,8 +132,8 @@ return static function() {
                     static fn($line) => !\str_contains($line, "\n"),
                 ))->between(0, 20),
             ),
-        ),
-        static function($assert, $lines) {
+        )
+        ->test(static function($assert, $lines) {
             $tmp = \tmpfile();
             \fwrite($tmp, \implode("\n", $lines));
 
@@ -162,12 +165,11 @@ return static function() {
                     ->fold(Concat::monoid)
                     ->toString(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::streams()->acquire()->read()->nonBlocking()->frames()->sequence()',
-        given(
+    yield $prove
+        ->proof('IO::streams()->acquire()->read()->nonBlocking()->frames()->sequence()')
+        ->given(
             Set::either(
                 Set::sequence($string->between(0, 20)->filter(
                     static fn($line) => !\str_contains($line, "\n"),
@@ -176,8 +178,8 @@ return static function() {
                     static fn($line) => !\str_contains($line, "\n"),
                 ))->between(0, 20),
             ),
-        ),
-        static function($assert, $lines) {
+        )
+        ->test(static function($assert, $lines) {
             $tmp = \tmpfile();
             \fwrite($tmp, \implode("\n", $lines));
 
@@ -210,12 +212,11 @@ return static function() {
                     ->fold(Concat::monoid)
                     ->toString(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::streams()->acquire()->read()->frames()->rewindable()->sequence()',
-        given(
+    yield $prove
+        ->proof('IO::streams()->acquire()->read()->frames()->rewindable()->sequence()')
+        ->given(
             Set::either(
                 Set::sequence($string->between(0, 20)->filter(
                     static fn($line) => !\str_contains($line, "\n"),
@@ -224,8 +225,8 @@ return static function() {
                     static fn($line) => !\str_contains($line, "\n"),
                 ))->between(0, 20),
             ),
-        ),
-        static function($assert, $lines) {
+        )
+        ->test(static function($assert, $lines) {
             $tmp = \tmpfile();
             \fwrite($tmp, \implode("\n", $lines));
 
@@ -251,17 +252,16 @@ return static function() {
                     ->fold(Concat::monoid)
                     ->toString(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::streams()->acquire()->read()->pool()->chunks()',
-        given(
+    yield $prove
+        ->proof('IO::streams()->acquire()->read()->pool()->chunks()')
+        ->given(
             $string,
             $string,
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $a, $b, $encoding) {
+        )
+        ->test(static function($assert, $a, $b, $encoding) {
             $tmpA = \tmpfile();
             \fwrite($tmpA, $a);
             $tmpB = \tmpfile();
@@ -303,17 +303,16 @@ return static function() {
                     ->map(static fn($chunk) => $chunk->value()->toString())
                     ->toList(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::streams()->acquire()->read()->pool()->nonBlocking()->chunks()',
-        given(
+    yield $prove
+        ->proof('IO::streams()->acquire()->read()->pool()->nonBlocking()->chunks()')
+        ->given(
             $string,
             $string,
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $a, $b, $encoding) {
+        )
+        ->test(static function($assert, $a, $b, $encoding) {
             $tmpA = \tmpfile();
             \fwrite($tmpA, $a);
             $tmpB = \tmpfile();
@@ -356,13 +355,12 @@ return static function() {
                     ->map(static fn($chunk) => $chunk->value()->toString())
                     ->toList(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::streams()->acquire()->close()',
-        given($string),
-        static function($assert, $content) {
+    yield $prove
+        ->proof('IO::streams()->acquire()->close()')
+        ->given($string)
+        ->test(static function($assert, $content) {
             $tmp = \tmpfile();
             \fwrite($tmp, $content);
 
@@ -392,16 +390,15 @@ return static function() {
                     ->sequence()
                     ->toList(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::streams()->acquire()->write()->sink()',
-        given(
+    yield $prove
+        ->proof('IO::streams()->acquire()->write()->sink()')
+        ->given(
             $strings,
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $chunks, $encoding) {
+        )
+        ->test(static function($assert, $chunks, $encoding) {
             $tmp = \tmpfile();
 
             $sideEffect = IO::fromAmbientAuthority()
@@ -426,6 +423,5 @@ return static function() {
                 \implode('', $chunks),
                 \stream_get_contents($tmp),
             );
-        },
-    );
+        });
 };

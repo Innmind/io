@@ -8,6 +8,7 @@ use Innmind\BlackBox\{
     Runner\Load,
     Runner\CodeCoverage,
     PHPUnit,
+    Prove,
 };
 
 Application::new($argv)
@@ -24,12 +25,11 @@ Application::new($argv)
                     __DIR__.'/tests/',
                     __DIR__.'/proofs/',
                 )
-                    ->dumpTo('coverage.clover')
-                    ->enableWhen(true),
+                    ->dumpTo('coverage.clover'),
             ),
     )
-    ->tryToProve(static function() {
+    ->tryToProve(static function(Prove $prove) {
         yield from PHPUnit\Load::testsAt(__DIR__.'/tests/');
-        yield from Load::everythingIn(__DIR__.'/proofs/')();
+        yield from Load::everythingIn(__DIR__.'/proofs/')($prove);
     })
     ->exit();
