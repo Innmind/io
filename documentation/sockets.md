@@ -43,7 +43,7 @@ $server = IO::fromAmbientAuthority()
     ->sockets()
     ->servers()
     ->unix(Address::of(
-        Path::of('/path/to/socket'),
+        Path::file('/path/to/socket'),
     ))
     ->unwrap();
 ```
@@ -63,7 +63,7 @@ $server = IO::fromAmbientAuthority()
     ->sockets()
     ->servers()
     ->takeOver(Address::of(
-        Path::of('/path/to/socket'),
+        Path::file('/path/to/socket'),
     ))
     ->unwrap();
 ```
@@ -144,7 +144,7 @@ $client = IO::fromAmbientAuthority()
     ->sockets()
     ->clients()
     ->unix(Address::of(
-        Path::of('/path/to/socket'),
+        Path::file('/path/to/socket'),
     ))
     ->unwrap();
 ```

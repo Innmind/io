@@ -28,7 +28,7 @@ final class Directory
         Path $path,
     ): self {
         if (!$path->directory()) {
-            $path = Path::of($path->toString().'/');
+            $path = Path::file($path->toString().'/');
         }
 
         return new self($capabilities, $path);

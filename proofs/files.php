@@ -6,6 +6,7 @@ use Innmind\IO\{
     Files\Read,
     Files\Temporary,
     Files\Temporary\Pull,
+    Files\Directory,
 };
 use Innmind\Url\Path;
 use Innmind\Immutable\{
@@ -445,6 +446,24 @@ return static function(Prove $prove) {
                         static fn() => false,
                     ),
             );
+        },
+    );
+
+    yield $prove->test(
+        'IO::files() can read a directory containing a #',
+        static function($assert) {
+            $tmp = \sys_get_temp_dir();
+            @\rmdir($tmp.'/innmind/#/');
+            @\mkdir($tmp.'/innmind/#/', recursive: true);
+
+            $assert
+                ->object(
+                    IO::fromAmbientAuthority()
+                        ->files()
+                        ->access(Path::file($tmp.'/innmind/#'))
+                        ->unwrap(),
+                )
+                ->instance(Directory::class);
         },
     );
 };
