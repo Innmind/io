@@ -234,7 +234,7 @@ final class AmbientAuthority implements Implementation
     private function rmdir(string $path): Attempt
     {
         return $this
-            ->list(Path::of($path))
+            ->list(Path::file($path))
             ->map(static fn($name) => \sprintf(
                 '%s%s%s',
                 $path,
@@ -244,7 +244,7 @@ final class AmbientAuthority implements Implementation
                     default => '',
                 },
             ))
-            ->map(Path::of(...))
+            ->map(Path::file(...))
             ->sink(SideEffect::identity)
             ->attempt(fn($_, $file) => $this->remove($file))
             ->map(static fn() => @\rmdir($path))

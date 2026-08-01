@@ -5,7 +5,12 @@
 ### Changed
 
 - Requires PHP `8.5`
+- Requires `innmind/url:~5.4`
 - Requires `innmind/black-box:~7.0`
+
+### Fixed
+
+- All paths are declared as file paths to allow otherwise restricted `?` and `#`
 
 ## 4.1.1 - 2026-04-09
 

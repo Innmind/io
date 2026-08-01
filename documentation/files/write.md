@@ -11,7 +11,7 @@ use Innmind\Immutable\{
 
 $successful = IO::fromAmbientAuthority()
     ->files()
-    ->write(Path::of('/path/to/file.ext'))
+    ->write(Path::file('/path/to/file.ext'))
     ->sink(Sequence::of(
         Str::of('chunk 1'),
         Str::of("new line \n"),

@@ -12,7 +12,7 @@ use Innmind\Immutable\Str;
 
 $chunks = IO::fromAmbienAuthority()
     ->files()
-    ->read(Path::of('/some/file.ext'))
+    ->read(Path::file('/some/file.ext'))
     ->toEncoding(Str\Encoding::ascii)
     ->chunks(8192); // max length of each chunk
 ```

@@ -12,7 +12,7 @@ use Innmind\Immutable\Str;
 
 $lines = IO::fromAmbienAuthority()
     ->files()
-    ->read(Path::of('/some/file.ext'))
+    ->read(Path::file('/some/file.ext'))
     ->toEncoding(Str\Encoding::ascii)
     ->lines();
 ```

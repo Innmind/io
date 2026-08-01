@@ -9,7 +9,7 @@ use Innmind\Url\Path;
 
 $chunks = IO::fromAmbientAuthority()
     ->files()
-    ->read(Path::of('/path/to/file.ext'))
+    ->read(Path::file('/path/to/file.ext'))
     ->chunks(8192);
 ```
 
@@ -23,7 +23,7 @@ use Innmind\Url\Path;
 
 $chunks = IO::fromAmbientAuthority()
     ->files()
-    ->read(Path::of('/path/to/file.ext'))
+    ->read(Path::file('/path/to/file.ext'))
     ->lines();
 ```
 
@@ -40,7 +40,7 @@ use Innmind\Immutable\Str;
 
 $chunks = IO::fromAmbientAuthority()
     ->files()
-    ->read(Path::of('/path/to/file.ext'))
+    ->read(Path::file('/path/to/file.ext'))
     ->toEncoding(Str\Encoding::ascii)
     ->lines();
 ```

@@ -28,7 +28,7 @@ final class Address
     #[\NoDiscard]
     public function asPath(): Path
     {
-        return Path::of($this->toString());
+        return Path::file($this->toString());
     }
 
     #[\NoDiscard]
