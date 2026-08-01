@@ -454,7 +454,7 @@ return static function(Prove $prove) {
         static function($assert) {
             $tmp = \sys_get_temp_dir();
             @\rmdir($tmp.'/innmind/#/');
-            @\mkdir($tmp.'/innmind/#/');
+            @\mkdir($tmp.'/innmind/#/', recursive: true);
 
             $assert
                 ->object(
