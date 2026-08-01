@@ -12,13 +12,9 @@ use Innmind\BlackBox\{
 };
 
 Application::new($argv)
-    ->when(
-        \getenv('BLACKBOX_SET_SIZE') !== false,
-        static fn(Application $app) => $app->scenariiPerProof((int) \getenv('BLACKBOX_SET_SIZE')),
-    )
-    ->when(
-        \getenv('ENABLE_COVERAGE') !== false,
-        static fn(Application $app) => $app
+    ->map(static fn($app) => match (\getenv('BLACKBOX_ENV')) {
+        'extensive' => $app->scenariiPerProof(1_000),
+        'coverage' => $app
             ->codeCoverage(
                 CodeCoverage::of(
                     __DIR__.'/src/',
@@ -27,7 +23,8 @@ Application::new($argv)
                 )
                     ->dumpTo('coverage.clover'),
             ),
-    )
+        default => $app,
+    })
     ->tryToProve(static function(Prove $prove) {
         yield from PHPUnit\Load::testsAt(__DIR__.'/tests/');
         yield from Load::everythingIn(__DIR__.'/proofs/')($prove);
