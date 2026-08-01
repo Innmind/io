@@ -14,9 +14,12 @@ use Innmind\Immutable\{
     Sequence,
     Predicate,
 };
-use Innmind\BlackBox\Set;
+use Innmind\BlackBox\{
+    Set,
+    Prove,
+};
 
-return static function() {
+return static function(Prove $prove) {
     $reader = static function(Str $data) {
         $tmp = \tmpfile();
         \fwrite($tmp, $data->toString());
@@ -28,15 +31,15 @@ return static function() {
         );
     };
 
-    yield proof(
-        'Frame::just()',
-        given(
+    yield $prove
+        ->proof('Frame::just()')
+        ->given(
             Set::type(),
             Set::strings()
                 ->unicode()
                 ->map(Str::of(...)),
-        ),
-        static function($assert, $value, $read) use ($reader) {
+        )
+        ->test(static function($assert, $value, $read) use ($reader) {
             $frame = Frame::just($value);
 
             $assert->same(
@@ -46,18 +49,17 @@ return static function() {
                     static fn() => null,
                 ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::maybe()',
-        given(
+    yield $prove
+        ->proof('Frame::maybe()')
+        ->given(
             Set::type(),
             Set::strings()
                 ->unicode()
                 ->map(Str::of(...)),
-        ),
-        static function($assert, $value, $read) use ($reader) {
+        )
+        ->test(static function($assert, $value, $read) use ($reader) {
             $frame = Frame::maybe(Maybe::just($value));
 
             $assert->same(
@@ -67,17 +69,16 @@ return static function() {
                     static fn() => null,
                 ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::maybe() nothing',
-        given(
+    yield $prove
+        ->proof('Frame::maybe() nothing')
+        ->given(
             Set::strings()
                 ->unicode()
                 ->map(Str::of(...)),
-        ),
-        static function($assert, $read) use ($reader) {
+        )
+        ->test(static function($assert, $read) use ($reader) {
             $frame = Frame::maybe(Maybe::nothing());
 
             $assert->null(
@@ -86,18 +87,17 @@ return static function() {
                     static fn() => null,
                 ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::chunk()',
-        given(
+    yield $prove
+        ->proof('Frame::chunk()')
+        ->given(
             Set::strings()
                 ->unicode()
                 ->map(Str::of(...))
                 ->map(static fn($str) => $str->toEncoding(Str\Encoding::ascii)),
-        ),
-        static function($assert, $string) use ($reader) {
+        )
+        ->test(static function($assert, $string) use ($reader) {
             $size = $string->length();
             $frame = Frame::chunk($size)->loose();
 
@@ -108,18 +108,17 @@ return static function() {
                     static fn() => null,
                 ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::line()',
-        given(
+    yield $prove
+        ->proof('Frame::line()')
+        ->given(
             Set::strings()
                 ->unicode()
                 ->filter(static fn($string) => !\str_contains($string, "\n"))
                 ->map(Str::of(...)),
-        ),
-        static function($assert, $string) use ($reader) {
+        )
+        ->test(static function($assert, $string) use ($reader) {
             $frame = Frame::line();
 
             $assert->same(
@@ -129,18 +128,17 @@ return static function() {
                     static fn() => null,
                 ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::sequence()',
-        given(Set::sequence(
+    yield $prove
+        ->proof('Frame::sequence()')
+        ->given(Set::sequence(
             Set::strings()
                 ->unicode()
                 ->atLeast(1)
                 ->filter(static fn($string) => !\str_contains($string, "\n")),
-        )),
-        static function($assert, $lines) use ($reader) {
+        ))
+        ->test(static function($assert, $lines) use ($reader) {
             $frame = Frame::sequence(Frame::line());
             $data = \implode("\n", $lines);
 
@@ -169,18 +167,17 @@ return static function() {
                     ->map(static fn($line) => $line->rightTrim("\n")->toString())
                     ->toList(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::filter()',
-        given(
+    yield $prove
+        ->proof('Frame::filter()')
+        ->given(
             Set::strings()
                 ->unicode()
                 ->map(Str::of(...))
                 ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
-        ),
-        static function($assert, $string) use ($reader) {
+        )
+        ->test(static function($assert, $string) use ($reader) {
             $frame = Frame::chunk($string->length())->strict();
 
             $assert->same(
@@ -200,18 +197,17 @@ return static function() {
                         static fn() => null,
                     ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::keep()',
-        given(
+    yield $prove
+        ->proof('Frame::keep()')
+        ->given(
             Set::strings()
                 ->unicode()
                 ->map(Str::of(...))
                 ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
-        ),
-        static function($assert, $string) use ($reader) {
+        )
+        ->test(static function($assert, $string) use ($reader) {
             $frame = Frame::chunk($string->length())->strict();
 
             $assert->same(
@@ -231,12 +227,11 @@ return static function() {
                         static fn() => null,
                     ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::buffer()',
-        given(
+    yield $prove
+        ->proof('Frame::buffer()')
+        ->given(
             Set::strings()
                 ->unicode()
                 ->atLeast(1)
@@ -247,8 +242,8 @@ return static function() {
                 ->map(Str::of(...))
                 ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
             Set::integers()->between(1, 100),
-        ),
-        static function($assert, $a, $b, $size) use ($reader) {
+        )
+        ->test(static function($assert, $a, $b, $size) use ($reader) {
             $frame = Frame::buffer(
                 $a->length(),
                 Frame::chunk($size)->loose(),
@@ -266,19 +261,18 @@ return static function() {
                         static fn() => null,
                     ),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::buffer() fails when not used with a fixed size frame',
-        given(
+    yield $prove
+        ->proof('Frame::buffer() fails when not used with a fixed size frame')
+        ->given(
             Set::strings()
                 ->unicode()
                 ->atLeast(1)
                 ->map(Str::of(...))
                 ->map(static fn($string) => $string->toEncoding(Str\Encoding::ascii)),
-        ),
-        static function($assert, $a) use ($reader) {
+        )
+        ->test(static function($assert, $a) use ($reader) {
             $frame = Frame::buffer(
                 $a->length(),
                 Frame::line(),
@@ -287,15 +281,14 @@ return static function() {
             $assert->throws(
                 static fn() => $frame($reader($a)),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'Frame::compose()',
-        given(
+    yield $prove
+        ->proof('Frame::compose()')
+        ->given(
             Set::sequence(Set::strings())->atLeast(1),
-        ),
-        static function($assert, $chunks) use ($reader) {
+        )
+        ->test(static function($assert, $chunks) use ($reader) {
             $frame = Frame::compose(
                 static fn(...$chunks) => $chunks,
                 ...\array_map(
@@ -314,6 +307,5 @@ return static function() {
                     static fn($e) => $e,
                 ),
             );
-        },
-    );
+        });
 };

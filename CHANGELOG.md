@@ -1,5 +1,12 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Requires PHP `8.5`
+- Requires `innmind/black-box:~7.0`
+
 ## 4.1.1 - 2026-04-09
 
 ### Fixed

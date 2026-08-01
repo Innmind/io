@@ -14,9 +14,12 @@ use Innmind\Immutable\{
     Monoid\Concat,
     SideEffect,
 };
-use Innmind\BlackBox\Set;
+use Innmind\BlackBox\{
+    Set,
+    Prove,
+};
 
-return static function() {
+return static function(Prove $prove) {
     // Here we make sure to only use characters that are "reversible". Writing
     // and then reading should return the exact same character.
     $string = Set::strings()->madeOf(
@@ -34,13 +37,13 @@ return static function() {
         Set::sequence($string)->between(0, 20),
     );
 
-    yield proof(
-        'IO::files()->read()->chunks()',
-        given(
+    yield $prove
+        ->proof('IO::files()->read()->chunks()')
+        ->given(
             $strings,
             Set::integers()->between(1, 100),
-        ),
-        static function($assert, $chunks, $size) {
+        )
+        ->test(static function($assert, $chunks, $size) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
             $data = \implode('', $chunks);
             \file_put_contents($tmp, $data);
@@ -75,17 +78,16 @@ return static function() {
                     ->fold(Concat::monoid)
                     ->toString(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->read()->toEncoding()->chunks()',
-        given(
+    yield $prove
+        ->proof('IO::files()->read()->toEncoding()->chunks()')
+        ->given(
             $strings,
             Set::integers()->between(1, 100),
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $chunks, $size, $encoding) {
+        )
+        ->test(static function($assert, $chunks, $size, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
             $data = \implode('', $chunks);
             \file_put_contents($tmp, $data);
@@ -99,12 +101,11 @@ return static function() {
                     $encoding,
                     $chunk->encoding(),
                 ));
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->read()->lines()',
-        given(
+    yield $prove
+        ->proof('IO::files()->read()->lines()')
+        ->given(
             Set::either(
                 Set::sequence($string->between(0, 20)->filter(
                     static fn($line) => !\str_contains($line, "\n"),
@@ -113,8 +114,8 @@ return static function() {
                     static fn($line) => !\str_contains($line, "\n"),
                 ))->between(0, 20),
             ),
-        ),
-        static function($assert, $lines) {
+        )
+        ->test(static function($assert, $lines) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
             $data = \implode("\n", $lines);
             \file_put_contents($tmp, $data);
@@ -161,16 +162,15 @@ return static function() {
                     ->map(static fn($line) => $line->toString())
                     ->toList(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->read()->toEncoding()->lines()',
-        given(
+    yield $prove
+        ->proof('IO::files()->read()->toEncoding()->lines()')
+        ->given(
             $strings,
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $lines, $encoding) {
+        )
+        ->test(static function($assert, $lines, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
             $data = \implode("\n", $lines);
             \file_put_contents($tmp, $data);
@@ -184,13 +184,12 @@ return static function() {
                     $encoding,
                     $line->encoding(),
                 ));
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->read()->size()',
-        given($strings),
-        static function($assert, $chunks) {
+    yield $prove
+        ->proof('IO::files()->read()->size()')
+        ->given($strings)
+        ->test(static function($assert, $chunks) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
             $data = \implode('', $chunks);
             \file_put_contents($tmp, $data);
@@ -208,16 +207,15 @@ return static function() {
                 ->number($size)
                 ->int();
             $assert->same(\strlen($data), $size);
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->write()->sink()',
-        given(
+    yield $prove
+        ->proof('IO::files()->write()->sink()')
+        ->given(
             $strings,
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $chunks, $encoding) {
+        )
+        ->test(static function($assert, $chunks, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
 
             $sideEffect = IO::fromAmbientAuthority()
@@ -240,16 +238,15 @@ return static function() {
                 \implode('', $chunks),
                 \file_get_contents($tmp),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->write()->watch()->sink()',
-        given(
+    yield $prove
+        ->proof('IO::files()->write()->watch()->sink()')
+        ->given(
             $strings,
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $chunks, $encoding) {
+        )
+        ->test(static function($assert, $chunks, $encoding) {
             $tmp = \tempnam(\sys_get_temp_dir(), 'innmind/io');
 
             $sideEffect = IO::fromAmbientAuthority()
@@ -273,13 +270,12 @@ return static function() {
                 \implode('', $chunks),
                 \file_get_contents($tmp),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->temporary()->read()',
-        given($strings),
-        static function($assert, $chunks) {
+    yield $prove
+        ->proof('IO::files()->temporary()->read()')
+        ->given($strings)
+        ->test(static function($assert, $chunks) {
             $read = IO::fromAmbientAuthority()
                 ->files()
                 ->temporary(Sequence::of(...$chunks)->map(Str::of(...)))
@@ -309,17 +305,16 @@ return static function() {
                     ->toString(),
                 'Temporary file should be accessible multiple times',
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->temporary()->pull()',
-        given(
+    yield $prove
+        ->proof('IO::files()->temporary()->pull()')
+        ->given(
             $strings,
             Set::integers()->between(1, 100),
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $chunks, $size, $encoding) {
+        )
+        ->test(static function($assert, $chunks, $size, $encoding) {
             $pull = IO::fromAmbientAuthority()
                 ->files()
                 ->temporary(Sequence::of(...$chunks)->map(Str::of(...)))
@@ -349,16 +344,15 @@ return static function() {
                 $expected,
                 $read,
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->temporary()->push()',
-        given(
+    yield $prove
+        ->proof('IO::files()->temporary()->push()')
+        ->given(
             $strings,
             Set::of(...Str\Encoding::cases()),
-        ),
-        static function($assert, $chunks, $encoding) {
+        )
+        ->test(static function($assert, $chunks, $encoding) {
             $tmp = IO::fromAmbientAuthority()
                 ->files()
                 ->temporary(Sequence::of())
@@ -389,13 +383,12 @@ return static function() {
                     ->fold(Concat::monoid)
                     ->toString(),
             );
-        },
-    );
+        });
 
-    yield proof(
-        'IO::files()->temporary()->close()',
-        given($strings),
-        static function($assert, $chunks) {
+    yield $prove
+        ->proof('IO::files()->temporary()->close()')
+        ->given($strings)
+        ->test(static function($assert, $chunks) {
             $tmp = IO::fromAmbientAuthority()
                 ->files()
                 ->temporary(Sequence::of(...$chunks)->map(Str::of(...)))
@@ -428,10 +421,9 @@ return static function() {
                     static fn() => null,
                 ),
             );
-        },
-    );
+        });
 
-    yield test(
+    yield $prove->test(
         'IO::files()->require()',
         static function($assert) {
             $assert->same(

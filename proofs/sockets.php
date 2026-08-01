@@ -12,9 +12,10 @@ use Innmind\Immutable\{
     Sequence,
     Str,
 };
+use Innmind\BlackBox\Prove;
 
-return static function() {
-    yield test(
+return static function(Prove $prove) {
+    yield $prove->test(
         'IO::fromAmbientAuthority()->sockets()->pair()',
         static function($assert) {
             [$parent, $child] = IO::fromAmbientAuthority()
@@ -50,7 +51,7 @@ return static function() {
         },
     );
 
-    yield test(
+    yield $prove->test(
         'Socket client poll',
         static function($assert) {
             @\unlink('/tmp/foo.sock');
