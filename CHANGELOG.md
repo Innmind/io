@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+
+- Verify if paths are links before there are directories (as a link can represent a directory)
+
 ## 4.1.2 - 2026-08-01
 
 ### Changed
