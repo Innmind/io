@@ -87,8 +87,8 @@ final class AmbientAuthority implements Implementation
                 yield Name::of(
                     $name,
                     match (true) {
-                        $file->isDir() => Kind::directory,
                         $file->isLink() => Kind::link,
+                        $file->isDir() => Kind::directory,
                         default => Kind::file,
                     },
                 );
@@ -117,8 +117,8 @@ final class AmbientAuthority implements Implementation
         }
 
         return Attempt::result(match (true) {
-            \is_dir($path) => Kind::directory,
             \is_link($path) => Kind::link,
+            \is_dir($path) => Kind::directory,
             default => Kind::file,
         });
     }
@@ -150,6 +150,10 @@ final class AmbientAuthority implements Implementation
     {
         if (!\file_exists($path->toString())) {
             return Attempt::result(SideEffect::identity);
+        }
+
+        if (\is_link($path->toString())) {
+            return $this->unlink($path->toString());
         }
 
         if ($path->directory() && \is_dir($path->toString())) {
