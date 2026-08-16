@@ -39,27 +39,15 @@ final class Clients
             $transport->toString(),
             $authority->toString(),
         );
-        $socket = @\stream_socket_client($address);
+        $socket = @\stream_socket_client(
+            $address,
+            context: $transport->asContext(),
+        );
 
         if ($socket === false) {
             /** @var Attempt<Stream> */
             return Attempt::error(new RuntimeException("Failed to open socket at '$address'"));
         }
-
-        /**
-         * @psalm-suppress MissingClosureReturnType
-         * @var resource
-         */
-        $socket = $transport
-            ->options()
-            ->reduce(
-                $socket,
-                static function($socket, string $key, int|bool|float|string|array $value) use ($transport) {
-                    \stream_context_set_option($socket, $transport->toString(), $key, $value);
-
-                    return $socket;
-                },
-            );
 
         return Attempt::result(Stream::of($socket));
     }

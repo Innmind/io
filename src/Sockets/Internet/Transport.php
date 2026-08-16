@@ -99,4 +99,25 @@ final class Transport
     {
         return $this->transport;
     }
+
+    /**
+     * @internal
+     *
+     * @return resource
+     */
+    #[\NoDiscard]
+    public function asContext()
+    {
+        $options = \array_merge(
+            ...$this
+                ->options
+                ->map(static fn($key, $value) => [$key => $value])
+                ->values()
+                ->toList(),
+        );
+
+        return \stream_context_create([
+            $this->transport => $options,
+        ]);
+    }
 }
