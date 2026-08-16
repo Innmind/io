@@ -49,7 +49,10 @@ final class Servers
             $ip->toString(),
             $port->toString(),
         );
-        $socket = @\stream_socket_server($address);
+        $socket = @\stream_socket_server(
+            $address,
+            context: $transport->asContext(),
+        );
 
         if ($socket === false) {
             /** @var Attempt<Server> */
