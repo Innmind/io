@@ -152,6 +152,10 @@ final class AmbientAuthority implements Implementation
             return Attempt::result(SideEffect::identity);
         }
 
+        if (\is_link($path->toString())) {
+            return $this->unlink($path->toString());
+        }
+
         if ($path->directory() && \is_dir($path->toString())) {
             return $this->rmdir($path->toString());
         }

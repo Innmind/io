@@ -6,6 +6,10 @@
 
 - Verify if paths are links before there are directories (as a link can represent a directory)
 
+### Fixed
+
+- Deleting a link pointing to a directory now delete the link instead of the directory content
+
 ## 4.1.2 - 2026-08-01
 
 ### Changed
