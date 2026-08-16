@@ -148,12 +148,12 @@ final class AmbientAuthority implements Implementation
     #[\Override]
     public function remove(Path $path): Attempt
     {
-        if (!\file_exists($path->toString())) {
-            return Attempt::result(SideEffect::identity);
-        }
-
         if (\is_link($path->toString())) {
             return $this->unlink($path->toString());
+        }
+
+        if (!\file_exists($path->toString())) {
+            return Attempt::result(SideEffect::identity);
         }
 
         if ($path->directory() && \is_dir($path->toString())) {
