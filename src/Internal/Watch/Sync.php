@@ -237,8 +237,18 @@ final class Sync
      */
     private static function timeout(Period $timeout): array
     {
+        $minute = 60;
+        $hour = 60* $minute;
+        $day = 24 * $hour;
+        $year = 365 * $day;
+
         $seconds = $timeout->seconds();
         $microseconds = ($timeout->milliseconds() * 1_000) + $timeout->microseconds();
+
+        $seconds += $timeout->minutes() * $minute;
+        $seconds += $timeout->hours() * $hour;
+        $seconds += $timeout->days() * $day;
+        $seconds += $timeout->years() * $year;
 
         return [$seconds, $microseconds];
     }
