@@ -12,6 +12,7 @@
 - Flagging a stream as blocking was set as non-blocking
 - Timeout periods above the minute were not taking into account
 - Socket client options are applied when connecting, not after
+- Broken links couldn't be removed
 
 ## 4.1.2 - 2026-08-01
 
