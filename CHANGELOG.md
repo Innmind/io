@@ -13,6 +13,7 @@
 - Timeout periods above the minute were not taking into account
 - Socket client options are applied when connecting, not after
 - Broken links couldn't be removed
+- Transport options were not applied when starting a internet server
 
 ## 4.1.2 - 2026-08-01
 
