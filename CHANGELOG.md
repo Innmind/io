@@ -11,6 +11,7 @@
 - Deleting a link pointing to a directory now delete the link instead of the directory content
 - Flagging a stream as blocking was set as non-blocking
 - Timeout periods above the minute were not taking into account
+- Socket client options are applied when connecting, not after
 
 ## 4.1.2 - 2026-08-01
 
