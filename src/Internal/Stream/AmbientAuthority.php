@@ -122,7 +122,7 @@ final class AmbientAuthority implements Implementation
             return Maybe::nothing();
         }
 
-        $return = \stream_set_blocking($this->resource, false);
+        $return = \stream_set_blocking($this->resource, true);
 
         if ($return === false) {
             /** @var Maybe<SideEffect> */
