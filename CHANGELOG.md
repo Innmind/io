@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+### Deprecated
+
+- `Innmind\IO\IO::async()`
+
 ## 4.1.3 - 2026-08-16
 
 ### Changed

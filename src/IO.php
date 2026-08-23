@@ -23,6 +23,7 @@ final class IO
      * This is an internal feature for the innmind/async package.
      *
      * @internal
+     * @deprecated
      */
     #[\NoDiscard]
     public static function async(self $io, Clock $clock): self
