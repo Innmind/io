@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+### Added
+
+- Internal `Innmind\IO\IO::asAsync()`
+
 ### Deprecated
 
 - `Innmind\IO\IO::async()`

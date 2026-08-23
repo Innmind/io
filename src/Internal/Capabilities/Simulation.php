@@ -7,6 +7,7 @@ use Innmind\IO\{
     Internal\Watch,
     Simulation\Disk,
 };
+use Innmind\Time\Clock;
 
 /**
  * @internal
@@ -25,6 +26,15 @@ final class Simulation implements Implementation
     public static function of(Implementation $capabilities, Disk $disk): self
     {
         return new self($capabilities, $disk);
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    #[\Override]
+    public function asAsync(Clock $clock): Implementation
+    {
+        return Async::of($this, $clock);
     }
 
     #[\Override]

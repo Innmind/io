@@ -11,6 +11,9 @@ use Innmind\Time\Clock;
  */
 final class Async implements Implementation
 {
+    /**
+     * @psalm-mutation-free
+     */
     private function __construct(
         private Implementation $capabilities,
         private Clock $clock,
@@ -19,10 +22,23 @@ final class Async implements Implementation
 
     /**
      * @internal
+     * @psalm-pure
      */
     public static function of(Implementation $capabilities, Clock $clock): self
     {
         return new self($capabilities, $clock);
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    #[\Override]
+    public function asAsync(Clock $clock): self
+    {
+        return new self(
+            $this->capabilities,
+            $clock,
+        );
     }
 
     #[\Override]

@@ -52,6 +52,15 @@ final class Capabilities
         ));
     }
 
+    /**
+     * @psalm-mutation-free
+     */
+    #[\NoDiscard]
+    public function asAsync(Clock $clock): self
+    {
+        return new self($this->implementation->asAsync($clock));
+    }
+
     public function files(): Capabilities\Files
     {
         return $this->implementation->files();

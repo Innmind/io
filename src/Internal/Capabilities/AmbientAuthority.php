@@ -4,6 +4,7 @@ declare(strict_types = 1);
 namespace Innmind\IO\Internal\Capabilities;
 
 use Innmind\IO\Internal\Watch;
+use Innmind\Time\Clock;
 
 /**
  * @internal
@@ -20,6 +21,15 @@ final class AmbientAuthority implements Implementation
     public static function of(): self
     {
         return new self;
+    }
+
+    /**
+     * @psalm-mutation-free
+     */
+    #[\Override]
+    public function asAsync(Clock $clock): Implementation
+    {
+        return Async::of($this, $clock);
     }
 
     #[\Override]

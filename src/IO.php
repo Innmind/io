@@ -28,10 +28,7 @@ final class IO
     #[\NoDiscard]
     public static function async(self $io, Clock $clock): self
     {
-        return new self(Capabilities::async(
-            $io->capabilities,
-            $clock,
-        ));
+        return $io->asAsync($clock);
     }
 
     /**
@@ -66,5 +63,15 @@ final class IO
     public function sockets(): Sockets
     {
         return Sockets::of($this->capabilities);
+    }
+
+    /**
+     * @internal
+     * @psalm-mutation-free
+     */
+    #[\NoDiscard]
+    public function asAsync(Clock $clock): self
+    {
+        return new self($this->capabilities->asAsync($clock));
     }
 }
